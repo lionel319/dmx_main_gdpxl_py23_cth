@@ -1,0 +1,89 @@
+{
+    "IC": { "##": "ICManage Related Errors",
+        "PR": { "##": "ICM-PROJECT related errors",
+            "01": "ICM-PROJECT does not exist."
+        },
+        "VR": { "##": "ICM-VARIANT related errors",
+            "01": "ICM-VARIANT does not exist."
+        },
+        "LT": { "##": "ICM-LIBTYPE related errors",
+            "01": "ICM-LIBTYPE does not exist."
+        },
+        "LB": { "##": "ICM-LIBRARY related errors",
+            "01": "ICM-LIBRARY does not exist."
+        },
+        "CF": { "##": "ICM-CONFIG related errors",
+            "01": "ICM-CONFIG does not exist.",
+            "02": "Incorrect format for REL/PREL config."
+        },
+        "LC": { "##": "ICM-LICENSE related errors",
+            "01": "User does not have ICM-LICENSE."
+        },
+        "WS": { "##": "ICM-WORKSPACE related errors",
+            "01": "Path is not an ICM-WORKSPACE.",
+            "02": "DMX_WORKSPACE environment variable not defined.",
+            "03": "Ecoshpere: Workspace Object Error.",
+            "04": "Can not create workspace on a non-approved disk.",
+            "05": "Path to workspace already occupied.",
+            "06": "Path to create workspace is not writable."
+        },
+        "EV": { "##": "icmanage Environment related errors",
+            "01": "P4PORT env var not defined."
+        }
+    },
+    "CF": { "##": "Compute/Farm Related Errors",
+        "AR": { "##": "ARC related errors",
+            "01": "ARC server not responding.",
+            "02": "Error Submitting Job.",
+            "03": "Failed getting job status."
+        },
+        "DS": { "##": "Disk related errors",
+            "01": "Disk space full."
+        },
+        "PM": { "##": "Permission related errors",
+            "01": "User does not have linux group.",
+            "02": "User does not have icm-group."
+        },
+        "HS": { "##": "Host related errors",
+            "01": "Could not find available host.",
+            "02": "Could not get list of hosts."
+        },
+        "FL": { "##": "File related errors",
+            "01": "Could not read file.",
+            "02": "File is not writable.",
+            "03": "File already exists."
+        },
+        "DR": { "##": "Directory related errors",
+            "01": "Directory not accessible.",
+            "02": "Directory not writable."
+        },
+        "EV": { "##": "Environment related errors",
+            "01": "Invalid Tool Path.",
+            "02": "Invalid User"
+        }
+    },
+    "RM": { "##": "Roadmap Related Errors",
+        "RX": { "##": "Roadmap Regexp related errors",
+            "01": "Invalid Roadmap Regex syntax."
+        },
+        "RM": { "##": "Roadmap Roadmap related errors",
+            "01": "Invalid Roadmap Roadmap."
+        },
+        "TH": { "##": "Roadmap Thread related errors",
+            "01": "Invalid Roadmap Thread."
+        },
+        "FM": { "##": "Roadmap Family related errors",
+            "01": "Invalid Roadmap Family Name."
+        }
+    },
+    "TR": { "##": "TestAndRelease Related Errors",
+        "WV": { "##": "Waiver related errors",
+            "01": "No waiver data found.",
+            "02": "Invalid approval found.",
+            "03": "Waiver already exists.",
+            "04": "Invalid waiver data."
+        }
+    }
+}
+
+

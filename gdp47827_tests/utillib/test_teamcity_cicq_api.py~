@@ -1,0 +1,190 @@
+#!/usr/bin/env python
+# 2014 Altera Corporation. All rights reserved. This source code is highly
+# confidential and proprietary information of Altera and is to be used for
+# internal Altera purposes only.   Altera assumes no responsibility or
+# liability arising out of the application or use of this source code for
+# non-Altera purposes.
+#
+# Tests the abnr releaselib plugin
+#
+# $File: //depot/da/infra/dmx/main_gdpxl_py23_cth/gdp47827_tests/utillib/test_teamcity_cicq_api.py $
+# $Revision: #1 $
+# $Change: 7411538 $
+# $DateTime: 2022/12/13 18:19:49 $
+# $Author: lionelta $
+
+import os
+import sys
+import unittest
+import logging
+from mock import patch
+
+LIB = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))), 'lib', 'python')
+sys.path.insert(0, LIB)
+
+import dmx.utillib.teamcity_cicq_api
+
+
+class TestTeamcityCicqApi(unittest.TestCase):
+    
+    def setUp(self):
+        self.project = 'i10socfm'
+        self.ip = 'liotestfc1'
+        self.thread = 'abc_123'
+        self.tc = dmx.utillib.teamcity_cicq_api.TeamcityCicqApi('i10socfm', 'liotestfc1', 'abc_123', dryrun=True)
+
+        self.project2 = 'i10socfm'
+        self.ip2 = 'liotestfc1'
+        self.thread2 = 'test3'
+        self.tc2 = dmx.utillib.teamcity_cicq_api.TeamcityCicqApi(self.project2, self.ip2, self.thread2, dryrun=True)
+
+    def tearDown(self):
+        pass
+
+    def test_001___get_parent_project_name(self):
+        a = dmx.utillib.teamcity_cicq_api.TeamcityCicqApi('i10socfm', 'liotestfc1', 'abc_123', dryrun=True)
+        self.assertEqual(a.parentProjectName, 'Production')
+
+    def test_002___get_parent_project_id(self):
+        a = dmx.utillib.teamcity_cicq_api.TeamcityCicqApi('i10socfm', 'liotestfc1', 'abc_123', dryrun=True)
+        self.assertEqual(a.parentProjectId, 'PsgCicq___Production')
+
+    def test_003___get_project_id(self):
+        a = dmx.utillib.teamcity_cicq_api.TeamcityCicqApi('i10socfm', 'liotestfc1', 'abc_123', dryrun=True)
+        self.assertEqual(a.projectId, 'PsgCicq___i10socfm')
+
+    def test_005a___get_buildtype_name___with_underscore(self):
+        a = dmx.utillib.teamcity_cicq_api.TeamcityCicqApi('i10socfm', 'liotestfc1', 'abc_123_xxx', dryrun=True)
+        self.assertEqual(a.buildtypeName, 'i10socfm.liotestfc1.abc_123_xxx')
+
+    def test_005b___get_buildtype_name___with_dots(self):
+        a = dmx.utillib.teamcity_cicq_api.TeamcityCicqApi('i10socfm', 'liotestfc1', 'abc.123.xxx', dryrun=True)
+        self.assertEqual(a.buildtypeName, 'i10socfm.liotestfc1.abc.123.xxx')
+
+    def test_005c___get_buildtype_name___with_dots_and_underscore(self):
+        a = dmx.utillib.teamcity_cicq_api.TeamcityCicqApi('i10socfm', 'liotestfc1', 'ab.c1_23.xx_x', dryrun=True)
+        self.assertEqual(a.buildtypeName, 'i10socfm.liotestfc1.ab.c1_23.xx_x')
+
+    def test_006a___get_buildtype_id___with_underscore(self):
+        a = dmx.utillib.teamcity_cicq_api.TeamcityCicqApi('i10socfm', 'liotestfc1', 'abc_123_xxx', dryrun=True)
+        self.assertEqual(a.buildtypeId, 'PsgCicq___i10socfm___liotestfc1___abc_123_xxx')
+
+    def test_006b___get_buildtype_id___with_dots(self):
+        a = dmx.utillib.teamcity_cicq_api.TeamcityCicqApi('i10socfm', 'liotestfc1', 'abc.123.xxx', dryrun=True)
+        self.assertEqual(a.buildtypeId, 'PsgCicq___i10socfm___liotestfc1___abc_DoT_123_DoT_xxx')
+
+    def test_006c___get_buildtype_id___with_dots_and_underscore(self):
+        a = dmx.utillib.teamcity_cicq_api.TeamcityCicqApi('i10socfm', 'liotestfc1', 'ab.c1_23.xx_x', dryrun=True)
+        self.assertEqual(a.buildtypeId, 'PsgCicq___i10socfm___liotestfc1___ab_DoT_c1_23_DoT_xx_x')
+
+    def test_100___replace_dots_to_teamcity_compliant(self):
+        self.assertEqual(self.tc.replace_dots_to_teamcity_compliant('RC1.0__ww12.3'), 'RC1_DoT_0__ww12_DoT_3')
+
+    def test_101___reverse_replace_dots_to_teamcity_compliant(self):
+        self.assertEqual(self.tc.reverse_replace_dots_to_teamcity_compliant('RC1_DoT_0__ww12_DoT_3'), 'RC1.0__ww12.3')
+
+    def test_110___get_all_projects_id(self):
+        tc = dmx.utillib.teamcity_cicq_api.TeamcityCicqApi('i10socfm', 'liotestfc1', 'abc_123', dryrun=False)
+        retlist = tc.get_all_projects_id()
+        self.assertIn('PsgCicq___i10socfm', retlist)
+        self.assertIn('PsgCicq___rnr', retlist)
+        self.assertIn('PsgCicq___gdr', retlist)
+
+    def test_120___get_all_buildtypes_id(self):
+        tc = dmx.utillib.teamcity_cicq_api.TeamcityCicqApi('i10socfm', 'liotestfc1', 'abc_123', dryrun=False)
+        retlist = tc.get_all_buildtypes_id()
+        self.assertIn('PsgCicq___i10socfm___liotestfc1___test3', retlist)
+        self.assertIn('PsgCicq___i10socfm___liotestfc1___TestRun', retlist)
+
+    def test_130___get_all_threads_name___teamcity_compliant_True(self):
+        tc = dmx.utillib.teamcity_cicq_api.TeamcityCicqApi('i10socfm', 'liotestfc1', 'abc_123', dryrun=False)
+        retlist = tc.get_all_threads_name(teamcity_compliant=True)
+        self.assertIn('test3', retlist)
+        self.assertIn('TestRun', retlist)
+    
+    def test_130___get_all_threads_name___teamcity_compliant_False(self):
+        tc = dmx.utillib.teamcity_cicq_api.TeamcityCicqApi('i10socfm', 'liotestfc1', 'abc_123', dryrun=False)
+        retlist = tc.get_all_threads_name(teamcity_compliant=False)
+        self.assertIn('test3', retlist)
+        self.assertIn('TestRun', retlist)
+
+    def test_140___decompose_buildtype_id___btid_none(self):
+        tc = dmx.utillib.teamcity_cicq_api.TeamcityCicqApi('i10socfm', 'liotestfc1', 'abc_123', dryrun=False)
+        retlist = tc.decompose_buildtype_id()
+        self.assertEqual(['PsgCicq', 'i10socfm', 'liotestfc1', 'abc_123'], retlist)
+
+    def test_140___decompose_buildtype_id___btid_provided(self):
+        tc = dmx.utillib.teamcity_cicq_api.TeamcityCicqApi('i10socfm', 'liotestfc1', 'abc_123', dryrun=False)
+        btid = 'PsgCicq___gdr___z1577a___MS1_DoT_0_RC_revB0'
+        retlist = tc.decompose_buildtype_id(btid)
+        self.assertEqual(['PsgCicq', 'gdr', 'z1577a', 'MS1.0_RC_revB0'], retlist)
+
+    def test_150___get_parameter(self):
+        tc = dmx.utillib.teamcity_cicq_api.TeamcityCicqApi('i10socfm', 'liotestfc1', 'test3', dryrun=False)
+        ret = tc.get_parameter("OWNER")
+        self.assertEqual(ret, 'lionelta')
+
+    def test_160___get_triggers(self):
+        tc = dmx.utillib.teamcity_cicq_api.TeamcityCicqApi('i10socfm', 'liotestfc1', 'test3', dryrun=False)
+        ret = tc.get_triggers()
+        '''
+        stdout:{"count":1,"trigger":[{"id":"TRIGGER_362","type":"schedulingTrigger","properties":{"count":16,"property":[{"name":"cronExpression_dm","value":"*"},{"name":"cronExpression_dw","value":"?"},{"name":"cronExpression_hour","value":"*"},{"name":"cronExpression_min","value":"0"},{"name":"cronExpression_month","value":"*"},{"name":"cronExpression_sec","value":"0"},{"name":"cronExpression_year","value":"*"},{"name":"dayOfWeek","value":"Sunday"},{"name":"enableQueueOptimization","value":"true"},{"name":"hour","value":"12"},{"name":"minute","value":"0"},{"name":"promoteWatchedBuild","value":"true"},{"name":"revisionRule","value":"lastFinished"},{"name":"revisionRuleBuildBranch","value":"<default>"},{"name":"schedulingPolicy","value":"daily"},{"name":"timezone","value":"SERVER"}]}}]}
+        '''        
+        self.assertIn('"count":1', ret)
+
+    def test_170___get_refbom(self):
+        tc = dmx.utillib.teamcity_cicq_api.TeamcityCicqApi('i10socfm', 'liotestfc1', 'test3', dryrun=False)
+        ret = tc.get_refbom()
+        self.assertEqual(ret, 'landing_zone_test2')
+    
+    def test_180___get_centralize_workdir(self):
+        tc = dmx.utillib.teamcity_cicq_api.TeamcityCicqApi('i10socfm', 'liotestfc1', 'test3', dryrun=False)
+        ret = tc.get_centralize_workdir()
+        self.assertEqual(ret, '/nfs/site/disks/psg_cicq_1/users/cicq/i10socfm.liotestfc1.test3')
+   
+    ##############################################################################################################
+    ### This buildid will get periodically garbage collected by teamcity.
+    ### Thus, we need to keep update this buildid to the latest whenever those tests fail.
+    ### 21922065
+    ##############################################################################################################
+
+    @patch('dmx.utillib.teamcity_base_api.TeamcityBaseApi.get_current_running_build_for_buildtype')
+    def test_200___get_current_running_build(self, mocka):
+        mocka.return_value = '''{"count":1,"href":"/app/rest/2018.1/builds?locator=running:true,buildType:PsgCicq___i10soc2___io75xddrfmxtx_lib___FP8revA0","build":[{"id":21922065,"buildTypeId":"PsgCicq___i10soc2___io75xddrfmxtx_lib___FP8revA0","number":"357","status":"SUCCESS","state":"running","percentageComplete":100,"href":"/app/rest/2018.1/builds/id:21922065","webUrl":"https://teamcity01-fm.devtools.intel.com/viewLog.html?buildId=21922065&buildTypeId=PsgCicq___i10soc2___io75xddrfmxtx_lib___FP8revA0"}]}'''
+        tc = dmx.utillib.teamcity_cicq_api.TeamcityCicqApi('i10socfm', 'liotestfc1', 'test3', dryrun=False)
+        ret = tc.get_current_running_build()
+        self.assertEqual(ret['count'], 1)
+
+    @patch('dmx.utillib.teamcity_base_api.TeamcityBaseApi.get_current_running_build_for_buildtype')
+    def test_210___get_current_running_build_num(self, mocka):
+        mocka.return_value = '''{"count":1,"href":"/app/rest/2018.1/builds?locator=running:true,buildType:PsgCicq___i10soc2___io75xddrfmxtx_lib___FP8revA0","build":[{"id":21922065,"buildTypeId":"PsgCicq___i10soc2___io75xddrfmxtx_lib___FP8revA0","number":"357","status":"SUCCESS","state":"running","percentageComplete":100,"href":"/app/rest/2018.1/builds/id:21922065","webUrl":"https://teamcity01-fm.devtools.intel.com/viewLog.html?buildId=21922065&buildTypeId=PsgCicq___i10soc2___io75xddrfmxtx_lib___FP8revA0"}]}'''
+        tc = dmx.utillib.teamcity_cicq_api.TeamcityCicqApi('i10socfm', 'liotestfc1', 'test3', dryrun=False)
+        ret = tc.get_current_running_build_num()
+        self.assertEqual(ret, "357")
+
+    @patch('dmx.utillib.teamcity_base_api.TeamcityBaseApi.get_current_running_build_for_buildtype')
+    def test_220___get_current_running_build_agent(self, mocka):
+        mocka.return_value = '''{"count":1,"href":"/app/rest/2018.1/builds?locator=running:true,buildType:PsgCicq___i10soc2___io75xddrfmxtx_lib___FP8revA0","build":[{"id":21922065,"buildTypeId":"PsgCicq___i10soc2___io75xddrfmxtx_lib___FP8revA0","number":"357","status":"SUCCESS","state":"running","percentageComplete":100,"href":"/app/rest/2018.1/builds/id:21922065","webUrl":"https://teamcity01-fm.devtools.intel.com/viewLog.html?buildId=21922065&buildTypeId=PsgCicq___i10soc2___io75xddrfmxtx_lib___FP8revA0"}]}'''
+        tc = dmx.utillib.teamcity_cicq_api.TeamcityCicqApi('i10socfm', 'liotestfc1', 'test3', dryrun=False)
+        ret = tc.get_current_running_build_agent()
+        self.assertEqual(ret['name'], 'psgcicq_psginfraadm_40')
+
+    @patch('dmx.utillib.teamcity_base_api.TeamcityBaseApi.get_current_running_build_for_buildtype')
+    def test_230___get_current_running_build_agent_homedir(self, mocka):
+        mocka.return_value = '''{"count":1,"href":"/app/rest/2018.1/builds?locator=running:true,buildType:PsgCicq___i10soc2___io75xddrfmxtx_lib___FP8revA0","build":[{"id":21922065,"buildTypeId":"PsgCicq___i10soc2___io75xddrfmxtx_lib___FP8revA0","number":"357","status":"SUCCESS","state":"running","percentageComplete":100,"href":"/app/rest/2018.1/builds/id:21922065","webUrl":"https://teamcity01-fm.devtools.intel.com/viewLog.html?buildId=21922065&buildTypeId=PsgCicq___i10soc2___io75xddrfmxtx_lib___FP8revA0"}]}'''
+        tc = dmx.utillib.teamcity_cicq_api.TeamcityCicqApi('i10socfm', 'liotestfc1', 'test3', dryrun=False)
+        ret = tc.get_current_running_build_agent_homedir()
+        self.assertEqual(ret, '/nfs/site/disks/psg_cicq_1/users/teamcity/agents/psgcicq_psginfraadm_40')
+
+    @patch('dmx.utillib.teamcity_base_api.TeamcityBaseApi.get_current_running_build_for_buildtype')
+    def test_240___get_current_running_build_agent_homedir(self, mocka):
+        mocka.return_value = '''{"count":1,"href":"/app/rest/2018.1/builds?locator=running:true,buildType:PsgCicq___i10soc2___io75xddrfmxtx_lib___FP8revA0","build":[{"id":21922065,"buildTypeId":"PsgCicq___i10soc2___io75xddrfmxtx_lib___FP8revA0","number":"357","status":"SUCCESS","state":"running","percentageComplete":100,"href":"/app/rest/2018.1/builds/id:21922065","webUrl":"https://teamcity01-fm.devtools.intel.com/viewLog.html?buildId=21922065&buildTypeId=PsgCicq___i10soc2___io75xddrfmxtx_lib___FP8revA0"}]}'''
+        tc = dmx.utillib.teamcity_cicq_api.TeamcityCicqApi('i10socfm', 'liotestfc1', 'test3', dryrun=False)
+        ret = tc.get_current_running_build_agent_homedir()
+        self.assertEqual(ret, '/nfs/site/disks/psg_cicq_1/users/teamcity/agents/psgcicq_psginfraadm_40')
+
+
+if __name__ == '__main__':
+    logging.basicConfig(format='[%(asctime)s] - %(levelname)s-[%(module)s]: %(message)s', level=logging.DEBUG)   
+    unittest.main()
+

@@ -1,0 +1,532 @@
+<?xml version="1.0" encoding="UTF-8"?><testsuite name="nosetests" tests="8" errors="0" failures="0" skip="0"><testcase classname="test_cmx_environment.TestDmxEnvironment" name="test_001___dmx_environment___nomail" time="19.023"><system-out><![CDATA[exitcode: 0
+
+stdout: {'Command Run': '/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py '
+                'environment --nomail',
+ 'DB_DEVICE': 'RTM',
+ 'DB_FAMILY': 'Ratonmesa',
+ 'DB_PROCESS': 'g55',
+ 'DB_PROJECT': 'g55lp Ratonmesa',
+ 'DB_THREAD': 'RTMrevA0',
+ 'DMXDATA_ROOT': '/p/psg/flows/common/dmxdata/14.4',
+ 'DMX_ROOT': '/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth',
+ 'HOSTNAME': 'scc281199',
+ 'P4CLIENT': 'pice-yltan',
+ 'P4CONFIG': '.icmconfig',
+ 'P4PORT': 'scylicm.sc.intel.com:1666',
+ 'P4USER': None,
+ 'PWD': '/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/gdp47827_tests',
+ 'USER': 'lionelta',
+ '_icmp4 info': {'exit': 127,
+                 'stderr': ['/bin/sh: _icmp4: command not found'],
+                 'stdout': []},
+ 'arc job': {'exit': 0,
+             'stderr': [],
+             'stdout': ['                  id : 675945857',
+                        '                type : batch',
+                        '              status : running',
+                        '                user : lionelta',
+                        '                name : ',
+                        '             command : cd '
+                        '/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/gdp47827_tests; '
+                        'make -f jenkins.Makefile',
+                        '        requirements : '
+                        'dmxdata/14.8,ostype/suse12,set_var_project/RTMrevA0/1.0',
+                        '           resources : '
+                        'dmxdata/14.8,ostype/suse12,set_var_project/RTMrevA0/1.0',
+                        '                tags : 0',
+                        '            priority : 0',
+                        '              parent : 0',
+                        '              family : ',
+                        '             storage : '
+                        '/p/psg/data/lionelta/job/20230129/1900/675945857',
+                        '                 iwd : '
+                        '/nfs/site/disks/da_scratch_1/users/yltan/depot',
+                        '                  os : linux64',
+                        '                 grp : cad',
+                        '       set_create_at : 01/29/2023 19:28:22',
+                        '       set_queued_at : 01/29/2023 19:28:22',
+                        '             nbqslot : /psg/infra/default',
+                        '              nb_job : zsc7_tiers1_vp.2867456466',
+                        '      set_running_at : 01/29/2023 19:28:33',
+                        '                host : scc281199']},
+ 'cat ~/.p4enviro': {'exit': 0,
+                     'stderr': [],
+                     'stdout': ['P4_sj-perforce:1666_CHARSET=none',
+                                'P4_sjicm01.sc.intel.com:1689_CHARSET=none',
+                                'P4_10.233.69.47:1689_CHARSET=none',
+                                'P4_sj-ice-icm-dev.altera.com:1667_CHARSET=none',
+                                'P4_sjicmdev1.sc.intel.com:1666_CHARSET=none',
+                                'P4_sjicm.sc.intel.com:1666_CHARSET=none',
+                                'P4_sj-perforce-proxy:1998_CHARSET=none',
+                                'P4_ssl:p4proxy17.devtools.intel.com:6110_CHARSET=none',
+                                'P4_ssl:p4proxy06.devtools.intel.com:6110_CHARSET=none',
+                                'P4_ssl:p4proxy-psg-sc.devtools.intel.com:6110_CHARSET=none',
+                                'P4_sjicm.sc.intel.com:1689_CHARSET=none',
+                                'P4_scylicm.sc.intel.com:1666_CHARSET=none',
+                                'P4_p4refchtsce.sync.intel.com:1671_CHARSET=none',
+                                'P4_ssl:p4aibsce.sync.intel.com:3835_CHARSET=none',
+                                'P4_scylicm05.sc.intel.com:1666_CHARSET=none',
+                                'P4_ppgicm.png.intel.com:1666_CHARSET=none']},
+ "env|grep '^DB_'": {'exit': 0,
+                     'stderr': [],
+                     'stdout': ['DB_THREAD=RTMrevA0',
+                                'DB_DESIGN_CHECKLIST=/nfs/site/disks/falcon_dmx_1/design_checklist/',
+                                'DB_DEVICE=RTM',
+                                'DB_FAMILY=Ratonmesa',
+                                'DB_PROJECT=g55lp Ratonmesa',
+                                'DB_DESIGN_CHECKLIST_CSV=/p/psg/data/psginfraadm/design_checklist/RTMrevA0_checklist.csv',
+                                'DB_PROCESS=g55',
+                                'DB_NETBATCH=rtm']},
+ "env|grep '^DMX'": {'exit': 0,
+                     'stderr': [],
+                     'stdout': ['DMX_PATH=/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin',
+                                'DMX_SETTING_FILES_DIR=/p/psg/flows/common/dmx/dmx_setting_files',
+                                'DMX_TCLLIB=/p/psg/flows/common/icd_cad_tcllib/5/linux64/lib',
+                                'DMXDATA_ROOT=/p/psg/flows/common/dmxdata/14.4',
+                                'DMX_LEGACY=1',
+                                'DMX_LIB=/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python',
+                                'DMX_TNRLIB=/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/tcl/dmx/tnrlib',
+                                'DMX_ROOT=/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth',
+                                'DMX_GDPSITE=intel']},
+ 'groups': {'exit': 0,
+            'stderr': [],
+            'stdout': ['intelall soc icmadmins hdk7nm hdk7nmproc hdk22nm '
+                       'hdk22nmproc psgeng psgfln psgi10 psgwhr psgt16ff '
+                       'psgi10arm ip1222 psgi7 psgknl psgsynopsys psgcadence '
+                       'psgintel psgship psggdr psgrnr psgeval epg_users '
+                       'psgdmd psgt16arm tyc78 tyc78proc psgvlc psgavc psgslr '
+                       'psgi5 i1278proc i1278 psgipxsmx_arm ip5nm ipn5 '
+                       'psgrambus psgenc psgn5 psgcnc psgacr psgavr gf55lp '
+                       'psgn5arm psgrtm psgknr psgdpt psgdlr psgltm psgda']},
+ 'groups $USER': {'exit': 0,
+                  'stderr': [],
+                  'stdout': ['lionelta : intelall i1278proc psggdr psgsynopsys '
+                             'epg_users psgenc psgrtm psgn5 psgknl psgslr '
+                             'psgeng i1278 psgrnr psgi7 psgltm psgavc '
+                             'icmadmins hdk7nm hdk7nmproc hdk22nm psgi10 '
+                             'psgknr psgda psgi10arm psgdmd psgintel psgt16arm '
+                             'psgcnc psgeval soc psgn5arm hdk22nmproc psgacr '
+                             'psgipxsmx_arm psgdlr psgfln psgi5 psgt16ff '
+                             'psgvlc tyc78proc psgavr psgcadence psgwhr '
+                             'psgrambus psgship tyc78 ipn5 psgdpt gf55lp '
+                             'ip1222 ip5nm']}}
+
+
+stderr: INFO: DMX-id: dmx_lionelta_20230129_scc281199_31873_sc
+
+
+]]></system-out><system-err><![CDATA[/usr/intel/pkgs/python3/3.9.6/lib/python3.9/subprocess.py:935: RuntimeWarning: line buffering (buffering=1) isn't supported in binary mode, the default buffer size will be used
+  self.stdin = io.open(p2cwrite, 'wb', bufsize)
+/usr/intel/pkgs/python3/3.9.6/lib/python3.9/subprocess.py:941: RuntimeWarning: line buffering (buffering=1) isn't supported in binary mode, the default buffer size will be used
+  self.stdout = io.open(c2pread, 'rb', bufsize)
+/usr/intel/pkgs/python3/3.9.6/lib/python3.9/subprocess.py:946: RuntimeWarning: line buffering (buffering=1) isn't supported in binary mode, the default buffer size will be used
+  self.stderr = io.open(errread, 'rb', bufsize)
+]]></system-err></testcase><testcase classname="test_cmx_environment.TestDmxEnvironment" name="test_002___dmx_environment_errorcode___list" time="9.088"><system-out><![CDATA[exitcode: 0
+
+stdout: ICLB01: ICM-LIBRARY does not exist.
+ICLC01: User does not have ICM-LICENSE.
+ICLT01: ICM-LIBTYPE does not exist.
+
+
+stderr: INFO: DMX-id: dmx_lionelta_20230129_scc281199_32754_sc
+
+
+]]></system-out></testcase><testcase classname="test_cmx_report.TestDmxEnvironment" name="test_001___dmx_report_content___config" time="11.686"><system-out><![CDATA[exitcode: 0
+
+stdout: Project: Raton_Mesa, IP: rtmliotest2, BOM: REL1.0RTMrevA0__22ww135a
+	Last modified: 2022/03/25 09:15:25 (in server timezone)
+Raton_Mesa/rtmliotest2@REL1.0RTMrevA0__22ww135a
+	Raton_Mesa/rtmliotest2:ipspec@REL1.0RTMrevA0__22ww135c
+	Raton_Mesa/rtmliotest2:reldoc@REL1.0RTMrevA0__22ww135a
+	Raton_Mesa/rtmliotest1@REL1.0RTMrevA0__22ww135a
+
+
+
+stderr: INFO: DMX-id: dmx_lionelta_20230129_scc281199_760_sc
+
+
+]]></system-out></testcase><testcase classname="test_cmx_report.TestDmxEnvironment" name="test_010___dmx_report_diff___libtype___got_diff" time="6.731"><system-out><![CDATA[exitcode: 0
+
+stdout: # Project/IP                      BOM 1                           BOM 2
+# Raton_Mesa/rtmliotest1          snap-fortnr_1                   snap-fortnr_2
+# Project/IP/Deliverable          Lib/Rel/BOM                     Lib/Rel/BOM
+==== //depot/gdpxl/intel/Raton_Mesa/rtmliotest1/ipspec/dev/rtmliotest1.unneeded_deliverables.txt#1 (text) - //depot/gdpxl/intel/Raton_Mesa/rtmliotest1/ipspec/dev/rtmliotest1.unneeded_deliverables.txt#2 (text) ==== content
+
+
+stderr: INFO: DMX-id: dmx_lionelta_20230129_scc281199_1721_sc
+
+
+]]></system-out></testcase><testcase classname="test_cmx_report.TestDmxEnvironment" name="test_020___dmx_report_list___p_wildcard" time="10.821"><system-out><![CDATA[exitcode: 0
+
+stdout: Category: /intel
+KM
+KMH
+KMM
+Liberty_Mesa
+PSG_S78D
+Raton_Mesa
+Salinas_River
+da_i16
+da_i18a
+g55lp
+i16soc
+i18asockm
+i18asockmh
+testproject2
+testproject5
+
+Found 15 match
+
+
+stderr: INFO: DMX-id: dmx_lionelta_20230129_scc281199_2275_sc
+
+
+]]></system-out></testcase><testcase classname="test_cmx_report.TestDmxEnvironment" name="test_030___dmx_report_owner___variant" time="9.271"></testcase><testcase classname="test_cmx_roadmap.TestDmxRoadmap" name="test_001___dmx_roadmap_thread" time="7.392"><system-out><![CDATA[exitcode: 0
+
+stdout: Acomarock
+===============
+- ACRrevA0/0.0
+- ACRrevA0/0.3
+- ACRrevA0/0.5
+- ACRrevA0/0.8
+- ACRrevA0/1.0
+- ACRrevA0/POLO
+- ACRrevA0/PROD
+
+Availarock
+===============
+- AVRrevB0/1.0
+- AVRrevB0/2.0
+- AVRrevB0/3.0
+- AVRrevB0/4.0
+- AVRrevB0/5.0
+
+Avoncrest
+===============
+- AVCrevA0/0.3
+- AVCrevA0/0.5
+- AVCrevA0/0.8
+- AVCrevA0/1.0
+
+Carsoncreek
+===============
+- CNCrevA0/0.0
+- CNCrevA0/0.3
+- CNCrevA0/0.5
+- CNCrevA0/0.8
+- CNCrevA0/1.0
+
+Daprojects
+===============
+- DAN5revA0/0.0
+- DAN5revA0/0.3
+- DAN5revA0/0.5
+- DAN5revA0/0.8
+- DAN5revA0/1.0
+- DAN5revA0/POLO
+- DAN5revA0/PROD
+
+Diamondmesa
+===============
+- DMDrevA0/2.0
+- DMDrevA0/3.0
+- DMDrevA0/4.0
+- DMDrevA0/5.0
+
+Diamondmesa2
+===============
+- DM2revA0/0.0
+- DM2revA0/0.3
+- DM2revA0/0.5
+- DM2revA0/0.8
+- DM2revA0/1.0
+
+Diamondpeaktrail
+===============
+- DPT8revA0/2.0
+- DPT8revA0/3.0
+- DPT8revA0/4.0
+- DPT8revA0/5.0
+
+Dolanrock
+===============
+- DLRrevA0/1.0
+- DLRrevA0/2.0
+- DLRrevA0/3.0
+- DLRrevA0/4.0
+- DLRrevA0/5.0
+
+Eanescreek
+===============
+- ENCrevA0/0.0
+- ENCrevA0/0.3
+- ENCrevA0/0.5
+- ENCrevA0/0.8
+- ENCrevA0/1.0
+- ENCrevA0/POLO
+- ENCrevA0/PROD
+
+Falcon
+===============
+- FM3revA0/3.0
+- FM3revA0/4.0
+- FM3revA0/5.0
+- FM4revA0/3.0
+- FM4revA0/4.0
+- FM4revA0/5.0
+- FM5revA0/3.0
+- FM5revA0/4.0
+- FM5revA0/5.0
+- FM6revA0/4.0
+- FM6revA0/5.0
+- FM6revA1/4.0
+- FM6revA1/5.0
+- FM6revB0/4.0
+- FM6revB0/5.0
+- FM6revB1/4.0
+- FM6revB1/5.0
+- FM6revB2/4.0
+- FM6revB2/5.0
+- FM6revB3/4.0
+- FM6revB3/5.0
+- FM7revA0/3.0
+- FM7revA0/4.0
+- FM7revA0/5.0
+- FM7revA0P1/3.0
+- FM7revA0P1/4.0
+- FM7revA0P1/5.0
+- FM7revA1/3.0
+- FM7revA1/4.0
+- FM7revA1/5.0
+- FM7revA2/3.0
+- FM7revA2/4.0
+- FM7revA2/5.0
+- FM8revA0/3.0
+- FM8revA0/4.0
+- FM8revA0/5.0
+- FM8revA1/3.0
+- FM8revA1/4.0
+- FM8revA1/5.0
+- FM8revA2/3.0
+- FM8revA2/4.0
+- FM8revA2/5.0
+- FM8revA3/3.0
+- FM8revA3/4.0
+- FM8revA3/5.0
+- FM9revA0/3.0
+- FM9revA0/4.0
+- FM9revA0/5.0
+- FM9revA1/3.0
+- FM9revA1/4.0
+- FM9revA1/5.0
+
+Falconpark
+===============
+- FP4revA0/0.0
+- FP4revA0/0.3
+- FP4revA0/0.5
+- FP4revA0/0.8
+- FP4revA0/1.0
+- FP6revA0/0.0
+- FP6revA0/0.3
+- FP6revA0/0.5
+- FP6revA0/0.8
+- FP6revA0/1.0
+- FP8revA0/0.0
+- FP8revA0/0.3
+- FP8revA0/0.5
+- FP8revA0/0.8
+- FP8revA0/1.0
+
+Gundersonrock
+===============
+- GDRrevA0/0.3
+- GDRrevA0/0.5
+- GDRrevA0/0.8
+- GDRrevA0/1.0
+- GDRrevB0/0.3
+- GDRrevB0/0.5
+- GDRrevB0/0.8
+- GDRrevB0/1.0
+
+Ironspringmesa
+===============
+- ISM8revA0/0.0
+- ISM8revA0/0.3
+- ISM8revA0/0.5
+- ISM8revA0/0.8
+- ISM8revA0/1.0
+
+Kernriver
+===============
+- KNRrevA0/0.0
+- KNRrevA0/0.3
+- KNRrevA0/0.5
+- KNRrevA0/0.8
+- KNRrevA0/1.0
+- KNRrevA0/POLO
+- KNRrevA0/PROD
+
+Kinneloamesa
+===============
+- KM5revA0/0.0
+- KM5revA0/0.3
+- KM5revA0/0.5
+- KM5revA0/0.8
+- KM5revA0/1.0
+
+Nadderp
+===============
+- ND1revA/0.5
+- ND1revA/1.0
+- ND1revA/1.5
+- ND1revA/2.0
+- ND1revA/2.5
+- ND1revA/3.0
+- ND1revA/3.5
+- ND1revA/4.0
+- ND1revA/4.5
+- ND1revA/5.0
+- ND2revA/0.5
+- ND2revA/1.0
+- ND2revA/1.5
+- ND2revA/2.0
+- ND2revA/2.5
+- ND2revA/3.0
+- ND2revA/3.5
+- ND2revA/4.0
+- ND2revA/4.5
+- ND2revA/5.0
+- ND3revA/0.5
+- ND3revA/1.0
+- ND3revA/1.5
+- ND3revA/2.0
+- ND3revA/2.5
+- ND3revA/3.0
+- ND3revA/3.5
+- ND3revA/4.0
+- ND3revA/4.5
+- ND3revA/5.0
+- ND4revA/0.5
+- ND4revA/1.0
+- ND4revA/1.5
+- ND4revA/2.0
+- ND4revA/2.5
+- ND4revA/3.0
+- ND4revA/3.5
+- ND4revA/4.0
+- ND4revA/4.5
+- ND4revA/5.0
+- ND5revA/0.5
+- ND5revA/1.0
+- ND5revA/1.5
+- ND5revA/2.0
+- ND5revA/2.5
+- ND5revA/3.0
+- ND5revA/3.5
+- ND5revA/4.0
+- ND5revA/4.5
+- ND5revA/5.0
+- ND5revA0/0.5
+- ND5revA0/1.0
+- ND5revA0/1.5
+- ND5revA0/2.0
+- ND5revA0/2.5
+- ND5revA0/3.0
+- ND5revA0/3.5
+- ND5revA0/4.0
+- ND5revA0/4.5
+- ND5revA0/5.0
+- ND5revA0P2/0.5
+- ND5revA0P2/1.0
+- ND5revA0P2/1.5
+- ND5revA0P2/2.0
+- ND5revA0P2/2.5
+- ND5revA0P2/3.0
+- ND5revA0P2/3.5
+- ND5revA0P2/4.0
+- ND5revA0P2/4.5
+- ND5revA0P2/5.0
+- ND5revA1/0.5
+- ND5revA1/1.0
+- ND5revA1/1.5
+- ND5revA1/2.0
+- ND5revA1/2.5
+- ND5revA1/3.0
+- ND5revA1/3.5
+- ND5revA1/4.0
+- ND5revA1/4.5
+- ND5revA1/5.0
+- ND5revB0/0.5
+- ND5revB0/1.0
+- ND5revB0/1.5
+- ND5revB0/2.0
+- ND5revB0/2.5
+- ND5revB0/3.0
+- ND5revB0/3.5
+- ND5revB0/4.0
+- ND5revB0/4.5
+- ND5revB0/5.0
+
+Ratonmesa
+===============
+- RTMrevA0/0.0
+- RTMrevA0/0.3
+- RTMrevA0/0.5
+- RTMrevA0/0.8
+- RTMrevA0/1.0
+
+Reynoldsrock
+===============
+- RNRrevA0/0.3
+- RNRrevA0/0.5
+- RNRrevA0/0.8
+- RNRrevA0/1.0
+- RNRrevB0/0.3
+- RNRrevB0/0.5
+- RNRrevB0/0.8
+- RNRrevB0/1.0
+
+Stanislausriver
+===============
+- SLRrevA0/0.0
+- SLRrevA0/0.3
+- SLRrevA0/0.5
+- SLRrevA0/0.8
+- SLRrevA0/1.0
+
+Sundancemesa
+===============
+- SM7revA0/0.0
+- SM7revA0/0.3
+- SM7revA0/0.5
+- SM7revA0/0.8
+- SM7revA0/1.0
+
+Valleycrest
+===============
+- VLCrevA0/0.3
+- VLCrevA0/0.5
+- VLCrevA0/0.8
+- VLCrevA0/1.0
+
+Wharfrock
+===============
+- WHRrevA0/0.3
+- WHRrevA0/0.5
+- WHRrevA0/0.8
+- WHRrevA0/1.0
+
+
+
+stderr: INFO: DMX-id: dmx_lionelta_20230129_scc281199_3295_sc
+
+
+]]></system-out></testcase><testcase classname="test_cmx_size.TestDmxSize" name="test_003___mutable_deliverable" time="6.248"><system-out><![CDATA[exitcode:0
+stdout:Raton_Mesa/rtmliotest1:ipspec@dev[] - Size : 94 File : 4
+Total size : 94, total file : 4
+
+stderr:INFO: DMX-id: dmx_lionelta_20230129_scc281199_3780_sc
+
+
+]]></system-out></testcase></testsuite>

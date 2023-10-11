@@ -1,0 +1,68 @@
+#!/usr/bin/env python
+'''
+$Header: //depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/plugins/environment.py#1 $
+$Change: 7411538 $
+$DateTime: 2022/12/13 18:19:49 $
+$Author: lionelta $
+
+Description: dmx roadmap
+Author: Kevin Lim Khai - Wern
+Copyright (c) Altera Corporation 2016
+All rights reserved.
+'''
+
+import sys
+import logging
+import textwrap
+import getpass
+import time
+import re
+
+from dmx.abnrlib.command import Command, Runner
+from dmx.utillib.utils import add_common_args
+from dmx.abnrlib.flows.environmentinfo import EnvironmentInfo
+
+class Environment(Command):
+    @classmethod
+    def get_help(cls):
+        '''
+        Short help for the subcommand
+        '''
+        myhelp = '''\
+            Dump out a list of useful info for debugging purposes.
+            '''
+        return textwrap.dedent(myhelp)
+
+    @classmethod
+    def add_args(cls, parser):
+        '''
+        overlay arguments
+        '''
+        add_common_args(parser)
+        parser.add_argument('--nomail', required=False, default=False, action='store_true')
+
+    @classmethod
+    def extra_help(cls):
+        '''
+        Detailed help.
+        '''
+        extra_help = '''\
+
+        'dmx environment' is a command that will
+        - dumps out a list of generic info which is useful for debugging purposes.
+        - this info will be emailed to the user as attachment, which then can be forwarded to psgicmsupport@intel.com for further debugging.
+
+        '''
+        return textwrap.dedent(extra_help)
+
+    @classmethod
+    def command(cls, args):
+        '''
+        Execute the subcommand
+        '''
+
+        ret = 1
+        dmxenv = EnvironmentInfo(nomail=args.nomail)
+        ret = dmxenv.run()
+
+        return (ret)

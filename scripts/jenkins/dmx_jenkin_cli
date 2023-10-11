@@ -1,0 +1,6 @@
+#!/usr/intel/bin/tcsh -f
+
+set realpath = `realpath $0`
+set scriptdir = `dirname $realpath`
+
+env -i /usr/intel/pkgs/openjdk/11.0.17/bin/java -Djavax.net.ssl.trustStore=/p/psg/da/infra/admin/jenkins/cacert_related/cacerts -jar $scriptdir/jenkins-cli.jar -auth lionelta:1192dd4ddf3f0b76c387b2ada03687938f -s https://cje-fm-owrp-prod03.devtools.intel.com/psg-infra-dmx/ $argv:q

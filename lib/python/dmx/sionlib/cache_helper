@@ -1,0 +1,22 @@
+#!/bin/sh
+SCRIPTDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+script="$0"
+command="$1"
+project="$2"
+ip="$3"
+deliverable="$4"
+bom="$5"
+cache_dir="$6"
+ws_dir="$7"
+wsname="$8"
+user="$9"
+cache_only="${10}"
+misc="${11}"
+
+dmx_array="$(echo $DMX_ROOT | tr "/" "\n")"
+for i in ${dmx_array[@]}; do dmx_version=${i};done
+printf "dmx version: %s\n" ${dmx_version}
+printf "cfg file: %s\n" ${cfg}
+
+/p/psg/ctools/arc/bin/arc shell -- /p/psg/flows/common/dmx/${dmx_version}/lib/python/dmx/sionlib/populate_cache.py -cmd "'$command'" -p "'$project'" -i "'$ip'" -d "'$deliverable'" -b "'$bom'" -cache_dir "'$cache_dir'" -ws_dir "'$ws_dir'" -w "'$wsname'" -u "'$user'" -cache_only "'$cache_only'" -misc "'$misc'"

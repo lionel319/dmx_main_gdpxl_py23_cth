@@ -1,0 +1,243 @@
+#!/usr/bin/env python
+'''
+$Header: //depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/flows/snaplibrary.py#2 $
+$Change: 7485823 $
+$DateTime: 2023/02/15 18:30:04 $
+$Author: lionelta $
+
+Description: abnr "createsnapshot" subcommand plugin
+Author: Lee Cartwright
+Copyright (c) Altera Corporation 2014
+All rights reserved.
+'''
+import os
+import sys
+import logging
+import textwrap
+
+from dmx.abnrlib.icm import ICManageCLI
+from dmx.abnrlib.icmlibrary import IcmLibrary
+from dmx.utillib.utils import format_configuration_name_for_printing, normalize_config_name, get_ww_details
+from dmx.abnrlib.config_factory import ConfigFactory
+from dmx.utillib.arcenv import ARCEnv
+import dmx.ecolib.ecosphere
+import dmx.abnrlib.dssc
+
+class SnapLibraryError(Exception): pass
+
+class SnapLibrary(object):
+    '''
+    Class to control running the createsnapshot command
+    '''
+
+    def __init__(self, project, variant, libtype, config, snapshot=None, preview=True, force=False):
+        self.project = project
+        self.variant = variant
+        self.libtype = libtype
+        self.config = config
+        self.preview = preview
+        self.cli = ICManageCLI(preview=preview)
+        self.logger = logging.getLogger(__name__)
+        self.family = dmx.ecolib.ecosphere.EcoSphere(preview=preview).get_family(os.getenv("DB_FAMILY"))
+        self.force = force
+
+        gkmodname = os.getenv("GK_MODELNAME", False)
+        if snapshot:
+            self.snapshot = snapshot
+        elif gkmodname:
+            self.snapshot = gkmodname
+        else:
+            # DI482: generate snap name snap-<normalized_source_BOM>_<>
+            normalized_config = normalize_config_name(self.config)
+            (year, ww, day) = get_ww_details()
+            # http://pg-rdjira:8080/browse/DI-913
+            # Double underscore instead of a single underscore
+            snap_name = 'snap-{0}__{1}ww{2}{3}'.format(normalized_config, year, ww, day)
+            self.snapshot = self.cli.get_next_snap(self.project, self.variant, snap_name, libtype=self.libtype)
+        self.logger.debug("self.snapshot: {}".format(self.snapshot))
+
+        # If project not given, get project from IP
+        if not self.project:
+            self.logger.info('Reading from ARC environment')
+            arc_projects = ARCEnv().get_project()
+            for arc_project in arc_projects:
+                if self.cli.variant_exists(arc_project, self.variant):
+                    self.project = arc_project
+                    break
+            if not self.project:
+                raise SnapLibraryError('Variant {0} is not found in projects: {1}'.format(self.variant, arc_projects))
+        else:
+            # Make sure the project exists
+            if not self.cli.project_exists(self.project):
+                raise SnapLibraryError("{0} is not a valid project".format(self.project))
+            # Make sure the variant exist
+            if not self.cli.variant_exists(self.project, self.variant):
+                raise SnapLibraryError("{0}/{1} is not a valid variant".format(self.project, self.variant))
+        # Make sure the libtype exist
+        if not self.cli.libtype_exists(self.project, self.variant, self.libtype):
+            raise SnapLibraryError("{0}/{1}:{2} is not a valid libtype".format(self.project, self.variant, self.libtype))
+            
+        if not self.cli.library_exists(self.project, self.variant, libtype=self.libtype, library=self.config):
+            raise SnapLibraryError("Configuration {0} does not exist in {1}/{2}:{3}".format(self.config, self.project, self.variant, self.libtype))
+
+        if self.cli.release_exists(self.project, self.variant, libtype=self.libtype, library='*', release=self.snapshot):
+            raise SnapLibraryError("Configuration {0} already exists".format(
+                format_configuration_name_for_printing(
+                    self.project, self.variant, self.snapshot,
+                    libtype=self.libtype
+                )))            
+
+        if not self.snapshot.startswith('snap-'):
+            raise SnapLibraryError("{0} is not a valid snapshot configuration name. Snapshot configurations must start with snap-".format(
+                self.snapshot))
+       
+        # https://jira01.devtools.intel.com/browse/PSGDMX-21
+        # Check if deliverable is part of roadmap
+        try:
+            delobj = self.family.get_ip(self.variant, project_filter=self.project).get_deliverable(self.libtype, roadmap=os.getenv("DB_DEVICE"))
+        except Exception as e:
+            msg = 'Failed to snap. It might be due to deliverable {} is no longer part of roadmap, -or-\n{}\n'.format(self.libtype, e)
+            raise SnapLibraryError(msg)
+
+    def create_new_snapshot(self, library):
+        snap_cfg = self.build_snap_config(library)
+        if snap_cfg:
+            self.logger.info("Created snapshot {0}".format(
+                format_configuration_name_for_printing(self.project, self.variant, self.snapshot, libtype=self.libtype)))
+        else:
+            self.logger.error("Problem creating snapshot {0}".format(
+                format_configuration_name_for_printing(self.project, self.variant, self.snapshot, libtype=self.libtype)))
+        return snap_cfg
+
+    def build_snap_config(self, library):
+        relname = None
+        snap_cfg = IcmLibrary(self.project, self.variant, self.libtype, library, self.snapshot, preview=self.preview)
+
+        if snap_cfg.save():
+            relname = snap_cfg
+        #relname = self.cli.add_library_release(self.project, self.variant, self.libtype, self.snapshot, library=library)
+        return relname
+
+    def is_already_released(self, library):
+        '''
+        Checks if the content pointed to by #ActiveDev has already been released
+        Returns the release name if founds matchnig release, else return False
+        '''
+        lastchange = self.cli.get_activedev_changenum(self.project, self.variant, self.libtype, library)
+        self.logger.debug('lastchange: {}'.format(lastchange))
+
+        rels = self.cli.get_library_releases(self.project, self.variant, self.libtype, library, retkeys=['*'])
+        self.logger.debug("rels: {}".format(rels))
+
+        for r in rels:
+            if r['change'].lstrip("@") == str(lastchange):
+                return r['name']
+
+        return False
+
+    def find_immutable_config_that_matches(self, library):
+        '''
+        Looks for immutable configs that reference a release whose content matches
+        the current #ActiveDev
+        Returns True if previous config found
+        '''
+        ret = False
+
+        previous_rels = self.cli.get_previous_rels_with_matching_content(self.project, self.variant,
+            self.libtype, library)
+        previous_snaps = self.cli.get_previous_snaps_with_matching_content(self.project, self.variant,
+            self.libtype, library)
+
+        previous = None
+        if previous_rels:
+            # Sort the list and let the user know about the last one
+            previous_rels.sort()
+            previous = previous_rels[-1]
+        elif previous_snaps:
+            # Same as above but for the snaps
+            previous_snaps.sort()
+            previous = previous_snaps[-1]
+
+        if previous:
+            self.logger.info("An immutable configuration with this content has already been created")
+            self.logger.info("Use {0}".format(
+                format_configuration_name_for_printing(self.project, self.variant,
+                                                       previous,
+                                                       libtype=self.libtype
+                )))
+            ret = True
+
+        return ret
+
+    def get_release_number_for_snapshot(self, library):
+        '''
+        Gets the release number fo use for the snapshot we're creating
+        '''
+        ret = 0
+
+        # Are there outstanding changes? If so create a new release
+        outstanding_changes = self.cli.get_list_of_changelists(self.project, self.variant, self.libtype,
+                                                               library=library)
+        if outstanding_changes:
+            release = self.cli.add_library_release_from_activedev(self.project, self.variant,
+                                                                  self.libtype,
+                                                                  'Created for snapshot {0}'.format(self.snapshot),
+                                                                  library=library)
+            if not release:
+                raise SnapLibraryError('Problem creating IC Manage library release')
+            else:
+                ret = release
+        else:
+            release = self.cli.get_last_library_release_number(self.project, self.variant,
+                                                           self.libtype, library=library)
+            if not release:
+                raise SnapLibraryError('Could not find a previous release and no outstanding changes for this library')
+            else:
+                ret = release
+
+        return ret
+
+    def process_config(self):
+        '''
+        Processes the configuration and , if necessary, creates a new snapshot
+        '''
+        ret = 1
+        content_already_in_config = False
+
+        # Build the input config
+        src_config = ConfigFactory.create_from_icm(self.project, self.variant, self.config, libtype=self.libtype, preview=self.preview)
+
+        delobj = self.family.get_ip(src_config.variant, project_filter=self.project).get_deliverable(src_config.libtype, roadmap=os.getenv("DB_DEVICE"))
+        dm = delobj.dm
+        if dm == 'designsync':                
+            # Always add filelist 
+            dm_meta = delobj.dm_meta
+            dssc = dmx.abnrlib.dssc.DesignSync(dm_meta['host'], dm_meta['port'], preview=self.preview)
+            dssc.add_filelist_into_icmanage_deliverable(src_config.project, src_config.variant, src_config.libtype, src_config.config, src_config.library, dm_meta)
+
+        # Is #ActiveDev pointing at something that's already been released?
+        if not self.force:
+            matched = self.is_already_released(src_config.library)
+            if matched:
+                self.logger.info("A previous matching release({}) is already available. If you insist on still creating a new snap, kindly use the --force option.".format(matched))
+                return 1
+
+        self.logger.debug("Creating new snapshot")
+        # Create a new release and build the snapshot
+        ret = self.create_new_snapshot(src_config.library)
+        if not ret:
+            self.logger.error("Problem creating snapshot")
+            ret = 1
+        else:
+            ret = 0                
+
+        return ret
+
+    def run(self):
+        '''
+        Runs the createsnapshot command
+        '''
+        ret = 1
+        ret = self.process_config()
+
+        return ret

@@ -1,0 +1,24 @@
++-----------------------------------------------------------------------------+
+| Logfile        : ##Feb-27-02:26:20#.scc262014                               |
+| Job id         : 7429826595212202           Class: !HIGHMEM     Qslot: /PSG/Infrastructure-HPC|
+| Executed on    : scc262014                  Pool : zsc7_nb1_ppm             |
+| Queueing time  : Mon Feb 27 02:26:19 2023                                   |
+| Starting time  : Mon Feb 27 02:26:20 2023          Qwait:   0h:00m:01s      |
+| Command        : sleep 99                                                   |
++-----------------------------------------------------------------------------+
++-----------------------------------------------------------------------------+
+| Exit Status    : 0                                                          |
+| Finishing time : Mon Feb 27 02:28:00 2023                                   |
+| CPU time       : Usr 0.0s    Sys 0.056s  WC  0h:01m:40s                     |
+| Rusage Stats   : Mem:0      PF:  579/1890  CSv/f:  0/0     Swaps:0          |
+|                :           Msg:    0/0     IOops:  0/0     Sigs :0          |
+| User Groups    : intelall, hdk7nm, hdk7nmproc, hdk22nm, hdk22nmproc,        |
+|                : psgeng, psgfln, psgi10, psgwhr, psgt16ff, psgi10arm, soc,  |
+|                : ip1222, psgi7, psgknl, psgsynopsys, psgcadence, psgintel,  |
+|                : psgship, psggdr, psgrnr, psgeval, epg_users, psgdmd,       |
+|                : psgt16arm, tyc78, tyc78proc, psgvlc, psgavc, psgslr,       |
+|                : psgi5, i1278proc, i1278, psgipxsmx_arm, ip5nm, ipn5,       |
+|                : psgrambus, psgenc, psgn5, psgcnc, psgacr, psgavr, gf55lp,  |
+|                : psgn5arm, psgrtm, psgknr, psgdpt, psgdlr, psgltm, psgda,     |
+|                : icmadmins                                                  |
++-----------------------------------------------------------------------------+

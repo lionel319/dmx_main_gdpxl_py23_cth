@@ -1,0 +1,4 @@
+#!/usr/bin/env tcsh
+
+mkdir -p aaa/cdl/
+cp -r bbb/netlists/auCdl/* aaa/cdl/

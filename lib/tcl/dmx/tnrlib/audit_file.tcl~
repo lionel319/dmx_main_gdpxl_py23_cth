@@ -1,0 +1,482 @@
+#-------------------------------------------------------------------------------
+# Copyright 2014 Altera Corporation. All rights reserved.
+# This source code is highly confidential and proprietary information of Altera
+# and is to be used for internal Altera purposes only.
+# Altera assumes no responsibility or liability arising out of the application
+# or use of this source code for non-Altera purposes.
+#-------------------------------------------------------------------------------
+# $Header: //depot/da/infra/dmx/main_gdpxl_py23_cth/lib/tcl/dmx/tnrlib/audit_file.tcl#1 $
+# $Change: 7411538 $ $Author: lionelta $
+# $DateTime: 2022/12/13 18:19:49 $
+#-------------------------------------------------------------------------------
+
+# This file is part of the icd_cad_qa ARC resource which set ICD_CAD_QA_TCLLIB
+
+lappend auto_path $env(DMX_TNRLIB)
+lappend auto_path $env(DMX_TCLLIB)
+
+# Tcl version of the XML DOM package (works also in Synopsys tools that do
+# not provide a [load] command.
+package require dom::tcl
+
+# fileutil is used to generate a temp file used to pass data from Python back to this script.
+# This is necessary because we are on Tcl 8.5 which apparently has no way to half-close a 
+# channel -- that is, send the audit XML to Python via stdin, but also read the path on
+# stdout.  At least, I can't figure it out.  Tcl 8.6 support half-closing channels, and
+# there is even a back-port to 8.5 called tclpipe, but we don't have it installed and it 
+# requires a binary component, so I'm not sure it can work from within Lynx/Synopsis. 
+package require fileutil
+
+# Use Snit since Itcl and TclOO are not available in Synopsys tools.
+# Itcl is only part of icc_shell but not of other Synopsys tools.
+package require snit
+
+
+#-------------------------------------------------------------------------------
+# AuditFile
+#-------------------------------------------------------------------------------
+
+snit::type AuditFile { 
+ 	
+  #-------------------------------------------------------------------------------
+  # options
+  #-------------------------------------------------------------------------------
+
+
+  method check_dir_exists {option value} {
+    if { $value != "" } {
+      if { ! [ file isdir $value ] } {
+        error "Option $option must be an existing directory. Got '$value'."
+      }
+    }
+  }
+
+  option -workspace_rootdir -validatemethod check_dir_exists
+
+  option -run_date
+  option -doc
+  option -audit
+  option -environment
+  option -flow
+  option -files
+  option -results
+  option -data
+  variable requirement_lookup -array {}
+  variable result_lookup -array {}
+  variable data_lookup -array {}
+
+
+  #-------------------------------------------------------------------------------
+  # constructor
+  #-------------------------------------------------------------------------------
+
+  # Supported options:
+  #   -workspace_rootdir : Path to the workspace root.  Only use for unit tests.
+  #                        If not provided, then ICM will be queried for the info.
+  #                        If provided, IC Manage will not be accessed, and audit
+  #                        logs will be incomplete: no arc resources or configuration.
+  #                        If provided, then only absolute path are accepted.
+  constructor { args } {
+    # Tcl 8.4 cannot provide microseconds.
+    set options(-run_date) [ clock format [ clock seconds ] -format "%G-%m-%d %H:%M:%S" ]
+    $self configurelist $args
+  }
+
+
+  #-------------------------------------------------------------------------------
+  # save
+  #-------------------------------------------------------------------------------
+
+  method save { { custom_dir {} } { call_python true } { readable false } } {
+    if { $call_python } {
+      if { [ catch {
+            # TODO assume script is in $PATH
+            set audit_tcl [file join $::env(DMX_ROOT) "bin" "audit_tcl"]
+            set dmx_clean [file join $::env(DMX_ROOT) "bin" "_dmxsetupclean"]
+            puts "audit_tcl: $audit_tcl"
+            if { $custom_dir == {} } {
+              set fid [ open "|$dmx_clean $audit_tcl 2>@stderr" "w" ]
+            } else {
+              set fid [ open "|$dmx_clean $audit_tcl -d $custom_dir 2>@stderr" "w" ]
+            }
+            puts $fid [ ::dom::DOMImplementation serialize $options(-doc) ]
+            close $fid
+          } ret ] } {
+        error "Delegating audit information to python API failed: Got '$ret'."
+      }
+    } else {
+      # Only useful for regression test
+      if { $readable } {
+        set xml [ ::dom::DOMImplementation serialize $options(-doc) \
+            -newline [ list audit enviroment flow files file results result data record ] ]
+        set pretty_xml [ string trim [ regsub -all "\n\n" $xml "\n" ] ]
+        # Add leading newline so that we can use a nicer format for tcltest
+        puts "\n$pretty_xml"
+      } else {
+        puts [ ::dom::DOMImplementation serialize $options(-doc) ]
+      }
+    }
+
+    return ""
+  }
+
+
+  #-------------------------------------------------------------------------------
+  # init_xml_instance
+  #-------------------------------------------------------------------------------
+
+  method init_xml_instance {} {
+    set options(-doc) [ ::dom::create ]
+    set options(-audit) [ ::dom::document createElement $options(-doc) "audit" ]
+    set options(-environment) [ ::dom::document createElement $options(-audit) "environment" ]
+    set options(-flow) [ ::dom::document createElement $options(-audit) "flow" ]
+    set options(-files) [ ::dom::document createElement $options(-audit) "files" ]
+    set options(-results) [ ::dom::document createElement $options(-audit) "results" ]
+    set options(-data) [ ::dom::document createElement $options(-audit) "data" ]
+
+    return ""
+  }
+
+  #-------------------------------------------------------------------------------
+  # set_automatic_info
+  #-------------------------------------------------------------------------------
+
+  method set_automatic_info {} {
+    #  This funtion defines the audit fields that get set automatically
+    #  populated.  Set when the test flow calls set_test_info().
+    #  These are the fields and what they mean:
+    #      run_date: the date the audit API was initialized
+    #      user: the user running this script (and presumably the test flow)
+    #      machine: the machine where this script is running
+    #      shell_arc_job_id: the ARC job id of the parent shell for this script
+    #      workspace: the name of the IC Manage workspace
+    #      configuration: the IC Manage configuration associated with the workspace
+    #      open_files: the output of 'p4 opened ...'
+    #      arc_resources: fully expanded list of ARC resources in the current shell 
+
+    # User provided workspace name (via workspace_rootdir)
+    if { $options(-workspace_rootdir) != "" } {
+#      set workspace_name [ string map [ list "/" "-" options(-workspace_rootdir) ] $]
+#      ::dom::element setAttribute $options(-environment) "workspace" $workspace_name
+      ::dom::element setAttribute $options(-environment) "workspace_rootdir" $options(-workspace_rootdir)
+    }
+    ::dom::element setAttribute $options(-environment) "run_date" $options(-run_date)
+    # Delegate other enviroment data to Python API
+
+    return ""
+  }
+
+  #-------------------------------------------------------------------------------
+  # set_test_info
+  #-------------------------------------------------------------------------------
+
+  method set_test_info { flow subflow run_dir cmdline libtype {topcell {}} {variant {}} {arc_job_id {}} {lsf_job_id {}} {subtest {}} } {
+    # Initializes an AuditFile instance with the provided test flow info, and 
+    # the info gathered by the audit API.  Calling this funtion will overwrite 
+    # any existing data, for example from a load() or prior set_test_info().
+    #
+    # The arguments are the audit fields provided by a test flow:
+    #     flow - mandatory: official flow name as defined by the Roadmap web site
+    #     subflow - mandatory: official sub-flow name as defined by the Roadmap web site
+    #     run_dir - mandatory: directory where the cmdline was executed
+    #     cmdline - mandatory: the top level command used to invoke the test flow 
+    #     topcell - optional: the top cell; optional if there is only one possible
+    #     libtype - mandatory: the libtype related to the flow: it should be possible 
+    #               to query ICE_MAN for this, but for now the test can specifiy it
+    #     variant - optional: if variant this audit relates to; if None it is auto-
+    #               detected based on the current working directory (cwd)
+    #     arc_job_id - optional: ARC job id of the top-level test run (cmdline)
+    #     lsf_job_id - optional: LSF job id of the top-level test run (cmdline)
+    #     subtest - optional: the sub-test (user defined name) for the audit XML
+    #               if used, an audit filelist will need to reference them.
+
+    if { $options(-workspace_rootdir) != {} && $topcell == {} } {
+      error "If workspace_rootdir is provided, then topcell must be provided as well"
+    }
+
+    $self init_xml_instance
+    ::dom::element setAttribute $options(-flow) "name" $flow
+    ::dom::element setAttribute $options(-flow) "subflow" $subflow
+    ::dom::element setAttribute $options(-flow) "run_dir" $run_dir
+    ::dom::element setAttribute $options(-flow) "cmdline" $cmdline
+    ::dom::element setAttribute $options(-flow) "libtype" $libtype
+    if { $topcell != {} } {
+      ::dom::element setAttribute $options(-flow) "topcell" $topcell
+    }
+    if { $variant != {} } {
+      ::dom::element setAttribute $options(-flow) "variant" $variant
+    }
+    # Do not check for existance since those attributes default to '' rather than None
+    ::dom::element setAttribute $options(-flow) "arc_job_id" $arc_job_id
+    ::dom::element setAttribute $options(-flow) "lsf_job_id" $lsf_job_id
+    ::dom::element setAttribute $options(-flow) "subtest" $subtest
+    
+    $self set_automatic_info
+
+    return ""
+  }
+
+
+  #-------------------------------------------------------------------------------
+  # add_requirement
+  #-------------------------------------------------------------------------------
+
+  method add_requirement { filepath {checksum {}} {filter {}} {run_dir {}} {icm_dir {}} {rcs_disable {}} {inputfile {}}} {
+    # Call this to require a file to be audited.  Filepath should be relative
+    # to the workspace root.  If it is not relative to the workspace root, 
+    # but is a full path, then it will be made relative to the ws root.
+    # If checksum is provided, it will be used, otherwise, the checksum
+    # is calculated by referencing the current file on disk.  If a filter 
+    # regexp is provided, the checksum value will be based on the filtered file,
+    # and that requirement will be added to the audit.
+    # Regardless of the filter argument, Perforce-expanded keywords
+    # will be filtered prior to checksum calculation.
+    #
+    # run_dir and icm_dir support flows which need to run from directories other than the
+    # official IC Manage location.  See :case:`319016`
+    # run_dir indicates that component of filepath where the file actually exists,
+    # whereas icm_dir indicates how the run_dir component of filepath will be changed
+    # when the file is chcked in to IC Manage (so this is the path that appears in the 
+    # audit XML file).
+    #
+    # rcs_disable will disable RCS keyword filtering during checksum calculation.
+    # if the files being added are known not to use RCS keywords, you should set
+    # this to True for better performance during checker runs and releases
+    #
+    # inputfile: non-null or non-zero will indicate this file is an input to the flow,
+    # otherwise, an output (via <type> in the audit XML file).  No type will be
+    # written if this argument is not given
+
+    # Delegate computing checksum to Python API (unless provided by the user)
+    set clean_filepath [ $self validate_filepath $filepath ]
+
+    if { [ info exists requirement_lookup($clean_filepath) ] } {
+      error "Tried to add second Requirement with existing name: $clean_filepath."
+    }
+    set requirement_lookup($clean_filepath) {}
+
+    set file_node [ ::dom::document createElement $options(-files) "file" ]
+    ::dom::element setAttribute $file_node "file_path" $clean_filepath
+    ::dom::element setAttribute $file_node "checksum" $checksum
+    ::dom::element setAttribute $file_node "run_dir" $run_dir
+    ::dom::element setAttribute $file_node "icm_dir" $icm_dir
+    ::dom::element setAttribute $file_node "filter" $filter   
+
+    if { $inputfile != {} } {
+      if { $inputfile } {
+        ::dom::element setAttribute $file_node "type" "input"
+      } else {
+        ::dom::element setAttribute $file_node "type" "output"
+      }
+    }
+
+
+    if { $rcs_disable != {} } {
+      ::dom::element setAttribute $file_node "rcs_disable" "yes"
+    }
+
+    return ""
+  }
+
+
+  #-------------------------------------------------------------------------------
+  # add_requirement_helper
+  #-------------------------------------------------------------------------------
+
+  method add_requirement_helper { actual_filepath future_filepath {checksum {}} {filter {}} {rcs_disable {}} {inputfile {}}} {
+    # Call this to require a file to be audited.  Filepath should be relative
+    # to the workspace root.  If it is not relative to the workspace root, 
+    # but is a full path, then it will be made relative to the ws root.
+    # If checksum is provided, it will be used, otherwise, the checksum
+    # is calculated by referencing the current file on disk.  If a filter 
+    # regexp is provided, the checksum value will be based on the filtered file,
+    # and that requirement will be added to the audit.
+    # Regardless of the filter argument, Perforce-expanded keywords
+    # will be filtered prior to checksum calculation.
+    #
+    # $actual_filepath is the file that is used for checksum calculation.
+    # This filepath has to exist.
+    # $future_filepath is the filapath is is registered into the audit XML file.
+    # The existance of this filepath is optional.
+    #
+    # rcs_disable will disable RCS keyword filtering during checksum calculation.
+    # if the files being added are known not to use RCS keywords, you should set
+    # this to True for better performance during checker runs and releases
+    #
+    # inputfile: non-null or non-zero will indicate this file is an input to the flow,
+    # otherwise, an output (via <type> in the audit XML file).  No type will be
+    # written if this argument is not given
+
+    # Delegate computing checksum to Python API (unless provided by the user)
+ 
+    set file_node [ ::dom::document createElement $options(-files) "file" ]
+    ::dom::element setAttribute $file_node "file_path" ""
+    ::dom::element setAttribute $file_node "actual_filepath" $actual_filepath
+    ::dom::element setAttribute $file_node "future_filepath" $future_filepath
+    ::dom::element setAttribute $file_node "checksum" $checksum
+    ::dom::element setAttribute $file_node "run_dir" ""
+    ::dom::element setAttribute $file_node "icm_dir" ""
+    ::dom::element setAttribute $file_node "filter" $filter   
+
+    if { $inputfile != {} } {
+      if { $inputfile } {
+        ::dom::element setAttribute $file_node "type" "input"
+      } else {
+        ::dom::element setAttribute $file_node "type" "output"
+      }
+    }
+
+
+    if { $rcs_disable != {} } {
+      ::dom::element setAttribute $file_node "rcs_disable" "yes"
+    }
+
+    return ""
+  }
+
+  #-------------------------------------------------------------------------------
+  # validate_filepath
+  #-------------------------------------------------------------------------------
+
+  method validate_filepath { filepath } {
+    # Ensures the filepath exists either under the workspace rootdir,
+    # or is a full path on /tools.
+    # Returrns the path relative to the workspace rootdir.
+
+    set fullpath $filepath
+    if { $options(-workspace_rootdir) != "" } {
+      if { [ file pathtype $filepath ] == "relative" } {
+        set fullpath [ file normalize [ file join $options(-workspace_rootdir) $filepath ] ]
+      }
+    } else {
+      # Cannot support path relative (to workspace) since this API does not
+      # know the workspace directory.
+      if { [ file pathtype $filepath ] != "absolute" } {
+        error "Path to audited file requirement must be absolute: $filepath"
+      }
+    }
+
+    if { ! [ file isfile $fullpath ] } {
+      error "Path to audited file requirement does not exist or is not a file: $fullpath"
+    }
+
+    return $fullpath
+  }
+
+
+  #-------------------------------------------------------------------------------
+  # add_result
+  #-------------------------------------------------------------------------------
+
+  method add_result { name passed {severity "error"}} {
+    # Call this to add a Result entry to the audit log.  A Result entry
+    # indicates the pass or fail status of a given sub-flow.  Each
+    # Result will be listed in the dashboard, and each Result can be
+    # independently waived.  Each Result in a given audit file must
+    # have a unique name.  It can only have the value "pass" or "fail".
+
+    ### Need to remove non-printable characters(ie: hex, etc) 
+    ### Shamelessly copied from https://stackoverflow.com/questions/12653100/replacing-unrecognized-character-from-file-using-tcl
+    set name [regsub -all {[^[:print:]]} $name ""]
+    # https://rosettacode.org/wiki/Strip_control_codes_and_extended_characters_from_a_string
+    set name [regsub -all {[^\u0020-\u007e]+} $name ""]
+
+    if { [ info exists result_lookup($name) ] } {
+      error "Tried to add second Result with existing name: $name."
+    }
+    set result_lookup($name) {}
+
+    set result_node [ ::dom::document createElement $options(-results) "result" ]
+    ::dom::element setAttribute $result_node "text" $name
+    if { $passed } {
+      ::dom::element setAttribute $result_node "failure" "pass"
+    } else {
+      ::dom::element setAttribute $result_node "failure" "fail"
+    }
+    ::dom::element setAttribute $result_node "severity" $severity
+
+    return ""
+  }
+
+
+  #-------------------------------------------------------------------------------
+  # add_data
+  #-------------------------------------------------------------------------------
+
+  method add_data { name value } {
+    # Call this to add a Data entry to the audit log.  A Data entry
+    # is additional data to be sent to the dashboard for logging.
+    # Data entires do now affect the auditing process in any way.
+    # Each Data entry in a given audit file must have a unique name.
+    # The value is a string, but can be re-interpreted (ie, as a number)
+    # by the dashboard code.  If that is the case, it is up to the caller
+    # to ensure the value is of the desired format.
+
+    ### Need to remove non-printable characters(ie: hex, etc) 
+    ### Shamelessly copied from https://stackoverflow.com/questions/12653100/replacing-unrecognized-character-from-file-using-tcl
+    set name [regsub -all {[^[:print:]]} $name ""]
+    set value [regsub -all {[^[:print:]]} $value ""]
+    # https://rosettacode.org/wiki/Strip_control_codes_and_extended_characters_from_a_string
+    set name [regsub -all {[^\u0020-\u007e]+} $name ""]
+    set value [regsub -all {[^\u0020-\u007e]+} $value ""]
+
+    set key [ list $name $value ]
+    if { [ info exists data_lookup($key) ] } {
+      error "Tried to add second Data with existing name=value: $name=$value."
+    }
+    set data_lookup($key) {}
+
+    set record_node [ ::dom::document createElement $options(-data) "record" ]
+    ::dom::element setAttribute $record_node "tag" $name
+    ::dom::element setAttribute $record_node "text" $value
+
+    return ""
+  }
+
+  #-------------------------------------------------------------------------------
+  # get_audit_file_path
+  #-------------------------------------------------------------------------------
+
+  method get_audit_file_path { } {
+    # Call this to get the path to the audit file that would be created if
+    # if you call the same method.  You must invoke this after calling
+    # set_test_info (since the audit file path/name depends on things like
+    # variant, flow, etc.
+    set result ""
+    set output_file [ ::fileutil::tempfile ]
+    if { [ catch {
+      # TODO assume script is in $PATH
+      set fid [ open "|audit_tcl -p $output_file 2>@stderr" "r+" ]
+      puts $fid [ ::dom::DOMImplementation serialize $options(-doc) ]
+      close $fid 
+
+      set oid [open $output_file "r"]
+      set result [read $oid]
+      close $oid
+      file delete $output_file
+    } ret ] } {
+      error "Delegating audit information to python API failed: Got '$ret'."
+    }
+
+    return $result
+  }
+}
+
+package provide AuditFile 1.0
+
+# Example usage:
+#
+##set audit [ AuditFile ]
+#set audit [ AuditFile %AUTO% -workspace_rootdir "/nfs/site/disks/da_i10r2g2_1/users/rmayr/ICM/rmayr.i10socfm.cw_lib.26" ]
+#$audit set_test_info "FLOW" "SUBFLOW" "RUN_DIR" "CMDLINE" "LIBTYPE" "TOPCELL"
+#$audit add_data "Some data" "with some value"
+#$audit add_data "More data" "with more value"
+##$audit add_data "More data" "with more value"
+#$audit add_result "Some result" false
+#$audit add_result "More result" true
+##$audit add_result "More result" true
+#$audit add_requirement "/p/psg/flows/common/dmx/current/lib/tcl/dmx/tnrlib/pkgIndex.tcl" {Some Checksum} {\$SomeFilter<&5>}
+#$audit add_requirement "/p/psg/flows/common/dmx/current/lib/tcl/dmx/tnrlib/audit_file.tcl"
+##$audit add_requirement "/p/psg/flows/common/dmx/current/lib/tcl/dmx/tnrlib/audit_file.tcl"
+#$audit save {} false true
+

@@ -1,0 +1,4 @@
+#!/bin/tcsh -f
+
+source /p/psg/data/lionelta/gdpbin/gdpxl.cshrc
+gdp --no-colors $argv:q

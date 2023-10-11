@@ -1,0 +1,7 @@
+#!/bin/tcsh -f
+
+setenv BNR_PATH /p/psg/flows/hw/i10/altera_bnr/20nm/2.13/bin
+setenv BNR_BIN /p/psg/flows/hw/i10/altera_bnr/20nm/2.13/bin
+setenv BNR_ROOT /p/psg/flows/hw/i10/altera_bnr/20nm/2.13
+
+/p/psg/flows/hw/i10/altera_bnr/20nm/2.13/bin/sdoc $argv:q

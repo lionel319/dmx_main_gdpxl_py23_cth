@@ -1,0 +1,3 @@
+variant_a_cell_1
+variant_a_cell_2
+variant_a_cell_3

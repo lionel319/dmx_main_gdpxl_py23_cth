@@ -1,0 +1,137 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import json
+from pprint import pprint
+import textwrap
+import logging
+
+CMXLIB = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')
+DMXLIB = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', '..', '..', 'lib', 'python')
+sys.path.insert(0, os.getenv("DMXLIB"))
+sys.path.insert(0, os.getenv("CMXLIB"))
+
+import cmx.utillib.utils
+
+class ReleaseRunnerPoc():
+    
+    def __init__(self, thread, milestone, deliverable, project, ip, label=None, views=None, skipmscheck=None, prel=None, syncpoint=None, skipsyncpoint=None, dryrun=False):
+        self.logger = logging.getLogger(__name__)
+        self.workarea = self.get_workarea()
+        self.thread = thread
+        self.milestone = milestone
+        self.deliverable = deliverable
+        self.project = project
+        self.ip = ip
+        self.label = label
+        self.views = views
+        self.skipmscheck = skipmscheck
+        self.prel = prel
+        self.syncpoint = syncpoint
+        self.skipsyncpoint = skipsyncpoint
+        self.dryrun = dryrun
+
+    def find_mapping_reltag(self, reltag_regex):
+        import dmx.abnrlib.icm
+        i = dmx.abnrlib.icm.ICManageCLI()
+        retlist = i._find_objects('release', 'IP_MODEL:~{}$'.format(reltag_regex), retkeys=['*'])
+        return retlist
+
+    def get_testrunner(self):
+        wsroot = self.get_workarea()
+        tr = TestRunnerPoc(self.thread, self.milestone, self.deliverable, workspace_root=self.workarea)
+        return tr
+
+    def get_workarea(self):
+        self.workarea = os.getenv("WORKAREA")
+        if not self.workarea:
+            raise Exception("WORKAREA env var not defined! Program Terminated!")
+        return self.workarea
+
+    def get_latest_gk_reltag(self):
+        ipmod_fullpath = self.get_latest_ipmod_path()
+        gkreltag = os.path.basename(ipmod_fullpath)
+        return gkreltag
+
+    def get_latest_ipmod_path(self):
+        ipmod_fullpath = os.path.realpath("/nfs/site/disks/psg.mod.000/release/{}/{}-a0-latest".format(self.ip, self.ip))
+        return ipmod_fullpath
+
+    def run(self):
+
+        gkreltag = self.get_latest_gk_reltag()
+
+        foundlist = self.find_mapping_reltag(gkreltag)
+        if foundlist:
+            msg = '''
+            ======================================================
+            This tag has already been released. Here are the matching REL:-
+            ======================================================
+            {}
+            '''.format(pformat(foundlist))
+            self.logger.info(msg)
+            return 1
+
+        ### Verify if IP_MODEL is CLEAN
+        ipmod_fullpath = self.get_latest_ipmod_path()
+        os.environ['WORKAREA'] = ipmod_fullpath
+        tr = self.get_testrunner()
+        errors = tr.run_tests()
+        tr.report_errors(errors)
+        if tr._exit_code:
+            self.logger.error("FAIL: IP_MODEL at {} is not clean.\nREL not created!".format(ipmod_fullpath))
+            return 1
+        else:
+            self.logger.info("PASS: IP_MODEL at {} is clean.\nGenerating REL now ... ".format(ipmod_fullpath))
+            a = tr.make_rel_config(project, variant, milestone, thread, libtype=deliverable, label=None)
+            print(a)
+            return 0
+           
+    
+    def get_rel_name(self):
+        import dmx.tnrlib.release_runner
+        import argparse
+        args = argparse.ArgumentParser()
+        args.configuration = args.work_dir = args.dont_create_rel = None
+        rr = dmx.tnrlib.release_runner.ReleaseRunner(args)
+        relname = rr.get_rel_config_name(self.project, self.ip, self.deliverable, self.milestone, self.thread, label=self.label, views=self.views, skipmscheck=self.skipmscheck, prel=self.prel)
+        return relname
+
+    def make_rel_config(self):
+        relname = self.get_rel_name()
+        self.logger.info("relconfig tobe created: {}".format(relname))
+        import dmx.abnrlib.config_factory
+        dev = dmx.abnrlib.config_factory.ConfigFactory.create_from_icm(self.project, self.ip, 'dev', libtype=self.deliverable)
+
+        rel = dev.clone(relname)
+        rel.add_property('Owner', os.getenv("USER"))
+        rel.add_property("IP_MODEL", os.path.realpath(self.workarea))
+        #rel.add_property('DMX_Version', self.versionobj.dmx)
+        #rel.add_property('DMXDATA_Version', self.versionobj.dmxdata)
+
+        ### http://pg-rdjira:8080/browse/DI-1401
+        ### Add --views into property
+        viewlabel = ''
+        if self.views:
+            # eg: views=['view_rtl', 'view_phys'], ==> 'RTL,PHYS'
+            viewlabel = ','.join([v[5:] for v in self.views]).upper()
+            rel.add_property("RELEASEVIEWS", viewlabel)
+        ### http://pg-rdjira:8080/browse/DI-1061
+        if self.syncpoint:
+            rel.add_property("SYNCPOINT", self.syncpoint)
+        if self.skipsyncpoint:
+            rel.add_property("SKIPSYNCPOINT", self.skipsyncpoint)
+        ### http://pg-rdjira:8080/browse/DI-1176
+        if self.skipmscheck:
+            rel.add_property("SKIPMSCHECK", self.skipmscheck)
+        
+        if not self.dryrun:
+            success = rel.save(shallow=True)
+            if success:
+                self.logger.info("Successfully created release configuration: {}".format(relname))
+            else:
+                self.logger.info("DRYRUN: Release Configuration not created: {}".format(relname))
+        return relname
+
+

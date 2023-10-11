@@ -1,0 +1,84 @@
+#!/usr/bin/env python
+'''
+$Header: //depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/plugins/workspaceupdate.py#8 $
+$Change: 7504062 $
+$DateTime: 2023/02/28 22:39:50 $
+$Author: lionelta $
+
+Description: plugin for "dmx newws"
+
+Author: Lionel Tan Yoke-Liang
+Copyright (c) Altera Corporation 2014
+All rights reserved.
+
+'''
+
+# pylint: disable=C0301,F0401,E1103,R0914,R0912,R0915
+
+from future import standard_library
+standard_library.install_aliases()
+import os
+import sys
+import logging
+import textwrap
+import argparse
+import io
+from pprint import pprint
+
+lib = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')
+sys.path.insert(0, lib)
+
+from cmx.abnrlib.command import Command, Runner
+from cmx.utillib.utils import add_common_args, dispatch_cmd_to_other_tool, get_old_dmx_exe_from_folder, get_ws_from_ward, get_ward
+import cmx.abnrlib.flows.workspaceupdate
+
+LOGGER = logging.getLogger(__name__)
+
+class WorkspaceUpdate(Command):
+    '''
+    '''
+    @classmethod
+    def get_help(cls):
+        '''
+        Short help for the subcommand
+        '''
+        myhelp = ''' Update Workspace.
+        '''
+        return textwrap.dedent(myhelp)
+
+    @classmethod
+    def extra_help(cls):
+        myhelp = '''\
+        Update and Sync the Workspace.
+        >dmx workspace update 
+        .
+        '''
+        return textwrap.dedent(myhelp)
+
+    @classmethod
+    def add_args(cls, parser):
+        add_common_args(parser)
+        parser.add_argument('-w', '--wsname',  help=argparse.SUPPRESS)
+        parser.add_argument('-o', '--original_user', required=False, help=argparse.SUPPRESS)
+        parser.add_argument('-f', '--force', action='store_true', required=False, help='force update')
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument('-d', '--deliverables',  required=False, default=None, nargs='+')
+        group.add_argument('-c', '--cfgfile',  required=False, default=None)
+
+    @classmethod
+    def command(cls, args):
+        wspath = get_ws_from_ward()
+        if not wspath:
+            raise Exception("No Workspace Found!")
+        else:
+            wsname = os.path.basename(wspath)
+            sys.argv += ['-w', wsname]
+        
+        ret = dispatch_cmd_to_other_tool(get_old_dmx_exe_from_folder('plugins'), sys.argv)
+        if ret == 0:
+            LOGGER.info("Running Cheetah Workspace Update")
+            wu = cmx.abnrlib.flows.workspaceupdate.WorkspaceUpdate(cfgfile=args.cfgfile, deliverables=args.deliverables, original_user=args.original_user, preview=args.preview, force=args.force)
+            ret = wu.run()
+
+
+        return ret

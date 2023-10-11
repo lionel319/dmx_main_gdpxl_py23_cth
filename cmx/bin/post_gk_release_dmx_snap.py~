@@ -1,0 +1,96 @@
+#!/usr/intel/pkgs/python3/3.10.8/bin/python3
+
+import UsrIntel.R1
+import warnings
+warnings.filterwarnings('ignore', category=RuntimeWarning)
+
+import sys
+import os
+import argparse 
+import logging
+from pprint import pprint, pformat
+
+DMXLIB = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'lib', 'python')
+CMXLIB = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'lib', 'python')
+sys.path.insert(0, DMXLIB)
+sys.path.insert(0, CMXLIB)
+
+import cmx.utillib.loggingutils
+from cmx.utillib.utils import run_command
+import cmx.tnrlib.utils
+LOGGER = cmx.utillib.loggingutils.setup_logger()
+
+def main():
+    args = set_argparse()
+    if args.debug:
+        LOGGER.setLevel(logging.DEBUG)
+    
+    #cluster, step = get_cluster_step_name_from_git(args.workarea)
+    #LOGGER.debug("cluster: {}, step: {}".format(cluster, step))
+    data = get_flowcfg_data()
+    LOGGER.debug("flowcfg: {}".format(data))
+
+    snapname = get_snapname(args.snap)
+    LOGGER.debug("snapname: {}".format(snapname))
+
+    #cmxexe = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'mycmx')
+    cmxexe = 'dmx'
+    #cmd = '{} snap -p {} -i {} -d cthfe -b {} -s {} --debug '.format(cmxexe, args.project, cluster, args.bom, snapname)
+    cmd = '{} snap -p {} -i {} -d {} -b {} -s {} --debug '.format(cmxexe, data['project'], data['ip'], data['deliverable'], data['bom'], snapname)
+    if args.dryrun:
+        cmd += ' -n '
+    LOGGER.info("Running: {}".format(cmd))
+    os.system(cmd)
+
+def get_flowcfg_data():
+    data = cmx.tnrlib.utils.parse_flowcfg()
+    key = 'workspace_check'
+    if key not in data:
+        raise Exception('[{}] section not found in flow.cfg file.'.format(key))
+    ret = data[key]
+    required_key = ['project', 'ip', 'bom', 'deliverable']
+    errlist = []
+    for k in required_key:
+        if k not in ret or not ret[k]:
+            errlist.append('{} key not found in [{}] section in flow.cfg file.'.format(k, key))
+    if errlist:
+        raise Exception("ERROR FOUND: \n{}".format(errlist))
+    return ret
+
+def get_snapname(snapname):
+    if snapname:
+        return snapname
+
+    snapname = os.getenv("GK_MODELNAME")
+    if not snapname:
+        raise Exception("snapname was not provided thru --snap, and $GK_MODELNAME env var was not defined too.")
+    return "snap-" + snapname
+
+
+def get_cluster_step_name_from_git(workarea):
+    cmd = 'cd {}; git remote show origin | grep "Fetch URL:"'.format(workarea)
+    exitcode, stdout, stderr = run_command(cmd)
+    LOGGER.debug("cmd: {}\nstdout: {}\nstderr: {}\n".format(cmd, stdout, stderr))
+    if exitcode:
+        LOGGER.error("cmd: {}\nstdout: {}\nstderr: {}\n".format(cmd, stdout, stderr))
+        raise Exception("FAIL getting cluster name from git workarea.")
+
+    master_repo_name = os.path.basename(stdout.split()[-1])
+    ipname, stepname = master_repo_name.rsplit('-', 1)
+    return [ipname, stepname]
+
+
+def set_argparse():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--project', '-p', required=False, default='i18asockm')
+    parser.add_argument('--bom', '-b', required=False, default='dev')
+    parser.add_argument('--snap', '-s', required=False, default=None)
+    parser.add_argument('--workarea', '-w', required=False, default='.')
+    parser.add_argument('--debug', default=False, action='store_true')
+    parser.add_argument('--dryrun', '-n', default=False, action='store_true')
+    args = parser.parse_args()
+    return args
+
+
+if __name__ == '__main__':
+    sys.exit(main())

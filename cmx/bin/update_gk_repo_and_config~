@@ -1,0 +1,10 @@
+#!/bin/tcsh -f
+
+set realpath = `realpath $0`
+set bindir = `dirname $realpath`
+
+/p/psg/da/infra/admin/setuid/sshlt rsync.zsc7.intel.com -q "unset KRB5CCNAME; /usr/bin/X11/kinit lionelta@GAR.CORP.INTEL.COM -k -t /p/psg/data/lionelta/kerberos/keytab; ${bindir}/../../bin/_dmxsetupclean ${bindir}/../../scripts/update_gk_repo_and_config.py $argv:q"
+
+
+#/p/psg/da/infra/admin/setuid/sshlt scypsgdacron2.zsc7.intel.com -q ${bindir}/../../bin/_dmxsetupclean ${bindir}/../../scripts/update_gk_repo_and_config.py $argv:q
+#/p/psg/da/infra/admin/setuid/sshlt rsync.zsc7.intel.com -q 'unset KRB5CCNAME; /usr/bin/X11/kinit lionelta@GAR.CORP.INTEL.COM -k -t /nfs/site/home/lionelta/kerberos/keytab;'

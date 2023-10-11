@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?><testsuite name="nosetests" tests="2" errors="1" failures="0" skip="0"><testcase classname="nose.failure.Failure" name="runTest" time="0.000"><error type="builtins.ModuleNotFoundError" message="No module named 'dmx'"><![CDATA[Traceback (most recent call last):
+  File "/p/psg/ctools/python/3.7.9/6/linux64/suse12/lib/python3.7/unittest/case.py", line 59, in testPartExecutor
+    yield
+  File "/p/psg/ctools/python/3.7.9/6/linux64/suse12/lib/python3.7/unittest/case.py", line 628, in run
+    testMethod()
+  File "/p/psg/ctools/python/3.7.9/6/linux64/suse12/lib/python3.7/site-packages/nose/failure.py", line 39, in runTest
+    raise self.exc_val.with_traceback(self.tb)
+  File "/p/psg/ctools/python/3.7.9/6/linux64/suse12/lib/python3.7/site-packages/nose/loader.py", line 418, in loadTestsFromName
+    addr.filename, addr.module)
+  File "/p/psg/ctools/python/3.7.9/6/linux64/suse12/lib/python3.7/site-packages/nose/importer.py", line 47, in importFromPath
+    return self.importFromDir(dir_path, fqname)
+  File "/p/psg/ctools/python/3.7.9/6/linux64/suse12/lib/python3.7/site-packages/nose/importer.py", line 94, in importFromDir
+    mod = load_module(part_fqname, fh, filename, desc)
+  File "/p/psg/ctools/python/3.7.9/6/linux64/suse12/lib/python3.7/imp.py", line 234, in load_module
+    return load_source(name, filename, file)
+  File "/p/psg/ctools/python/3.7.9/6/linux64/suse12/lib/python3.7/imp.py", line 171, in load_source
+    module = _load(spec)
+  File "<frozen importlib._bootstrap>", line 696, in _load
+  File "<frozen importlib._bootstrap>", line 677, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 728, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/gdp47827_tests/cmxcmd/test_cmx_roadmap.py", line 24, in <module>
+    import dmx.utillib.utils
+ModuleNotFoundError: No module named 'dmx'
+]]></error></testcase><testcase classname="test_cmx_size.TestDmxSize" name="test_003___mutable_deliverable" time="6.736"><system-out><![CDATA[exitcode:0
+stdout:Raton_Mesa/rtmliotest1:ipspec@dev[] - Size : 94 File : 4
+Total size : 94, total file : 4
+
+stderr:INFO: DMX-id: dmx_lionelta_20230119_scc919046_28669_sc
+
+
+]]></system-out></testcase></testsuite>

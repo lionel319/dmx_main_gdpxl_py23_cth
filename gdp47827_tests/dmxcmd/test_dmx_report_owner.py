@@ -1,0 +1,76 @@
+#!/usr/bin/env python
+# 2014 Altera Corporation. All rights reserved. This source code is highly
+# confidential and proprietary information of Altera and is to be used for
+# internal Altera purposes only.   Altera assumes no responsibility or
+# liability arising out of the application or use of this source code for
+# non-Altera purposes.
+#
+# Tests the abnr icm library
+#
+# $File: //depot/da/infra/dmx/main_gdpxl_py23_cth/gdp47827_tests/dmxcmd/test_dmx_report_owner.py $
+# $Revision: #2 $
+# $Change: 7463639 $
+# $DateTime: 2023/01/31 02:07:12 $
+# $Author: lionelta $
+
+from __future__ import print_function
+import unittest
+import inspect
+import os
+import sys
+
+LIB = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))), 'lib', 'python')
+sys.path.insert(0, LIB)
+import dmx.utillib.utils
+
+class TestDmxReportOwner(unittest.TestCase):
+    def setUp(self):
+        self.dmx = os.path.join(LIB, '..', '..', 'bin', 'dmx.py')
+        self.rc = dmx.utillib.utils.run_command
+        
+    def tearDown(self):
+        pass
+
+    def test_001___report_owner___variant(self):
+        exitcode, stdout, stderr = self.rc('{} report owner -p Raton_Mesa -i rtmliotest1'.format(self.dmx), maxtry=1)
+        self.assertIn('Owner: lionelta', stdout)
+
+    def test_002___report_owner___mutable_config(self):
+        exitcode, stdout, stderr = self.rc('{} report owner -p Raton_Mesa -i rtmliotest1 -b dev'.format(self.dmx), maxtry=1)
+        self.assertIn('Owner: jwquah (jo.wei.quah)\nCreator: lionelta (yoke.liang.tan)\nTime: ', stdout)
+
+    def test_003___report_owner___immutable_config(self):
+        exitcode, stdout, stderr = self.rc('{} report owner -p Raton_Mesa -i rtmliotest1 -b snap-1'.format(self.dmx), maxtry=1)
+        self.assertIn('Owner: lionelta (yoke.liang.tan)\nCreator: lionelta (yoke.liang.tan)\nTime:', stdout)
+    
+    def test_004___report_owner___library(self):
+        exitcode, stdout, stderr = self.rc('{} report owner -p Raton_Mesa -i rtmliotest1 -b dev -d ipspec'.format(self.dmx), maxtry=1)
+        self.assertIn('Owner: jwquah (jo.wei.quah)\nCreator: lionelta (yoke.liang.tan)\nTime: ', stdout)
+
+    def test_005___report_owner___release(self):
+        exitcode, stdout, stderr = self.rc('{} report owner -p Raton_Mesa -i rtmliotest1 -b snap-fortnr_1 -d ipspec'.format(self.dmx), maxtry=1)
+        self.assertIn('Owner: psginfraadm (psginfraadm)\nCreator: psginfraadm (psginfraadm)', stdout)
+
+    def test_006___set_owner___variant(self):
+        print('manually tested and passed')
+        print('dmx.py report owner -p Raton_Mesa -i liotest2 --set-owner jwquah --debug')
+
+    def test_007___set_owner___mutable_config(self):
+        print('manually tested and passed')
+        print('dmx.py report owner -p Raton_Mesa -i liotest2 -b dev --set-owner jwquah --debug')
+
+    def test_008___set_owner___immutable_config(self):
+        print('>./bin/dmx.py report owner -p Raton_Mesa -i liotest3 -b snap-2 --set-owner bblanc --debug')
+        print('manually tested and passed')
+
+    def test_009___set_owner___library(self):
+        print('manually tested and passed')
+        print('>./bin/dmx.py report owner -p Raton_Mesa -i liotest3 -b dev -d ipspec')
+
+    def test_010___set_owner___release(self):
+        print('manually tested and passed')
+        print('>./bin/dmx.py report owner -p Raton_Mesa -i liotest3 -b snap-2 -d rdf --set-owner fysu')
+
+
+if __name__ == '__main__':
+    unittest.main()

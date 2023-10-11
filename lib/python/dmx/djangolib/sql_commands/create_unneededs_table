@@ -1,0 +1,8 @@
+CREATE TABLE unneededs (
+    id INT NOT NULL AUTO_INCREMENT,
+    project VARCHAR(250) NOT NULL,
+    variant VARCHAR(250) NOT NULL,
+    cellname VARCHAR(500) NOT NULL,
+    libtype VARCHAR(100) NOT NULL,
+    PRIMARY KEY ( id )
+);

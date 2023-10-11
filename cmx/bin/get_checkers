@@ -1,0 +1,5 @@
+#!/bin/tcsh -f
+
+set realpath = `realpath $0`
+set bindir = `dirname $realpath`
+${bindir}/_cmxsetupclean ${bindir}/../../scripts/get_checkers.py $argv:q

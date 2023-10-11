@@ -1,0 +1,8 @@
+This script is to temporary address this ticket:-
+   http://pg-rdconfluence:8090/display/NadderDMInfra/Database+Models+-+Rev+3
+
+While waiting for the new json format to be provided, 
+- reads in the json format from rev 1
+- dumps out the json format for rev 3
+
+... so that the progress/development on dmx codes to support this new format can move forward.

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?><testsuite name="nosetests" tests="4" errors="2" failures="0" skip="0"><testcase classname="nose.failure.Failure" name="runTest" time="0.000"><error type="builtins.SyntaxError" message="invalid syntax (__init__.py, line 46)&#10;-------------------- &gt;&gt; begin captured logging &lt;&lt; --------------------&#10;dmx.errorlib.errorcode: DEBUG: Loading in datafile: /nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/errorlib/../../../../cfgfiles/errorcodes.json&#10;--------------------- &gt;&gt; end captured logging &lt;&lt; ---------------------"><![CDATA[  File "/usr/intel/pkgs/python3/3.9.6/lib/python3.9/unittest/case.py", line 59, in testPartExecutor
+    yield
+  File "/usr/intel/pkgs/python3/3.9.6/lib/python3.9/unittest/case.py", line 593, in run
+    self._callTestMethod(testMethod)
+  File "/usr/intel/pkgs/python3/3.9.6/lib/python3.9/unittest/case.py", line 550, in _callTestMethod
+    method()
+  File "/usr/intel/pkgs/python3/3.9.6/modules/r1/lib/python3.9/site-packages/nose/failure.py", line 39, in runTest
+    raise self.exc_val.with_traceback(self.tb)
+  File "/usr/intel/pkgs/python3/3.9.6/modules/r1/lib/python3.9/site-packages/nose/loader.py", line 417, in loadTestsFromName
+    module = self.importer.importFromPath(
+  File "/usr/intel/pkgs/python3/3.9.6/modules/r1/lib/python3.9/site-packages/nose/importer.py", line 47, in importFromPath
+    return self.importFromDir(dir_path, fqname)
+  File "/usr/intel/pkgs/python3/3.9.6/modules/r1/lib/python3.9/site-packages/nose/importer.py", line 94, in importFromDir
+    mod = load_module(part_fqname, fh, filename, desc)
+  File "/usr/intel/pkgs/python3/3.9.6/lib/python3.9/imp.py", line 234, in load_module
+    return load_source(name, filename, file)
+  File "/usr/intel/pkgs/python3/3.9.6/lib/python3.9/imp.py", line 171, in load_source
+    module = _load(spec)
+  File "<frozen importlib._bootstrap>", line 711, in _load
+  File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+  File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+  File "/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/gdp47827_tests/abnrlib/flows/test_derivebom.py", line 29, in <module>
+    import cmx.abnrlib.flows.derivebom
+  File "/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/derivebom.py", line 29, in <module>
+    import dmx.abnrlib.workspace
+  File "/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/../../../../../lib/python/dmx/abnrlib/workspace.py", line 30, in <module>
+    import dmx.abnrlib.flows.workspace
+  File "/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/../../../../../lib/python/dmx/abnrlib/flows/workspace.py", line 43, in <module>
+    import dmx.tnrlib.test_runner
+  File "/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/../../../../../lib/python/dmx/tnrlib/test_runner.py", line 33, in <module>
+    import dmx.tnrlib.audit_check
+  File "/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/../../../../../lib/python/dmx/tnrlib/audit_check.py", line 81, in <module>
+    import dmx.abnrlib.goldenarc_db
+  File "/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/../../../../../lib/python/dmx/abnrlib/goldenarc_db.py", line 34, in <module>
+    import dmx.ecolib.ecosphere
+  File "/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/../../../../../lib/python/dmx/ecolib/ecosphere.py", line 24, in <module>
+    import dmx.dmxlib.workspace
+  File "/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/../../../../../lib/python/dmx/dmxlib/workspace.py", line 36, in <module>
+    import dmx.tnrlib.release_runner
+  File "/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/../../../../../lib/python/dmx/tnrlib/release_runner.py", line 49, in <module>
+    from dmx.tnrlib.waivers import Waivers
+  File "/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/../../../../../lib/python/dmx/tnrlib/waivers.py", line 27, in <module>
+    from dmx.tnrlib.waiver_file import WaiverFile
+  File "/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/../../../../../lib/python/dmx/tnrlib/waiver_file.py", line 50, in <module>
+    from dmx.utillib.dmxwaiverdb import DmxWaiverDb
+  File "/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/../../../../../lib/python/dmx/utillib/dmxwaiverdb.py", line 8, in <module>
+    import pymongo
+  File "/nfs/site/disks/psg_flowscommon_1/common_info/pymongo380a/pymongo/__init__.py", line 77, in <module>
+    from pymongo.collection import ReturnDocument
+  File "/nfs/site/disks/psg_flowscommon_1/common_info/pymongo380a/pymongo/collection.py", line 29, in <module>
+    from pymongo import (common,
+  File "/nfs/site/disks/psg_flowscommon_1/common_info/pymongo380a/pymongo/common.py", line 28, in <module>
+    from pymongo.compression_support import (validate_compressors,
+  File "/nfs/site/disks/psg_flowscommon_1/common_info/pymongo380a/pymongo/compression_support.py", line 18, in <module>
+    import snappy
+  File "/usr/intel/pkgs/python3/3.9.6/modules/r1/lib/python3.9/site-packages/snappy/__init__.py", line 7, in <module>
+    from .SnapPy import (AbelianGroup, HolonomyGroup, FundamentalGroup,
+  File "cython/core/basic.pyx", line 47, in init SnapPy
+  File "/usr/intel/pkgs/python3/3.9.6/modules/r1/lib/python3.9/site-packages/snappy/polyviewer.py", line 6, in <module>
+    from .CyOpenGL import *
+  File "opengl/CyOpenGL.pyx", line 13, in init CyOpenGL
+  File "/usr/intel/pkgs/python3/3.9.6/modules/r1/lib/python3.9/site-packages/snappy/infodialog.py", line 6, in <module>
+    from IPython import __version__ as IPython_version
+  File "/usr/intel/pkgs/python3/3.9.6/modules/r1/lib/python3.9/site-packages/IPython/__init__.py", line 55, in <module>
+    from .core.application import Application
+  File "/usr/intel/pkgs/python3/3.9.6/modules/r1/lib/python3.9/site-packages/IPython/core/application.py", line 25, in <module>
+    from IPython.core import release, crashhandler
+  File "/usr/intel/pkgs/python3/3.9.6/modules/r1/lib/python3.9/site-packages/IPython/core/crashhandler.py", line 27, in <module>
+    from IPython.core import ultratb
+  File "/usr/intel/pkgs/python3/3.9.6/modules/r1/lib/python3.9/site-packages/IPython/core/ultratb.py", line 112, in <module>
+    from IPython.core import debugger
+  File "/usr/intel/pkgs/python3/3.9.6/modules/r1/lib/python3.9/site-packages/IPython/core/debugger.py", line 39, in <module>
+    from IPython.utils import PyColorize
+  File "/usr/intel/pkgs/python3/3.9.6/modules/r1/lib/python3.9/site-packages/IPython/utils/PyColorize.py", line 47, in <module>
+    from .colorable import Colorable
+  File "/usr/intel/pkgs/python3/3.9.6/modules/r1/lib/python3.9/site-packages/IPython/utils/colorable.py", line 12, in <module>
+    import pygments
+invalid syntax (__init__.py, line 46)
+-------------------- >> begin captured logging << --------------------
+dmx.errorlib.errorcode: DEBUG: Loading in datafile: /nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/errorlib/../../../../cfgfiles/errorcodes.json
+--------------------- >> end captured logging << ---------------------]]></error></testcase><testcase classname="nose.failure.Failure" name="runTest" time="0.006"><error type="builtins.AttributeError" message="'SyntaxError' object has no attribute 'filename'&#10;-------------------- &gt;&gt; begin captured logging &lt;&lt; --------------------&#10;dmx.errorlib.errorcode: DEBUG: Loading in datafile: /nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/errorlib/../../../../cfgfiles/errorcodes.json&#10;--------------------- &gt;&gt; end captured logging &lt;&lt; ---------------------"><![CDATA[  File "/usr/intel/pkgs/python3/3.9.6/modules/r1/lib/python3.9/site-packages/nose/case.py", line 134, in run
+    self.runTest(result)
+  File "/usr/intel/pkgs/python3/3.9.6/modules/r1/lib/python3.9/site-packages/nose/case.py", line 152, in runTest
+    test(result)
+  File "/usr/intel/pkgs/python3/3.9.6/lib/python3.9/unittest/case.py", line 653, in __call__
+    return self.run(*args, **kwds)
+  File "/usr/intel/pkgs/python3/3.9.6/lib/python3.9/unittest/case.py", line 601, in run
+    self._feedErrorsToResult(result, outcome.errors)
+  File "/usr/intel/pkgs/python3/3.9.6/lib/python3.9/unittest/case.py", line 519, in _feedErrorsToResult
+    result.addError(test, exc_info)
+  File "/usr/intel/pkgs/python3/3.9.6/modules/r1/lib/python3.9/site-packages/nose/proxy.py", line 132, in addError
+    self.result.addError(self.test, self._prepareErr(err))
+  File "/usr/intel/pkgs/python3/3.9.6/modules/r1/lib/python3.9/site-packages/nose/result.py", line 61, in addError
+    exc_info = self._exc_info_to_string(err, test)
+  File "/usr/intel/pkgs/python3/3.9.6/modules/r1/lib/python3.9/site-packages/nose/result.py", line 187, in _exc_info_to_string
+    return _TextTestResult._exc_info_to_string(self, err, test)
+  File "/usr/intel/pkgs/python3/3.9.6/lib/python3.9/unittest/result.py", line 185, in _exc_info_to_string
+    tb_e = traceback.TracebackException(
+  File "/usr/intel/pkgs/python3/3.9.6/lib/python3.9/traceback.py", line 517, in __init__
+    self.filename = exc_value.filename
+'SyntaxError' object has no attribute 'filename'
+-------------------- >> begin captured logging << --------------------
+dmx.errorlib.errorcode: DEBUG: Loading in datafile: /nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/errorlib/../../../../cfgfiles/errorcodes.json
+--------------------- >> end captured logging << ---------------------]]></error></testcase><testcase classname="test_dmxmoab.TestFlowDmxMoab" name="test_100___bom_collection_check" time="103.999"></testcase><testcase classname="test_dmxmoab.TestFlowDmxMoab" name="test_101___filelist_collection_check" time="0.000"></testcase></testsuite>

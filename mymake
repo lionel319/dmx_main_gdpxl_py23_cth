@@ -1,0 +1,8 @@
+#!/usr/bin/env tcsh
+
+### arc shell p4/sj-perforce,perforce/2015.1,python/2.7.1
+
+setenv P4CLIENT pice-yltan-pg
+echo $P4CLIENT
+
+make $* P4='/p/psg/ctools/perforce/2015.1/linux64/p4 -u lionelta -c pice-yltan-pg -p ssl:p4proxy06.devtools.intel.com:6110 '

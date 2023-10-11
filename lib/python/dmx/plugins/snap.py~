@@ -1,0 +1,286 @@
+#!/usr/bin/env python
+'''
+$Header: //depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/plugins/snap.py#1 $
+$Change: 7411538 $
+$DateTime: 2022/12/13 18:19:49 $
+$Author: lionelta $
+
+Description: dmx "snaplibrary" subcommand plugin
+Author: Lee Cartwright
+Copyright (c) Altera Corporation 2014
+All rights reserved.
+'''
+import sys
+import os
+import logging
+import textwrap
+import itertools
+from pprint import pprint
+import argparse
+
+rootdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')
+sys.path.insert(0, rootdir)
+
+from dmx.abnrlib.command import Command, Runner
+from dmx.utillib.utils import add_common_args, remove_quotes, quotify
+from dmx.abnrlib.flows.snaplibrary import SnapLibrary as SnapLibraryRunner
+from dmx.abnrlib.flows.snaptree import SnapTree as SnapTreeRunner
+import dmx.utillib.arcutils
+import dmx.utillib.server
+
+LOGGER = logging.getLogger(__name__)
+
+class SnapError(Exception): pass
+
+class Snap(Command):
+    '''dmx subcommand plugin class"'''
+
+    @classmethod
+    def get_help(cls):
+        '''short subcommand description'''
+        myhelp = '''\
+            Create a snapshot (non-editable) of a deliverable or IP
+            '''
+        return textwrap.dedent(myhelp)
+
+    @classmethod
+    def add_args(cls, parser):
+        '''subcommand arguments'''
+        add_common_args(parser)
+        # generic arguments
+        parser.add_argument('-p', '--project', metavar='project', required=False, default=None)
+        parser.add_argument('-i', '--ip', metavar='ip', required=True)
+        parser.add_argument('-b', '--bom', metavar='bom', required=True,
+            help='Source BOM, must not be REL/snap')
+        parser.add_argument('-s', '--snapshot', metavar='snapshot', required=False,
+            help='The name of the snap bom you want to create. Must begin with snap-. If not given, snap command will generate it\'s own snap with this format snap-<normalized_source_bom>_<year>ww<week><day>')
+
+        # snaplibrary arguments
+        parser.add_argument('-d', '--deliverable', metavar='deliverable',
+                            action='append', nargs='+', required=False,
+                            default=[])
+        parser.add_argument('--force', action='store_true', default=False, required=False, 
+                help="Force create the new snapshot despite the same snap content already exist.")
+
+        # snaptree arguments        
+        parser.add_argument('--desc', metavar='description', required=False,
+            help='The description that will be attached to each new snap- bom.')
+        parser.add_argument('--changelist', required=False, default=0,
+                            help=argparse.SUPPRESS)
+        parser.add_argument('--deliverable-filter', metavar='deliverable_filter', required=False,
+                            action='append', nargs='+',
+                            help='Only snap the specified deliverables')
+        parser.add_argument('--ip-filter', metavar='ip_filter', required=False,
+                            action='append', nargs='+',
+                            help='Only snap boms within the specified ips')
+
+        # http://pg-rdjira:8080/browse/DI-746
+        # Disabled per Bertrand's request, --reuse is now turned on by default
+        # http://pg-rdjira:8080/browse/DI-812
+        # Re-enabled for backwards compatibility, option is already deprecated
+        parser.add_argument('--reuse', required=False, action='store_true',
+                            help='Option is DEPRECATED. --reuse is now enabled by default')
+
+    @classmethod
+    def extra_help(cls):
+        '''
+        Extra help for dmx help snaplibrary
+        '''
+        extra_help = '''\
+            ---------------------------------------------------------------
+            Create a deliverable snapshot (with --deliverable or -d option)
+            ---------------------------------------------------------------
+            This command is used to create a deliverable snap bom.
+
+            In this mode, -b/--bom is treated as ICManage simple configuration. 
+            Please provide ICManage simple configuration to -b/--bom.
+
+            Example
+            =======
+            $ dmx snap --project i10socfm --ip cw_lib --deliverable rtl --bom dev --snapshot snap-foo
+            Creates a snap bom named i10socfm/cw_lib:rtl@snap-foo
+
+            $ dmx snap --project i10socfm --ip cw_lib --deliverable rtl --bom dev
+            Creates a snap bom named i10socfm/cw_lib:rtl@snap-dev__16ww102a if command is run on 1st March 2016
+
+            ----------------------------------------------------------
+            Create an IP snapshot (without --deliverable or -d option)
+            ----------------------------------------------------------
+            This command is used to create a snap for an entire bom tree. All mutable
+            boms within the tree will have snap- boms created, where the
+            snap- name is as specified using the --snapshot flag.
+
+            All immutable boms within the tree will be reused.
+            Command will only create a snap BOM (specified by --snapshot) for mutable BOMs 
+            and the snap BOM must not already exist.
+            Command will automatically reuse any snap configs that matches snap-name given by 
+            --snap option.
+
+            In this mode, -b/--bom is treated as ICManage variant configuration. 
+            Please provide ICManage variant configuration to -b/--bom.
+
+            To only snap content up to and including a specific Perforce changelist use the
+            --changelist option. Take note that --changelist will only work with mutable 
+            library such as dev. It will not work with released library.
+
+            Due to the way creating snap- boms is protected a single user cannot run
+            multiple instances of IP snap at the same time without encountering errors.
+
+            Example
+            =======
+            $ dmx snap --project i10socfm --ip cw_lib --bom dev --snapshot snap-foo
+            Creates a snap bom named i10socfm/cw_lib@snap-foo with all the sub-boms
+            named as snap-foo as well  
+            
+            $ dmx snap --project i10socfm --ip cw_lib --bom dev
+            Creates a snap bom named i10socfm/cw_lib:rtl@snap-dev__16ww102a with all the sub-boms named as snap-dev_16ww102 as well if command is run on 1st March 2016
+
+            ----------------------------------------------------------
+            Create an IP snapshot with view as context
+            ----------------------------------------------------------
+            This command is used to create a snap for using views as context. 
+            All mutable boms part of the specified views within the tree will have 
+            snap- boms created, where the snap- name is as specified using the --snapshot flag.
+
+            All immutable boms part of the specified views within the tree will be reused.
+            Command will only create a snap BOM (specified by --snapshot) for mutable BOMs 
+            and the snap BOM must not already exist.
+            Command will automatically reuse any snap configs that matches snap-name given by --snap option.
+
+            In this mode, -b/--bom is treated as ICManage variant configuration. 
+            Please provide ICManage variant configuration to -b/--bom.
+
+            Normal ICM deliverable cannot be provided together with view. 
+            For example: --deliverable view_1 rtl
+                         This mode is not supported
+
+            Multiple views can be provided together to --deliverable
+            For example: --deliverable view_1 view_2
+
+            Due to the way creating snap- boms is protected a single user cannot run
+            multiple instances of view snap at the same time without encountering errors.
+
+            IMPORTANT NOTICE: Snapshot name must not follow this format:
+                snap-<digit>
+                    For example: snap-1, snap-11, snap-111, ...
+                snap-<digit>-<alphabet>
+                    For example: snap-1-abc, snap-11-def, snap-111-ghi, ...
+            These formats are reserved for TNR system.
+
+            Example
+            =======
+            $ dmx snap --project i10socfm --ip cw_lib -d view_rtl --bom dev --snapshot snap-foo 
+            Creates a snap bom named i10socfm/cw_lib@snap-foo with all the sub-boms part of view_rtl
+            named as snap-foo as well  
+            
+            $ dmx snap --project i10socfm --ip cw_lib -d view_rtl --bom dev
+            Creates a snap bom named i10socfm/cw_lib:rtl@snap-dev__16ww102a with all the sub-boms part
+            of view_rtl named as snap-dev_16ww102 as well if command is run on 1st March 2016        
+
+
+            Known Problems:
+            ===============
+            (1) My 'dmx snap' job complains that "Can't create directory for ...... Too many links.". What should I do?
+            - mkdir -p $HOTEL/tmp
+            - chmod 777 $HOTEL/tmp
+            - env TMP=$HOTEL/tmp ICM_TMPDIR=$HOTEL/tmp dmx snap ...
+            (detail explanation at https://jira.devtools.intel.com/browse/PSGDMX-1629)
+
+
+            '''
+        return textwrap.dedent(extra_help)
+
+
+    @classmethod
+    def command(cls, args):
+        '''execute the subcommand'''
+        # generic arguments
+
+        """ TODO: https://jira.devtools.intel.com/browse/PSGDMX-1712
+        if os.getenv("USER") != 'psginfraadm':
+            _rerun_as_psginfraadm_in_US(args)
+        else:
+            print "EXECUTE as psginfraadm now !"
+            pprint(args)
+        sys.exit()
+        """
+
+        project = args.project
+        ip = args.ip
+        bom = args.bom
+        snapshot = args.snapshot
+        preview = args.preview
+        force = args.force
+       
+        # snaplibrary arguments
+        deliverables = [y for x in args.deliverable for y in x]
+
+        # snaptree arguments
+        description = args.desc
+
+        # http://pg-rdjira:8080/browse/DI-746
+        # True by default
+        reuse = True
+
+        if args.deliverable_filter:
+            deliverable_filter = list(itertools.chain.from_iterable(args.deliverable_filter))
+            ### Error out if deliverable_filter contains comma (https://jira.devtools.intel.com/browse/PSGDMX-1662)
+            if ',' in deliverable_filter[0]:
+                raise SnapError("Comma is not allowed in --deliverable-filter. Please use space as separator instead of comma.")
+        else:
+            deliverable_filter = []
+        changelist = args.changelist
+        if args.ip_filter:
+            ip_filter = list(itertools.chain.from_iterable(args.ip_filter))
+            ### Error out if ip_filter contains comma (https://jira.devtools.intel.com/browse/PSGDMX-1662)
+            if ',' in ip_filter[0]:
+                raise SnapError("Comma is not allowed in --ip-filter. Please use space as separator instead of comma.")
+        else:
+            ip_filter = []
+
+        # http://pg-rdjira:8080/browse/DI-906
+        # if the deliverable starts with view, it is a view snap
+        is_view = False
+        for deliverable in deliverables:
+            if deliverable.startswith('view'):
+                is_view = True
+        for deliverable in deliverables:
+            if is_view and not deliverable.startswith('view'):
+                raise Exception('{} cannot be provided together with view. Only views are allowed. View must start with \'view_\''.format(deliverable))
+        '''
+        if not is_view and len(deliverables) > 1:
+            raise Exception('Only 1 deliverable can be provided to --deliverable option')
+        '''
+        ret = 1
+    
+        if deliverables:
+            if is_view:
+                # Use snaptree for view release
+                # Pass in views to libtypes argument of snaptree
+                snap = SnapTreeRunner(project, ip, bom, snapshot, 
+                                libtypes=deliverables,
+                                changelist=changelist, 
+                                reuse=reuse,
+                                description=description,
+                                variants=ip_filter,
+                                preview=preview)
+            else:
+                deliverable = deliverables[0]
+                for deliverable in deliverables:
+                    snap = SnapLibraryRunner(project, ip, deliverable, bom, snapshot, preview=preview, force=force)
+                    ret = snap.run()
+                return ret
+
+        else:
+            snap = SnapTreeRunner(project, ip, bom, snapshot, 
+                                libtypes=deliverable_filter, 
+                                changelist=changelist, 
+                                reuse=reuse,
+                                description=description,
+                                variants=ip_filter,
+                                preview=preview)
+        ret = snap.run()
+        return (ret)
+
+
+

@@ -1,0 +1,63 @@
+{
+	"PICE": {
+		"prot_group": "psgeng",
+		"immutable_directory": {
+			"cache": {
+				"Falcon": "/nfs/sc/disks/fln_sion_1/cache",
+				"_Testdata": "/nfs/sc/disks/fln_sion_1/cache",
+				"Wharfrock": "/nfs/sc/disks/whr_sion_1/cache",
+                                "Gundersonrock": "/nfs/sc/disks/gdr_sion_1/cache"
+			},
+			"standard": {
+				"Falcon": "/nfs/sc/disks/fln_sion_1/classic",
+				"_Testdata": "/nfs/sc/disks/fln_sion_1/classic",
+				"Wharfrock": "/nfs/sc/disks/whr_sion_1/classic",
+                                "Gundersonrock": "/nfs/sc/disks/gdr_sion_1/classic",
+            }
+		},
+		"immutable_disk": {
+			"cache": {
+				"Falcon": "/nfs/sc/disks/fln_sion_1/cache",
+				"_Testdata": "/nfs/sc/disks/fln_sion_1/cache",
+				"Wharfrock": "/nfs/sc/disks/whr_sion_1/cache",
+                                "Gundersonrock": "/nfs/sc/disks/gdr_sion_1/cache"
+			},
+			"standard": {
+				"Falcon": "/nfs/sc/disks/fln_sion_1/classic",
+				"_Testdata": "/nfs/sc/disks/fln_sion_1/classic",
+				"Wharfrock": "/nfs/sc/disks/whr_sion_1/classic",
+                                "Gundersonrock": "/nfs/sc/disks/gdr_sion_1/classic"
+            }
+		},
+		"central_cache_ws_directory": {
+			"Falcon": "/nfs/sc/disks/fln_sion_1/cache_workspaces",
+			"_Testdata": "/nfs/sc/disks/fln_sion_1/cache_workspaces",
+			"Wharfrock": "/nfs/sc/disks/whr_sion_1/cache_workspaces",
+                        "Gundersonrock": "/nfs/sc/disks/gdr_sion_1/cache_workspaces"
+		},
+		"icm_groups" : {
+                 	"all.users" : "psgeng",
+                 	"i10.users" : "psgi10",
+                 	"fln.users" : "psgfln",
+                 	"whr.users" : "psgwhr",
+                        "gdr.users" : "psggdr"
+                },
+		"headless_account": "psginfraadm"
+	},
+	"legacy": {
+		"prot_group": "eng",
+		"immutable_disk": "/ice_rel",
+		"immutable_directory": "/ice_rel/readonly",
+		"icm_groups" : {
+                	"runda.users":"nd",
+                	"tsmc.users" :"tsmc",
+                	"soci.users" :"soci",
+                	"hhp.users"  :"hhp",
+                	"all.users"  :"eng",
+                	"thasos.users":"thasos",
+                	"fln.users"  :"fln",
+                	"i10.users"  :"i10"
+                },
+		"headless_account": "icmrelreader"
+	}
+}

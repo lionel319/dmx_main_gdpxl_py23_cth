@@ -1,0 +1,637 @@
+DEBUG [2023-10-10 05:17:41,669] - [183][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/utillib/utils.py]: Dispatching cmd to: /nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx 'ip' 'create' '-p' 'i18asockm' '-i' 'liotest99a' '--type' 'asic' '--debug' 
+DEBUG [2023-10-10 05:17:43,929] - [230][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: Command Run : /nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py ip create -p i18asockm -i liotest99a --type asic --debug
+DEBUG [2023-10-10 05:17:43,929] - [230][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: DB_DEVICE : KM2
+DEBUG [2023-10-10 05:17:43,929] - [230][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: DB_FAMILY : Km
+DEBUG [2023-10-10 05:17:43,929] - [230][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: DB_PROCESS : None
+DEBUG [2023-10-10 05:17:43,929] - [230][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: DB_PROJECT : None
+DEBUG [2023-10-10 05:17:43,929] - [230][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: DB_THREAD : KM2revA0
+DEBUG [2023-10-10 05:17:43,929] - [230][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: DMXDATA_ROOT : /p/psg/flows/common/dmxdata/latestdev
+DEBUG [2023-10-10 05:17:43,929] - [230][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: DMX_ROOT : /nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth
+DEBUG [2023-10-10 05:17:43,929] - [230][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: HOSTNAME : scce273107.zsc7.intel.com
+DEBUG [2023-10-10 05:17:43,929] - [230][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: P4CLIENT : pice-yltan
+DEBUG [2023-10-10 05:17:43,930] - [230][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: P4CONFIG : .icmconfig
+DEBUG [2023-10-10 05:17:43,930] - [230][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: P4PORT : scylicm.sc.intel.com:1666
+DEBUG [2023-10-10 05:17:43,930] - [230][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: P4USER : None
+DEBUG [2023-10-10 05:17:43,930] - [230][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: PWD : /nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx
+DEBUG [2023-10-10 05:17:43,930] - [230][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: USER : lionelta
+DEBUG [2023-10-10 05:17:43,930] - [228][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: exit : 127
+DEBUG [2023-10-10 05:17:43,930] - [224][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: _icmp4 info : stdout
+DEBUG [2023-10-10 05:17:43,930] - [224][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: _icmp4 info : stderr
+DEBUG [2023-10-10 05:17:43,930] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stderr : /bin/sh: _icmp4: command not found
+DEBUG [2023-10-10 05:17:43,930] - [228][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: exit : 1
+DEBUG [2023-10-10 05:17:43,930] - [224][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: arc job : stdout
+DEBUG [2023-10-10 05:17:43,930] - [224][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: arc job : stderr
+DEBUG [2023-10-10 05:17:43,930] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stderr : Error: No job id passed in and not currently in an ARC shell. 
+DEBUG [2023-10-10 05:17:43,930] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stderr : Please use 'arc help job-info' for more details
+DEBUG [2023-10-10 05:17:43,930] - [228][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: exit : 0
+DEBUG [2023-10-10 05:17:43,930] - [224][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: cat ~/.p4enviro : stdout
+DEBUG [2023-10-10 05:17:43,930] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : P4_sj-perforce:1666_CHARSET=none
+DEBUG [2023-10-10 05:17:43,930] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : P4_sjicm01.sc.intel.com:1689_CHARSET=none
+DEBUG [2023-10-10 05:17:43,930] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : P4_10.233.69.47:1689_CHARSET=none
+DEBUG [2023-10-10 05:17:43,930] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : P4_sj-ice-icm-dev.altera.com:1667_CHARSET=none
+DEBUG [2023-10-10 05:17:43,930] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : P4_sjicmdev1.sc.intel.com:1666_CHARSET=none
+DEBUG [2023-10-10 05:17:43,930] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : P4_sjicm.sc.intel.com:1666_CHARSET=none
+DEBUG [2023-10-10 05:17:43,930] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : P4_sj-perforce-proxy:1998_CHARSET=none
+DEBUG [2023-10-10 05:17:43,930] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : P4_ssl:p4proxy17.devtools.intel.com:6110_CHARSET=none
+DEBUG [2023-10-10 05:17:43,930] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : P4_ssl:p4proxy06.devtools.intel.com:6110_CHARSET=none
+DEBUG [2023-10-10 05:17:43,930] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : P4_ssl:p4proxy-psg-sc.devtools.intel.com:6110_CHARSET=none
+DEBUG [2023-10-10 05:17:43,930] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : P4_sjicm.sc.intel.com:1689_CHARSET=none
+DEBUG [2023-10-10 05:17:43,930] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : P4_scylicm.sc.intel.com:1666_CHARSET=none
+DEBUG [2023-10-10 05:17:43,930] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : P4_p4refchtsce.sync.intel.com:1671_CHARSET=none
+DEBUG [2023-10-10 05:17:43,931] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : P4_ssl:p4aibsce.sync.intel.com:3835_CHARSET=none
+DEBUG [2023-10-10 05:17:43,931] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : P4_scylicm05.sc.intel.com:1666_CHARSET=none
+DEBUG [2023-10-10 05:17:43,931] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : P4_ppgicm.png.intel.com:1666_CHARSET=none
+DEBUG [2023-10-10 05:17:43,931] - [224][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: cat ~/.p4enviro : stderr
+DEBUG [2023-10-10 05:17:43,931] - [228][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: exit : 0
+DEBUG [2023-10-10 05:17:43,931] - [224][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: env|grep '^DB_' : stdout
+DEBUG [2023-10-10 05:17:43,931] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : DB_THREAD=KM2revA0
+DEBUG [2023-10-10 05:17:43,931] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : DB_DEVICE=KM2
+DEBUG [2023-10-10 05:17:43,931] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : DB_FAMILY=Km
+DEBUG [2023-10-10 05:17:43,931] - [224][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: env|grep '^DB_' : stderr
+DEBUG [2023-10-10 05:17:43,931] - [228][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: exit : 0
+DEBUG [2023-10-10 05:17:43,931] - [224][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: env|grep '^DMX' : stdout
+DEBUG [2023-10-10 05:17:43,931] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : DMX_PATH=/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin
+DEBUG [2023-10-10 05:17:43,931] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : DMX_SETTING_FILES_DIR=/p/psg/flows/common/dmx/dmx_setting_files
+DEBUG [2023-10-10 05:17:43,931] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : DMX_TCLLIB=/p/psg/flows/common/icd_cad_tcllib/5/linux64/lib
+DEBUG [2023-10-10 05:17:43,931] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : DMXDATA_ROOT=/p/psg/flows/common/dmxdata/latestdev
+DEBUG [2023-10-10 05:17:43,931] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : DMX_LEGACY=1
+DEBUG [2023-10-10 05:17:43,931] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : DMX_LIB=/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python
+DEBUG [2023-10-10 05:17:43,931] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : DMX_TNRLIB=/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/tcl/dmx/tnrlib
+DEBUG [2023-10-10 05:17:43,931] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : DMX_ROOT=/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth
+DEBUG [2023-10-10 05:17:43,931] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : DMX_GDPSITE=intel
+DEBUG [2023-10-10 05:17:43,931] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : DMX_POSTHOOK_DIR=/p/cth/cad/dmx/latestdev/cmx/DMX_RELEASE_POSTHOOK
+DEBUG [2023-10-10 05:17:43,931] - [224][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: env|grep '^DMX' : stderr
+DEBUG [2023-10-10 05:17:43,931] - [228][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: exit : 0
+DEBUG [2023-10-10 05:17:43,931] - [224][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: groups : stdout
+DEBUG [2023-10-10 05:17:43,931] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : intelall soc icmadmins hdk7nm hdk7nmproc hdk22nm hdk22nmproc psgeng psgfln psgi10 psgwhr psgt16ff psgi10arm ip1222 psgi7 psgknl psgsynopsys psgcadence psgintel psgship psggdr psgrnr psgeval epg_users psgdmd psgt16arm tyc78 tyc78proc psgvlc psgavc psgslr psgi5 i1278proc i1278 psgipxsmx_arm ip5nm ipn5 psgrambus psgenc psgn5 psgcnc psgacr psgavr gf55lp psgn5arm psgrtm psgknr psgdpt psgdlr psgltm psgda
+DEBUG [2023-10-10 05:17:43,931] - [224][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: groups : stderr
+DEBUG [2023-10-10 05:17:43,931] - [228][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: exit : 0
+DEBUG [2023-10-10 05:17:43,931] - [224][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: groups $USER : stdout
+DEBUG [2023-10-10 05:17:43,932] - [226][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: stdout : lionelta : intelall hdk7nm hdk7nmproc hdk22nm hdk22nmproc psgeng psgfln psgi10 psgwhr psgt16ff psgi10arm soc ip1222 psgi7 psgknl psgsynopsys psgcadence psgintel psgship psggdr psgrnr psgeval epg_users psgdmd psgt16arm tyc78 tyc78proc psgvlc psgavc psgslr psgi5 i1278proc i1278 psgipxsmx_arm ip5nm ipn5 psgrambus psgenc psgn5 psgcnc psgacr psgavr gf55lp psgn5arm psgrtm psgknr psgdpt psgdlr psgltm psgltp psgda icmadmins
+DEBUG [2023-10-10 05:17:43,932] - [224][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: groups $USER : stderr
+INFO [2023-10-10 05:17:43,932] - [151][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py]: DMX-id: dmx_lionelta_20231010_scce273107.zsc7.intel.com_991_sc
+DEBUG [2023-10-10 05:17:43,967] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' info
+DEBUG [2023-10-10 05:17:46,512] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm:project' --output-format json --columns path
+DEBUG [2023-10-10 05:17:52,556] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm:project --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:17:52,557] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a:variant' --output-format json --columns path
+DEBUG [2023-10-10 05:17:57,877] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a:variant --output-format json --columns path
+STDOUT: {"results":[],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:17:57,879] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/:variant' --columns name --output-format json
+DEBUG [2023-10-10 05:17:59,985] - [1662][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._get_objects: gdp --user=icmanage list /intel/i18asockm/:variant --columns name --output-format json
+STDOUT: {"results":[{"name":"co_lib"},{"name":"cc_lib"},{"name":"cl_lib"},{"name":"cr_lib"},{"name":"ck_lib"},{"name":"cm_lib"},{"name":"cv_lib"},{"name":"cd_lib"},{"name":"cw_lib"},{"name":"cn_lib"},{"name":"dr_lib"},{"name":"intfclibcore"},{"name":"liotest1"},{"name":"liotest4"},{"name":"liotest5"},{"name":"wplimtest1"},{"name":"liotest3"},{"name":"avmm_lib"},{"name":"bypass_reg"},{"name":"bypass_pnr_reg"},{"name":"liotest6"},{"name":"cth_szr_analog_wrapper_cbb"},{"name":"liotest7"},{"name":"limty_cbb"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:17:59,987] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/KM:project' --output-format json --columns path
+DEBUG [2023-10-10 05:18:12,291] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/KM:project --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/KM"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:18:12,292] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm:project --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:18:12,292] - [344][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/ecolib/family.py]: DMX_LEGACY: Querying family Km IPs from ICManage
+DEBUG [2023-10-10 05:18:12,292] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/KM/:variant' --columns name --output-format json
+DEBUG [2023-10-10 05:18:17,668] - [1662][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._get_objects: gdp --user=icmanage list /intel/KM/:variant --columns name --output-format json
+STDOUT: {"results":[],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:18:17,669] - [1662][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._get_objects: gdp --user=icmanage list /intel/i18asockm/:variant --columns name --output-format json
+STDOUT: {"results":[{"name":"co_lib"},{"name":"cc_lib"},{"name":"cl_lib"},{"name":"cr_lib"},{"name":"ck_lib"},{"name":"cm_lib"},{"name":"cv_lib"},{"name":"cd_lib"},{"name":"cw_lib"},{"name":"cn_lib"},{"name":"dr_lib"},{"name":"intfclibcore"},{"name":"liotest1"},{"name":"liotest4"},{"name":"liotest5"},{"name":"wplimtest1"},{"name":"liotest3"},{"name":"avmm_lib"},{"name":"bypass_reg"},{"name":"bypass_pnr_reg"},{"name":"liotest6"},{"name":"cth_szr_analog_wrapper_cbb"},{"name":"liotest7"},{"name":"limty_cbb"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:18:17,670] - [218][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/ecolib/loader.py]: Loading deliverables_by_ip_type /p/psg/flows/common/dmxdata/latestdev/Km/deliverables_by_ip_type.json
+DEBUG [2023-10-10 05:18:17,674] - [138][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/ecolib/loader.py]: Loading manifest /p/psg/flows/common/dmxdata/latestdev/Km/manifest.json
+DEBUG [2023-10-10 05:18:17,695] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/libspec/cthfe' --output-format json --columns path
+DEBUG [2023-10-10 05:18:23,142] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /libspec/cthfe --output-format json --columns path
+STDOUT: {"results":[{"path":"/libspec/cthfe"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:18:23,143] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/libspec/febe' --output-format json --columns path
+DEBUG [2023-10-10 05:18:23,356] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /libspec/febe --output-format json --columns path
+STDOUT: {"results":[{"path":"/libspec/febe"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:18:23,356] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/libspec/ipspec' --output-format json --columns path
+DEBUG [2023-10-10 05:18:28,662] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /libspec/ipspec --output-format json --columns path
+STDOUT: {"results":[{"path":"/libspec/ipspec"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:18:28,663] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/libspec/r2g' --output-format json --columns path
+DEBUG [2023-10-10 05:18:34,043] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /libspec/r2g --output-format json --columns path
+STDOUT: {"results":[{"path":"/libspec/r2g"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:18:34,044] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/libspec/reldoc' --output-format json --columns path
+DEBUG [2023-10-10 05:18:39,669] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /libspec/reldoc --output-format json --columns path
+STDOUT: {"results":[{"path":"/libspec/reldoc"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:18:39,670] - [207][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/flows/createvariant.py]: Family:Km, default_config:dev, default_library:dev
+INFO [2023-10-10 05:18:39,670] - [260][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/flows/createvariant.py]: Start creating variant ...
+DEBUG [2023-10-10 05:18:39,670] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a:variant --output-format json --columns path
+STDOUT: {"results":[],"success":true}
+
+STDERR: 
+INFO [2023-10-10 05:18:39,670] - [1765][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: Add variant: project=i18asockm variant=liotest99a
+INFO [2023-10-10 05:18:39,670] - [529][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' create variant '/intel/i18asockm/liotest99a'
+DEBUG [2023-10-10 05:18:42,152] - [1773][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI.add_variant: 'gdp --user=icmanage create variant /intel/i18asockm/liotest99a' returned 0
+STDOUT:/intel/i18asockm/liotest99a
+
+STDERR:
+INFO [2023-10-10 05:18:42,153] - [262][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/flows/createvariant.py]: Done creating variant ...
+INFO [2023-10-10 05:18:42,153] - [264][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/flows/createvariant.py]: Start adding variant properties ...
+INFO [2023-10-10 05:18:42,153] - [529][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' update '/intel/i18asockm/liotest99a:variant' --set 'Owner=lionelta' --set 'iptype=asic'
+DEBUG [2023-10-10 05:18:55,817] - [3578][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._update_properties: gdp --user=icmanage update /intel/i18asockm/liotest99a:variant --set Owner=lionelta --set iptype=asic
+STDOUT: /intel/i18asockm/liotest99a
+
+STDERR: 
+INFO [2023-10-10 05:18:55,817] - [267][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/flows/createvariant.py]: Done adding variant properties ...
+DEBUG [2023-10-10 05:18:55,818] - [297][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/flows/createvariant.py]: Working on ['i18asockm', 'liotest99a', 'cthfe', False, 'lionelta', False, 'Km', 'dev', 'dev']
+DEBUG [2023-10-10 05:18:55,818] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm:project' --output-format json --columns path
+DEBUG [2023-10-10 05:19:06,973] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm:project --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:19:06,974] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a:variant' --output-format json --columns path
+DEBUG [2023-10-10 05:19:12,622] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a:variant --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:19:12,623] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/libspec/cthfe' --output-format json --columns path
+DEBUG [2023-10-10 05:19:18,435] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /libspec/cthfe --output-format json --columns path
+STDOUT: {"results":[{"path":"/libspec/cthfe"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:19:18,435] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/cthfe:libtype' --output-format json --columns path
+DEBUG [2023-10-10 05:19:24,093] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/cthfe:libtype --output-format json --columns path
+STDOUT: {"results":[],"success":true}
+
+STDERR: 
+INFO [2023-10-10 05:19:24,094] - [1800][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: Add libtype: project=i18asockm variant=liotest99a libtype=cthfe
+INFO [2023-10-10 05:19:24,094] - [529][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' create libtype '/intel/i18asockm/liotest99a/cthfe'
+DEBUG [2023-10-10 05:19:29,819] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/cthfe:libtype' --output-format json --columns path
+DEBUG [2023-10-10 05:19:35,575] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/cthfe:libtype --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a/cthfe"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:19:35,576] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/cthfe/dev:library' --output-format json --columns path
+DEBUG [2023-10-10 05:19:45,226] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/cthfe/dev:library --output-format json --columns path
+STDOUT: {"results":[],"success":true}
+
+STDERR: 
+INFO [2023-10-10 05:19:45,227] - [1831][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: Add library: project=i18asockm variant=liotest99a libtype=cthfe library=dev custom library path=liotest99a/cthfe
+INFO [2023-10-10 05:19:45,227] - [529][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' create library '/intel/i18asockm/liotest99a/cthfe/dev' --set 'location=liotest99a/cthfe'
+DEBUG [2023-10-10 05:20:44,302] - [1847][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI.add_libraries: 'gdp --user=icmanage create library /intel/i18asockm/liotest99a/cthfe/dev --set location=liotest99a/cthfe' returned 0
+STDOUT:/intel/i18asockm/liotest99a/cthfe/dev
+
+STDERR:
+DEBUG [2023-10-10 05:20:44,302] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/cthfe/dev:library' --output-format json --columns path
+DEBUG [2023-10-10 05:20:49,568] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/cthfe/dev:library --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a/cthfe/dev"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:20:49,569] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/cthfe/dev:library' --columns '*' --output-format json
+DEBUG [2023-10-10 05:20:55,321] - [1662][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._get_objects: gdp --user=icmanage list /intel/i18asockm/liotest99a/cthfe/dev:library --columns * --output-format json
+STDOUT: {"results":[{"location":"liotest99a/cthfe","uri":"p4://scylicm.sc.intel.com:1666/depot/gdpxl/intel/i18asockm/liotest99a/cthfe/dev/...","created-by":"icmanage","id":"L35046378","type":"library","name":"dev","path":"/intel/i18asockm/liotest99a/cthfe/dev","created":"2023-10-10T12:20:44.290Z","modified":"2023-10-10T12:20:44.290Z","change":"@now","libtype":"cthfe"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:20:55,322] - [621][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icmlibrary.py]: Validating before saving i18asockm/liotest99a/cthfe/dev ...
+DEBUG [2023-10-10 05:20:55,322] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/cthfe:libtype' --output-format json --columns path
+DEBUG [2023-10-10 05:20:57,338] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/cthfe:libtype --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a/cthfe"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:20:57,338] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/cthfe/dev:library --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a/cthfe/dev"}],"success":true}
+
+STDERR: 
+INFO [2023-10-10 05:20:57,338] - [1826][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: Library exists: project=i18asockm variant=liotest99a libtype=cthfe library=dev
+INFO [2023-10-10 05:20:57,339] - [529][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' update '/intel/i18asockm/liotest99a/cthfe/dev:library' --set 'Owner=lionelta'
+DEBUG [2023-10-10 05:21:10,182] - [3578][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._update_properties: gdp --user=icmanage update /intel/i18asockm/liotest99a/cthfe/dev:library --set Owner=lionelta
+STDOUT: /intel/i18asockm/liotest99a/cthfe/dev
+
+STDERR: 
+DEBUG [2023-10-10 05:21:10,182] - [299][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/flows/createvariant.py]: - {'libtype': 'cthfe', 'success': True}
+DEBUG [2023-10-10 05:21:10,182] - [297][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/flows/createvariant.py]: Working on ['i18asockm', 'liotest99a', 'febe', False, 'lionelta', False, 'Km', 'dev', 'dev']
+DEBUG [2023-10-10 05:21:10,182] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm:project' --output-format json --columns path
+DEBUG [2023-10-10 05:21:21,408] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm:project --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:21:21,409] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a:variant' --output-format json --columns path
+DEBUG [2023-10-10 05:21:27,689] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a:variant --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:21:27,689] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/libspec/febe' --output-format json --columns path
+DEBUG [2023-10-10 05:21:33,459] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /libspec/febe --output-format json --columns path
+STDOUT: {"results":[{"path":"/libspec/febe"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:21:33,459] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/febe:libtype' --output-format json --columns path
+DEBUG [2023-10-10 05:21:39,067] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/febe:libtype --output-format json --columns path
+STDOUT: {"results":[],"success":true}
+
+STDERR: 
+INFO [2023-10-10 05:21:39,068] - [1800][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: Add libtype: project=i18asockm variant=liotest99a libtype=febe
+INFO [2023-10-10 05:21:39,068] - [529][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' create libtype '/intel/i18asockm/liotest99a/febe'
+DEBUG [2023-10-10 05:21:44,792] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/febe:libtype' --output-format json --columns path
+DEBUG [2023-10-10 05:21:50,211] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/febe:libtype --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a/febe"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:21:50,212] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/febe/dev:library' --output-format json --columns path
+DEBUG [2023-10-10 05:21:55,908] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/febe/dev:library --output-format json --columns path
+STDOUT: {"results":[],"success":true}
+
+STDERR: 
+INFO [2023-10-10 05:21:55,909] - [1831][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: Add library: project=i18asockm variant=liotest99a libtype=febe library=dev custom library path=liotest99a/febe
+INFO [2023-10-10 05:21:55,909] - [529][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' create library '/intel/i18asockm/liotest99a/febe/dev' --set 'location=liotest99a/febe'
+DEBUG [2023-10-10 05:22:49,905] - [1847][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI.add_libraries: 'gdp --user=icmanage create library /intel/i18asockm/liotest99a/febe/dev --set location=liotest99a/febe' returned 0
+STDOUT:/intel/i18asockm/liotest99a/febe/dev
+
+STDERR:
+DEBUG [2023-10-10 05:22:49,906] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/febe/dev:library' --output-format json --columns path
+DEBUG [2023-10-10 05:22:55,339] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/febe/dev:library --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a/febe/dev"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:22:55,340] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/febe/dev:library' --columns '*' --output-format json
+DEBUG [2023-10-10 05:23:00,732] - [1662][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._get_objects: gdp --user=icmanage list /intel/i18asockm/liotest99a/febe/dev:library --columns * --output-format json
+STDOUT: {"results":[{"location":"liotest99a/febe","uri":"p4://scylicm.sc.intel.com:1666/depot/gdpxl/intel/i18asockm/liotest99a/febe/dev/...","created-by":"icmanage","id":"L35046458","type":"library","name":"dev","path":"/intel/i18asockm/liotest99a/febe/dev","created":"2023-10-10T12:22:44.827Z","modified":"2023-10-10T12:22:44.827Z","change":"@now","libtype":"febe"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:23:00,733] - [621][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icmlibrary.py]: Validating before saving i18asockm/liotest99a/febe/dev ...
+DEBUG [2023-10-10 05:23:00,733] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/febe:libtype' --output-format json --columns path
+DEBUG [2023-10-10 05:23:00,944] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/febe:libtype --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a/febe"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:23:00,944] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/febe/dev:library --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a/febe/dev"}],"success":true}
+
+STDERR: 
+INFO [2023-10-10 05:23:00,944] - [1826][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: Library exists: project=i18asockm variant=liotest99a libtype=febe library=dev
+INFO [2023-10-10 05:23:00,944] - [529][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' update '/intel/i18asockm/liotest99a/febe/dev:library' --set 'Owner=lionelta'
+DEBUG [2023-10-10 05:23:06,348] - [3578][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._update_properties: gdp --user=icmanage update /intel/i18asockm/liotest99a/febe/dev:library --set Owner=lionelta
+STDOUT: /intel/i18asockm/liotest99a/febe/dev
+
+STDERR: 
+DEBUG [2023-10-10 05:23:06,348] - [299][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/flows/createvariant.py]: - {'libtype': 'febe', 'success': True}
+DEBUG [2023-10-10 05:23:06,348] - [297][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/flows/createvariant.py]: Working on ['i18asockm', 'liotest99a', 'ipspec', False, 'lionelta', False, 'Km', 'dev', 'dev']
+DEBUG [2023-10-10 05:23:06,349] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm:project' --output-format json --columns path
+DEBUG [2023-10-10 05:23:12,180] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm:project --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:23:12,180] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a:variant' --output-format json --columns path
+DEBUG [2023-10-10 05:23:17,909] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a:variant --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:23:17,910] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/libspec/ipspec' --output-format json --columns path
+DEBUG [2023-10-10 05:23:23,514] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /libspec/ipspec --output-format json --columns path
+STDOUT: {"results":[{"path":"/libspec/ipspec"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:23:23,514] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/ipspec:libtype' --output-format json --columns path
+DEBUG [2023-10-10 05:23:23,809] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/ipspec:libtype --output-format json --columns path
+STDOUT: {"results":[],"success":true}
+
+STDERR: 
+INFO [2023-10-10 05:23:23,809] - [1800][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: Add libtype: project=i18asockm variant=liotest99a libtype=ipspec
+INFO [2023-10-10 05:23:23,809] - [529][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' create libtype '/intel/i18asockm/liotest99a/ipspec'
+DEBUG [2023-10-10 05:23:29,563] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/ipspec:libtype' --output-format json --columns path
+DEBUG [2023-10-10 05:23:35,129] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/ipspec:libtype --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a/ipspec"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:23:35,130] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/ipspec/dev:library' --output-format json --columns path
+DEBUG [2023-10-10 05:23:40,933] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/ipspec/dev:library --output-format json --columns path
+STDOUT: {"results":[],"success":true}
+
+STDERR: 
+INFO [2023-10-10 05:23:40,933] - [1831][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: Add library: project=i18asockm variant=liotest99a libtype=ipspec library=dev custom library path=liotest99a/ipspec
+INFO [2023-10-10 05:23:40,933] - [529][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' create library '/intel/i18asockm/liotest99a/ipspec/dev' --set 'location=liotest99a/ipspec'
+DEBUG [2023-10-10 05:24:19,537] - [1847][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI.add_libraries: 'gdp --user=icmanage create library /intel/i18asockm/liotest99a/ipspec/dev --set location=liotest99a/ipspec' returned 0
+STDOUT:/intel/i18asockm/liotest99a/ipspec/dev
+
+STDERR:
+DEBUG [2023-10-10 05:24:19,537] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/ipspec/dev:library' --output-format json --columns path
+DEBUG [2023-10-10 05:24:24,861] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/ipspec/dev:library --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a/ipspec/dev"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:24:24,863] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/ipspec/dev:library' --columns '*' --output-format json
+DEBUG [2023-10-10 05:24:30,377] - [1662][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._get_objects: gdp --user=icmanage list /intel/i18asockm/liotest99a/ipspec/dev:library --columns * --output-format json
+STDOUT: {"results":[{"location":"liotest99a/ipspec","uri":"p4://scylicm.sc.intel.com:1666/depot/gdpxl/intel/i18asockm/liotest99a/ipspec/dev/...","created-by":"icmanage","id":"L35046520","type":"library","name":"dev","path":"/intel/i18asockm/liotest99a/ipspec/dev","created":"2023-10-10T12:24:19.430Z","modified":"2023-10-10T12:24:19.430Z","change":"@now","libtype":"ipspec"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:24:30,377] - [621][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icmlibrary.py]: Validating before saving i18asockm/liotest99a/ipspec/dev ...
+DEBUG [2023-10-10 05:24:30,377] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/ipspec:libtype' --output-format json --columns path
+DEBUG [2023-10-10 05:24:35,754] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/ipspec:libtype --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a/ipspec"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:24:35,755] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/ipspec/dev:library --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a/ipspec/dev"}],"success":true}
+
+STDERR: 
+INFO [2023-10-10 05:24:35,755] - [1826][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: Library exists: project=i18asockm variant=liotest99a libtype=ipspec library=dev
+INFO [2023-10-10 05:24:35,755] - [529][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' update '/intel/i18asockm/liotest99a/ipspec/dev:library' --set 'Owner=lionelta'
+DEBUG [2023-10-10 05:24:41,164] - [3578][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._update_properties: gdp --user=icmanage update /intel/i18asockm/liotest99a/ipspec/dev:library --set Owner=lionelta
+STDOUT: /intel/i18asockm/liotest99a/ipspec/dev
+
+STDERR: 
+DEBUG [2023-10-10 05:24:41,165] - [299][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/flows/createvariant.py]: - {'libtype': 'ipspec', 'success': True}
+DEBUG [2023-10-10 05:24:41,165] - [297][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/flows/createvariant.py]: Working on ['i18asockm', 'liotest99a', 'r2g', False, 'lionelta', False, 'Km', 'dev', 'dev']
+DEBUG [2023-10-10 05:24:41,165] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm:project' --output-format json --columns path
+DEBUG [2023-10-10 05:24:46,460] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm:project --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:24:46,460] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a:variant' --output-format json --columns path
+DEBUG [2023-10-10 05:24:46,724] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a:variant --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:24:46,724] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/libspec/r2g' --output-format json --columns path
+DEBUG [2023-10-10 05:24:52,002] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /libspec/r2g --output-format json --columns path
+STDOUT: {"results":[{"path":"/libspec/r2g"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:24:52,002] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/r2g:libtype' --output-format json --columns path
+DEBUG [2023-10-10 05:24:59,142] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/r2g:libtype --output-format json --columns path
+STDOUT: {"results":[],"success":true}
+
+STDERR: 
+INFO [2023-10-10 05:24:59,142] - [1800][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: Add libtype: project=i18asockm variant=liotest99a libtype=r2g
+INFO [2023-10-10 05:24:59,142] - [529][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' create libtype '/intel/i18asockm/liotest99a/r2g'
+DEBUG [2023-10-10 05:25:06,609] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/r2g:libtype' --output-format json --columns path
+DEBUG [2023-10-10 05:25:11,972] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/r2g:libtype --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a/r2g"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:25:11,972] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/r2g/dev:library' --output-format json --columns path
+DEBUG [2023-10-10 05:25:17,681] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/r2g/dev:library --output-format json --columns path
+STDOUT: {"results":[],"success":true}
+
+STDERR: 
+INFO [2023-10-10 05:25:17,683] - [1831][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: Add library: project=i18asockm variant=liotest99a libtype=r2g library=dev custom library path=liotest99a/r2g
+INFO [2023-10-10 05:25:17,683] - [529][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' create library '/intel/i18asockm/liotest99a/r2g/dev' --set 'location=liotest99a/r2g'
+DEBUG [2023-10-10 05:26:29,083] - [1847][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI.add_libraries: 'gdp --user=icmanage create library /intel/i18asockm/liotest99a/r2g/dev --set location=liotest99a/r2g' returned 0
+STDOUT:/intel/i18asockm/liotest99a/r2g/dev
+
+STDERR:
+DEBUG [2023-10-10 05:26:29,084] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/r2g/dev:library' --output-format json --columns path
+DEBUG [2023-10-10 05:26:35,307] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/r2g/dev:library --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a/r2g/dev"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:26:35,307] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/r2g/dev:library' --columns '*' --output-format json
+DEBUG [2023-10-10 05:26:43,091] - [1662][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._get_objects: gdp --user=icmanage list /intel/i18asockm/liotest99a/r2g/dev:library --columns * --output-format json
+STDOUT: {"results":[{"location":"liotest99a/r2g","uri":"p4://scylicm.sc.intel.com:1666/depot/gdpxl/intel/i18asockm/liotest99a/r2g/dev/...","created-by":"icmanage","id":"L35046607","type":"library","name":"dev","path":"/intel/i18asockm/liotest99a/r2g/dev","created":"2023-10-10T12:26:28.922Z","modified":"2023-10-10T12:26:28.922Z","change":"@now","libtype":"r2g"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:26:43,092] - [621][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icmlibrary.py]: Validating before saving i18asockm/liotest99a/r2g/dev ...
+DEBUG [2023-10-10 05:26:43,092] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/r2g:libtype' --output-format json --columns path
+DEBUG [2023-10-10 05:26:48,385] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/r2g:libtype --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a/r2g"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:26:48,386] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/r2g/dev:library --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a/r2g/dev"}],"success":true}
+
+STDERR: 
+INFO [2023-10-10 05:26:48,386] - [1826][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: Library exists: project=i18asockm variant=liotest99a libtype=r2g library=dev
+INFO [2023-10-10 05:26:48,386] - [529][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' update '/intel/i18asockm/liotest99a/r2g/dev:library' --set 'Owner=lionelta'
+DEBUG [2023-10-10 05:26:55,884] - [3578][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._update_properties: gdp --user=icmanage update /intel/i18asockm/liotest99a/r2g/dev:library --set Owner=lionelta
+STDOUT: /intel/i18asockm/liotest99a/r2g/dev
+
+STDERR: 
+DEBUG [2023-10-10 05:26:55,884] - [299][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/flows/createvariant.py]: - {'libtype': 'r2g', 'success': True}
+DEBUG [2023-10-10 05:26:55,884] - [297][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/flows/createvariant.py]: Working on ['i18asockm', 'liotest99a', 'reldoc', False, 'lionelta', False, 'Km', 'dev', 'dev']
+DEBUG [2023-10-10 05:26:55,884] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm:project' --output-format json --columns path
+DEBUG [2023-10-10 05:27:06,716] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm:project --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:27:06,716] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a:variant' --output-format json --columns path
+DEBUG [2023-10-10 05:27:06,935] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a:variant --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:27:06,935] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/libspec/reldoc' --output-format json --columns path
+DEBUG [2023-10-10 05:27:14,123] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /libspec/reldoc --output-format json --columns path
+STDOUT: {"results":[{"path":"/libspec/reldoc"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:27:14,123] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/reldoc:libtype' --output-format json --columns path
+DEBUG [2023-10-10 05:27:18,203] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/reldoc:libtype --output-format json --columns path
+STDOUT: {"results":[],"success":true}
+
+STDERR: 
+INFO [2023-10-10 05:27:18,203] - [1800][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: Add libtype: project=i18asockm variant=liotest99a libtype=reldoc
+INFO [2023-10-10 05:27:18,204] - [529][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' create libtype '/intel/i18asockm/liotest99a/reldoc'
+DEBUG [2023-10-10 05:27:29,024] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/reldoc:libtype' --output-format json --columns path
+DEBUG [2023-10-10 05:27:34,417] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/reldoc:libtype --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a/reldoc"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:27:34,418] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/reldoc/dev:library' --output-format json --columns path
+DEBUG [2023-10-10 05:27:39,871] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/reldoc/dev:library --output-format json --columns path
+STDOUT: {"results":[],"success":true}
+
+STDERR: 
+INFO [2023-10-10 05:27:39,872] - [1831][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: Add library: project=i18asockm variant=liotest99a libtype=reldoc library=dev custom library path=liotest99a/reldoc
+INFO [2023-10-10 05:27:39,872] - [529][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' create library '/intel/i18asockm/liotest99a/reldoc/dev' --set 'location=liotest99a/reldoc'
+DEBUG [2023-10-10 05:28:14,302] - [1847][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI.add_libraries: 'gdp --user=icmanage create library /intel/i18asockm/liotest99a/reldoc/dev --set location=liotest99a/reldoc' returned 0
+STDOUT:/intel/i18asockm/liotest99a/reldoc/dev
+
+STDERR:
+DEBUG [2023-10-10 05:28:14,303] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/reldoc/dev:library' --output-format json --columns path
+DEBUG [2023-10-10 05:28:19,602] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/reldoc/dev:library --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a/reldoc/dev"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:28:19,603] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/reldoc/dev:library' --columns '*' --output-format json
+DEBUG [2023-10-10 05:28:25,247] - [1662][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._get_objects: gdp --user=icmanage list /intel/i18asockm/liotest99a/reldoc/dev:library --columns * --output-format json
+STDOUT: {"results":[{"location":"liotest99a/reldoc","uri":"p4://scylicm.sc.intel.com:1666/depot/gdpxl/intel/i18asockm/liotest99a/reldoc/dev/...","created-by":"icmanage","id":"L35046677","type":"library","name":"dev","path":"/intel/i18asockm/liotest99a/reldoc/dev","created":"2023-10-10T12:28:14.195Z","modified":"2023-10-10T12:28:14.195Z","change":"@now","libtype":"reldoc"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:28:25,248] - [621][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icmlibrary.py]: Validating before saving i18asockm/liotest99a/reldoc/dev ...
+DEBUG [2023-10-10 05:28:25,248] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/reldoc:libtype' --output-format json --columns path
+DEBUG [2023-10-10 05:28:30,528] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/reldoc:libtype --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a/reldoc"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:28:30,529] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/reldoc/dev:library --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a/reldoc/dev"}],"success":true}
+
+STDERR: 
+INFO [2023-10-10 05:28:30,529] - [1826][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: Library exists: project=i18asockm variant=liotest99a libtype=reldoc library=dev
+INFO [2023-10-10 05:28:30,529] - [529][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' update '/intel/i18asockm/liotest99a/reldoc/dev:library' --set 'Owner=lionelta'
+DEBUG [2023-10-10 05:28:35,996] - [3578][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._update_properties: gdp --user=icmanage update /intel/i18asockm/liotest99a/reldoc/dev:library --set Owner=lionelta
+STDOUT: /intel/i18asockm/liotest99a/reldoc/dev
+
+STDERR: 
+DEBUG [2023-10-10 05:28:35,996] - [299][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/flows/createvariant.py]: - {'libtype': 'reldoc', 'success': True}
+DEBUG [2023-10-10 05:28:35,997] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/cthfe/dev:library' --columns '*' --output-format json
+DEBUG [2023-10-10 05:28:41,803] - [1662][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._get_objects: gdp --user=icmanage list /intel/i18asockm/liotest99a/cthfe/dev:library --columns * --output-format json
+STDOUT: {"results":[{"location":"liotest99a/cthfe","uri":"p4://scylicm.sc.intel.com:1666/depot/gdpxl/intel/i18asockm/liotest99a/cthfe/dev/...","created-by":"icmanage","Owner":"lionelta","id":"L35046378","type":"library","name":"dev","path":"/intel/i18asockm/liotest99a/cthfe/dev","created":"2023-10-10T12:20:44.290Z","modified":"2023-10-10T12:21:10.122Z","change":"@now","libtype":"cthfe"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:28:41,803] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/febe/dev:library' --columns '*' --output-format json
+DEBUG [2023-10-10 05:28:49,197] - [1662][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._get_objects: gdp --user=icmanage list /intel/i18asockm/liotest99a/febe/dev:library --columns * --output-format json
+STDOUT: {"results":[{"location":"liotest99a/febe","uri":"p4://scylicm.sc.intel.com:1666/depot/gdpxl/intel/i18asockm/liotest99a/febe/dev/...","created-by":"icmanage","Owner":"lionelta","id":"L35046458","type":"library","name":"dev","path":"/intel/i18asockm/liotest99a/febe/dev","created":"2023-10-10T12:22:44.827Z","modified":"2023-10-10T12:23:06.241Z","change":"@now","libtype":"febe"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:28:49,198] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/ipspec/dev:library' --columns '*' --output-format json
+DEBUG [2023-10-10 05:28:54,711] - [1662][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._get_objects: gdp --user=icmanage list /intel/i18asockm/liotest99a/ipspec/dev:library --columns * --output-format json
+STDOUT: {"results":[{"location":"liotest99a/ipspec","uri":"p4://scylicm.sc.intel.com:1666/depot/gdpxl/intel/i18asockm/liotest99a/ipspec/dev/...","created-by":"icmanage","Owner":"lionelta","id":"L35046520","type":"library","name":"dev","path":"/intel/i18asockm/liotest99a/ipspec/dev","created":"2023-10-10T12:24:19.430Z","modified":"2023-10-10T12:24:41.105Z","change":"@now","libtype":"ipspec"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:28:54,713] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/r2g/dev:library' --columns '*' --output-format json
+DEBUG [2023-10-10 05:29:00,035] - [1662][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._get_objects: gdp --user=icmanage list /intel/i18asockm/liotest99a/r2g/dev:library --columns * --output-format json
+STDOUT: {"results":[{"location":"liotest99a/r2g","uri":"p4://scylicm.sc.intel.com:1666/depot/gdpxl/intel/i18asockm/liotest99a/r2g/dev/...","created-by":"icmanage","Owner":"lionelta","id":"L35046607","type":"library","name":"dev","path":"/intel/i18asockm/liotest99a/r2g/dev","created":"2023-10-10T12:26:28.922Z","modified":"2023-10-10T12:26:55.771Z","change":"@now","libtype":"r2g"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:29:00,036] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/reldoc/dev:library' --columns '*' --output-format json
+DEBUG [2023-10-10 05:29:05,697] - [1662][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._get_objects: gdp --user=icmanage list /intel/i18asockm/liotest99a/reldoc/dev:library --columns * --output-format json
+STDOUT: {"results":[{"location":"liotest99a/reldoc","uri":"p4://scylicm.sc.intel.com:1666/depot/gdpxl/intel/i18asockm/liotest99a/reldoc/dev/...","created-by":"icmanage","Owner":"lionelta","id":"L35046677","type":"library","name":"dev","path":"/intel/i18asockm/liotest99a/reldoc/dev","created":"2023-10-10T12:28:14.195Z","modified":"2023-10-10T12:28:35.833Z","change":"@now","libtype":"reldoc"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:29:05,698] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/dev:config' --columns '*' --output-format json
+DEBUG [2023-10-10 05:29:11,408] - [1662][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._get_objects: gdp --user=icmanage list /intel/i18asockm/liotest99a/dev:config --columns * --output-format json
+STDOUT: {"results":[],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:29:11,409] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a:variant' --output-format json --columns path
+DEBUG [2023-10-10 05:29:17,056] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a:variant --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:29:17,057] - [617][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icmlibrary.py]: i18asockm/liotest99a/reldoc/dev already saved - nothing to do here.
+DEBUG [2023-10-10 05:29:17,057] - [617][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icmlibrary.py]: i18asockm/liotest99a/ipspec/dev already saved - nothing to do here.
+DEBUG [2023-10-10 05:29:17,057] - [617][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icmlibrary.py]: i18asockm/liotest99a/febe/dev already saved - nothing to do here.
+DEBUG [2023-10-10 05:29:17,057] - [617][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icmlibrary.py]: i18asockm/liotest99a/cthfe/dev already saved - nothing to do here.
+DEBUG [2023-10-10 05:29:17,057] - [617][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icmlibrary.py]: i18asockm/liotest99a/r2g/dev already saved - nothing to do here.
+DEBUG [2023-10-10 05:29:17,057] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/dev:config' --output-format json --columns path
+DEBUG [2023-10-10 05:29:22,708] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/dev:config --output-format json --columns path
+STDOUT: {"results":[],"success":true}
+
+STDERR: 
+INFO [2023-10-10 05:29:22,709] - [480][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icmconfig.py]: Creating i18asockm/liotest99a/dev
+DEBUG [2023-10-10 05:29:22,709] - [1289][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icmconfig.py]: -- current: {i18asockm/liotest99a/reldoc/dev, i18asockm/liotest99a/ipspec/dev, i18asockm/liotest99a/febe/dev, i18asockm/liotest99a/cthfe/dev, i18asockm/liotest99a/r2g/dev}
+DEBUG [2023-10-10 05:29:22,709] - [1290][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icmconfig.py]: -- saved: set()
+DEBUG [2023-10-10 05:29:22,709] - [482][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icmconfig.py]: pm_includes: {'add': ['i18asockm/liotest99a/reldoc/dev',
+         'i18asockm/liotest99a/ipspec/dev',
+         'i18asockm/liotest99a/febe/dev',
+         'i18asockm/liotest99a/cthfe/dev',
+         'i18asockm/liotest99a/r2g/dev'],
+ 'remove': []}
+DEBUG [2023-10-10 05:29:22,709] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/dev:config --output-format json --columns path
+STDOUT: {"results":[],"success":true}
+
+STDERR: 
+INFO [2023-10-10 05:29:22,709] - [1911][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: Creating configuration: i18asockm/liotest99a/dev
+INFO [2023-10-10 05:29:22,709] - [529][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' create configuration '/intel/i18asockm/liotest99a/dev'
+DEBUG [2023-10-10 05:29:28,811] - [1922][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI.add_composite_config: gdp --user=icmanage create configuration /intel/i18asockm/liotest99a/dev
+STDOUT: /intel/i18asockm/liotest99a/dev
+
+STDERR: 
+DEBUG [2023-10-10 05:29:28,811] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/dev:config' --output-format json --columns path
+DEBUG [2023-10-10 05:29:34,379] - [1379][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._object_exists: gdp --user=icmanage list /intel/i18asockm/liotest99a/dev:config --output-format json --columns path
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a/dev"}],"success":true}
+
+STDERR: 
+INFO [2023-10-10 05:29:34,380] - [2645][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: Updating configuration i18asockm/liotest99a@dev
+DEBUG [2023-10-10 05:29:34,380] - [498][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' list '/intel/i18asockm/liotest99a/dev' --columns 'path,type' --output-format json
+DEBUG [2023-10-10 05:29:39,982] - [1662][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._get_objects: gdp --user=icmanage list /intel/i18asockm/liotest99a/dev --columns path,type --output-format json
+STDOUT: {"results":[{"path":"/intel/i18asockm/liotest99a/dev","type":"config"}],"success":true}
+
+STDERR: 
+DEBUG [2023-10-10 05:29:39,983] - [2748][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: pathinfo: {'project': 'i18asockm', 'variant': 'liotest99a', 'libtype': 'reldoc', 'library': 'dev', 'type': 'library'}
+DEBUG [2023-10-10 05:29:39,983] - [2748][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: pathinfo: {'project': 'i18asockm', 'variant': 'liotest99a', 'libtype': 'ipspec', 'library': 'dev', 'type': 'library'}
+DEBUG [2023-10-10 05:29:39,983] - [2748][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: pathinfo: {'project': 'i18asockm', 'variant': 'liotest99a', 'libtype': 'febe', 'library': 'dev', 'type': 'library'}
+DEBUG [2023-10-10 05:29:39,984] - [2748][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: pathinfo: {'project': 'i18asockm', 'variant': 'liotest99a', 'libtype': 'cthfe', 'library': 'dev', 'type': 'library'}
+DEBUG [2023-10-10 05:29:39,984] - [2748][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: pathinfo: {'project': 'i18asockm', 'variant': 'liotest99a', 'libtype': 'r2g', 'library': 'dev', 'type': 'library'}
+INFO [2023-10-10 05:29:39,984] - [529][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' update '/intel/i18asockm/liotest99a/dev' --force --add '/intel/i18asockm/liotest99a/reldoc/dev:library' --add '/intel/i18asockm/liotest99a/ipspec/dev:library' --add '/intel/i18asockm/liotest99a/febe/dev:library' --add '/intel/i18asockm/liotest99a/cthfe/dev:library' --add '/intel/i18asockm/liotest99a/r2g/dev:library'
+DEBUG [2023-10-10 05:29:56,811] - [2701][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI.update_config: gdp --user=icmanage update /intel/i18asockm/liotest99a/dev --force --add /intel/i18asockm/liotest99a/reldoc/dev:library --add /intel/i18asockm/liotest99a/ipspec/dev:library --add /intel/i18asockm/liotest99a/febe/dev:library --add /intel/i18asockm/liotest99a/cthfe/dev:library --add /intel/i18asockm/liotest99a/r2g/dev:library
+STDOUT: /intel/i18asockm/liotest99a/dev
+
+STDERR: 
+INFO [2023-10-10 05:29:56,812] - [529][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: gdp '--user=icmanage' update '/intel/i18asockm/liotest99a/dev:config' --set 'Owner=lionelta'
+DEBUG [2023-10-10 05:30:02,200] - [3578][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/icm.py]: ICManageCLI._update_properties: gdp --user=icmanage update /intel/i18asockm/liotest99a/dev:config --set Owner=lionelta
+STDOUT: /intel/i18asockm/liotest99a/dev
+
+STDERR: 
+WARNING [2023-10-10 05:32:11,630] - [122][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/utillib/logstash.py]: Unable to connect to LogStash server at sjlogstash02.sc.intel.com:6789
+WARNING [2023-10-10 05:32:11,631] - [123][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/utillib/logstash.py]: [Errno 110] Connection timed out
+DEBUG [2023-10-10 05:32:11,631] - [157][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/utillib/logstash.py]: Final LogStash log sent
+DEBUG [2023-10-10 05:32:11,644] - [157][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/utillib/logstash.py]: Final LogStash log sent
+DEBUG [2023-10-10 05:32:11,702] - [31][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/utillib/arcenv.py]: ARC Environment values: {'DB_PROJECT': '', 'DB_FAMILY': 'Km', 'DB_THREAD': 'KM2revA0', 'DB_DEVICE': 'KM2', 'DB_PROCESS': '', 'TV_MILESTONE': ''}
+DEBUG [2023-10-10 05:32:11,703] - [165][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading family /p/psg/flows/common/dmxdata/latestdev/family.json
+DEBUG [2023-10-10 05:32:11,705] - [281][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmap_and_revisions_by_product /p/psg/flows/common/dmxdata/latestdev/Acomarock/roadmap_and_revisions_by_product.json
+DEBUG [2023-10-10 05:32:11,706] - [54][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmaps /p/psg/flows/common/dmxdata/latestdev/Acomarock/roadmaps.json
+DEBUG [2023-10-10 05:32:11,706] - [281][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmap_and_revisions_by_product /p/psg/flows/common/dmxdata/latestdev/Availarock/roadmap_and_revisions_by_product.json
+DEBUG [2023-10-10 05:32:11,707] - [54][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmaps /p/psg/flows/common/dmxdata/latestdev/Availarock/roadmaps.json
+DEBUG [2023-10-10 05:32:11,708] - [281][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmap_and_revisions_by_product /p/psg/flows/common/dmxdata/latestdev/Avoncrest/roadmap_and_revisions_by_product.json
+DEBUG [2023-10-10 05:32:11,708] - [54][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmaps /p/psg/flows/common/dmxdata/latestdev/Avoncrest/roadmaps.json
+DEBUG [2023-10-10 05:32:11,709] - [281][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmap_and_revisions_by_product /p/psg/flows/common/dmxdata/latestdev/Carsoncreek/roadmap_and_revisions_by_product.json
+DEBUG [2023-10-10 05:32:11,709] - [54][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmaps /p/psg/flows/common/dmxdata/latestdev/Carsoncreek/roadmaps.json
+DEBUG [2023-10-10 05:32:11,710] - [281][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmap_and_revisions_by_product /p/psg/flows/common/dmxdata/latestdev/Daprojects/roadmap_and_revisions_by_product.json
+DEBUG [2023-10-10 05:32:11,710] - [54][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmaps /p/psg/flows/common/dmxdata/latestdev/Daprojects/roadmaps.json
+DEBUG [2023-10-10 05:32:11,711] - [281][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmap_and_revisions_by_product /p/psg/flows/common/dmxdata/latestdev/Diamondmesa/roadmap_and_revisions_by_product.json
+DEBUG [2023-10-10 05:32:11,712] - [54][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmaps /p/psg/flows/common/dmxdata/latestdev/Diamondmesa/roadmaps.json
+DEBUG [2023-10-10 05:32:11,712] - [281][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmap_and_revisions_by_product /p/psg/flows/common/dmxdata/latestdev/Diamondmesa2/roadmap_and_revisions_by_product.json
+DEBUG [2023-10-10 05:32:11,713] - [54][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmaps /p/psg/flows/common/dmxdata/latestdev/Diamondmesa2/roadmaps.json
+DEBUG [2023-10-10 05:32:11,713] - [281][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmap_and_revisions_by_product /p/psg/flows/common/dmxdata/latestdev/Diamondpeaktrail/roadmap_and_revisions_by_product.json
+DEBUG [2023-10-10 05:32:11,714] - [54][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmaps /p/psg/flows/common/dmxdata/latestdev/Diamondpeaktrail/roadmaps.json
+DEBUG [2023-10-10 05:32:11,715] - [281][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmap_and_revisions_by_product /p/psg/flows/common/dmxdata/latestdev/Dolanrock/roadmap_and_revisions_by_product.json
+DEBUG [2023-10-10 05:32:11,716] - [54][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmaps /p/psg/flows/common/dmxdata/latestdev/Dolanrock/roadmaps.json
+DEBUG [2023-10-10 05:32:11,716] - [281][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmap_and_revisions_by_product /p/psg/flows/common/dmxdata/latestdev/Eanescreek/roadmap_and_revisions_by_product.json
+DEBUG [2023-10-10 05:32:11,717] - [54][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmaps /p/psg/flows/common/dmxdata/latestdev/Eanescreek/roadmaps.json
+DEBUG [2023-10-10 05:32:11,718] - [281][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmap_and_revisions_by_product /p/psg/flows/common/dmxdata/latestdev/Falcon/roadmap_and_revisions_by_product.json
+DEBUG [2023-10-10 05:32:11,719] - [54][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmaps /p/psg/flows/common/dmxdata/latestdev/Falcon/roadmaps.json
+DEBUG [2023-10-10 05:32:11,720] - [281][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmap_and_revisions_by_product /p/psg/flows/common/dmxdata/latestdev/Falconpark/roadmap_and_revisions_by_product.json
+DEBUG [2023-10-10 05:32:11,721] - [54][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmaps /p/psg/flows/common/dmxdata/latestdev/Falconpark/roadmaps.json
+DEBUG [2023-10-10 05:32:11,721] - [281][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmap_and_revisions_by_product /p/psg/flows/common/dmxdata/latestdev/Gundersonrock/roadmap_and_revisions_by_product.json
+DEBUG [2023-10-10 05:32:11,722] - [54][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmaps /p/psg/flows/common/dmxdata/latestdev/Gundersonrock/roadmaps.json
+DEBUG [2023-10-10 05:32:11,722] - [281][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmap_and_revisions_by_product /p/psg/flows/common/dmxdata/latestdev/Ironspringmesa/roadmap_and_revisions_by_product.json
+DEBUG [2023-10-10 05:32:11,723] - [54][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmaps /p/psg/flows/common/dmxdata/latestdev/Ironspringmesa/roadmaps.json
+DEBUG [2023-10-10 05:32:11,723] - [281][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmap_and_revisions_by_product /p/psg/flows/common/dmxdata/latestdev/Kernriver/roadmap_and_revisions_by_product.json
+DEBUG [2023-10-10 05:32:11,724] - [54][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmaps /p/psg/flows/common/dmxdata/latestdev/Kernriver/roadmaps.json
+DEBUG [2023-10-10 05:32:11,725] - [281][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmap_and_revisions_by_product /p/psg/flows/common/dmxdata/latestdev/Km/roadmap_and_revisions_by_product.json
+DEBUG [2023-10-10 05:32:11,725] - [54][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading roadmaps /p/psg/flows/common/dmxdata/latestdev/Km/roadmaps.json
+DEBUG [2023-10-10 05:32:11,726] - [138][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/ecolib/loader.py]: Loading manifest /p/psg/flows/common/dmxdata/latestdev/Km/manifest.json
+INFO [2023-10-10 05:32:11,728] - [40][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/createvariant.py]: 'cthfe' is part of the required deliverables. Creating master git repo ...
+DEBUG [2023-10-10 05:32:34,521] - [652][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/utillib/gkutils.py]: cmd:  /p/psg/da/infra/admin/setuid/ssh_psgcthadm rsync.zsc7.intel.com -q 'cd /nfs/site/disks/psg.git.001/git_repos; groups; whoami; /p/hdk/rtl/proj_tools/git/da_tools/master/latest/make_git_repo -d -b -r -t /nfs/site/disks/psg.git.001/git_templates/empty liotest99a' 
+- exitcode:0
+- stdout: intelall soc hdk10nm hdk10nmproc psgeng psgfln psgi10 psgknl psgsynopsys psgcadence psgi22 tyc78 tyc78proc psgi5 i1278 psgenc psgn5 psgacr psgknr psgltm psgltp
+psgcthadm
+
+NOTE: User set to use git version in thier path (using -d): /usr/bin/X11/git
+
+git version 2.26.2
+Restricting Group Write (2750)
+Make Bare Git Repo: liotest99a
+Initialized empty shared Git repository in /nfs/site/disks/psg.git.001/git_repos/liotest99a/
+Pushing from (user defined) /nfs/site/disks/psg.git.001/git_templates/empty to liotest99a started...
+Push returned successful...
+
+New repo 'liotest99a' matching history of, including their tags: /nfs/site/disks/psg.git.001/git_templates/empty
+
+- stderr: To /nfs/site/disks/psg.git.001/git_repos/liotest99a
+ * [new branch]      master -> master
+
+
+INFO [2023-10-10 05:32:34,521] - [184][/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/../../../../../../lib/python/dmx/utillib/gkutils.py]: PASS: Git Repo (/nfs/site/disks/psg.git.001/git_repos/liotest99a) successfully created.
+0
+Namespace(preview=False, quiet=False, debug=True, dmxretry='0', project='i18asockm', ip='liotest99a', ip_type='asic', description=None, nocheck=False, owner='lionelta', roadmap=None)

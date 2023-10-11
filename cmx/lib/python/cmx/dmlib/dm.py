@@ -1,0 +1,42 @@
+#!/usr/bin/env python
+'''
+$Header: //depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/dmlib/dm.py#1 $
+$Change: 7733831 $
+$DateTime: 2023/08/09 03:35:58 $
+$Author: wplim $
+
+Description: Abstract base class used for representing IC Manage configurations. See: http://sw-wiki.altera.com/twiki/bin/view/DesignAutomation/ICMConfigurationClass for more details
+
+Author: Lee Cartwright
+Copyright (c) Altera Corporation 2014
+All rights reserved.
+'''
+import os
+import sys
+import abc
+
+LIB = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
+sys.path.insert(0, LIB)
+
+
+class DM(metaclass=abc.ABCMeta):
+    @abc.abstractmethod
+    def sync(self):
+        pass
+
+    @abc.abstractmethod
+    def checkin(self):
+        pass
+
+
+    @abc.abstractmethod
+    def overlay(self):
+        pass
+
+    @abc.abstractmethod
+    def snap(self):
+        pass
+
+
+if __name__ == "__main__":
+    sys.exit(main())

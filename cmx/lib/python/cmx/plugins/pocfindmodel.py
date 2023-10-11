@@ -1,0 +1,63 @@
+#!/usr/bin/env python
+'''
+$Header: //depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/plugins/pocfindmodel.py#2 $
+$Change: 7688374 $
+$DateTime: 2023/07/06 03:18:20 $
+$Author: lionelta $
+'''
+import sys
+import os
+import logging
+import textwrap
+import re
+import json
+from pprint import pprint
+
+sys.path.insert(0, os.getenv("DMX_LIB"))
+from cmx.abnrlib.command import Command 
+from dmx.utillib.utils import add_common_args
+import cmx.tnrlib.release_runner_cthfe
+import dmx.abnrlib.icm
+
+class Pocfindmodel(Command):
+    '''plugin for "dmx login"'''
+
+    #HIDDEN = True
+
+    @classmethod
+    def get_help(cls):
+        myhelp = '''\
+            Given icm REL bom, find the equivalent gk-release-model.
+            '''
+        return textwrap.dedent(myhelp)
+
+    @classmethod
+    def extra_help(cls):
+        extra_help = '''\
+            Given icm REL bom, find the equivalent gk-release-model.
+           
+            Example:-
+            =========
+            >dmx poc findmodel -p i18asockm -i liotest1 -d cthfe -b REL1.0KM2revA0__23ww204b 
+            liotest1-a0-23ww20b
+            '''
+        return textwrap.dedent(extra_help)
+
+    @classmethod
+    def add_args(cls, parser):
+        add_common_args(parser)
+        parser.add_argument('--project', '-p', required=True)
+        parser.add_argument('--ip', '-i', required=True)
+        parser.add_argument('--deliverable', '-d', required=True)
+        parser.add_argument('--bom', '-b', required=True)
+        parser.add_argument('--full', action='store_true', default=False, help='output full details')
+
+    @classmethod
+    def command(cls, args):
+        ret = dmx.abnrlib.icm.ICManageCLI().get_release_details(args.project, args.ip, args.deliverable, '*', args.bom)
+        if args.full:
+            pprint(ret)
+        else:
+            print(ret['IP_MODEL'])
+        return 0
+

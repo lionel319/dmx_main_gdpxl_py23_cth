@@ -1,0 +1,58 @@
+#!/usr/bin/env python
+'''
+$Header: //depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/createvariant.py#1 $
+$Change: 7621000 $
+$DateTime: 2023/05/19 01:12:32 $
+$Author: lionelta $
+
+Description: Abstract base class used for representing IC Manage configurations. See: http://sw-wiki.altera.com/twiki/bin/view/DesignAutomation/ICMConfigurationClass for more details
+
+Author: Lee Cartwright
+Copyright (c) Altera Corporation 2014
+All rights reserved.
+'''
+import os
+import sys
+import logging
+
+CMXLIB = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..')
+DMXLIB = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', '..', '..', '..', 'lib', 'python')
+sys.path.insert(0, CMXLIB)
+sys.path.insert(0, DMXLIB)
+
+import dmx.ecolib.ecosphere
+import dmx.utillib.gkutils
+
+class CreateVariant():
+
+    def __init__(self, args):
+        self.args = args
+        print(self.args)
+        self.logger = logging.getLogger(__name__)
+
+    def run(self):
+
+        req_deliverables = self.get_required_deliverables()
+        if 'cthfe' not in req_deliverables:
+            self.logger.info("Skipped creating master git repo, as 'cthfe' is not part of the required deliverables.")
+            return 0
+            
+        self.logger.info("'cthfe' is part of the required deliverables. Creating master git repo ...")
+
+        ### Create Master Git Repo 
+        gk = dmx.utillib.gkutils.GkUtils()
+        tmplpath = '/nfs/site/disks/psg.git.001/git_templates/empty'
+        repopath = '/nfs/site/disks/da_infra_1/users/psgcthadm/rubbish/{}-a0'.format(self.args.ip)
+        repopath = '/nfs/site/disks/psg.git.001/git_repos/{}-a0'.format(self.args.ip)
+        ret = gk.clone_git_template_to_git_repo(tmplpath, repopath)
+        return ret
+
+    def get_required_deliverables(self):
+        eco = dmx.ecolib.ecosphere.EcoSphere(workspaceroot='dummy')
+        family = eco.get_family_for_thread(os.getenv("DB_THREAD"))
+        deliverables = family.get_all_deliverables()
+        delstr = [str(d) for d in deliverables]
+        return delstr
+
+if __name__ == "__main__":
+    sys.exit(main())

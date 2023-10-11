@@ -1,0 +1,44 @@
+define: "ARCRES": ARCRES
+define: "DMXVER": DMXVER
+define: "DMXDATAVER": DMXDATAVER
+define: "MAKECMD": MAKECMD: "make -f $PANDORA_CENTRAL_REGRESSION_ROOT/../regression.makefile "
+
+stepname: print_var
+command: echo "ARCRES : " $ARCRES " ||| DMXVER : " $DMXVER " ||| DMXDATAVER : " $DMXDATAVER
+
+stepname: customize_subject
+command: echo "SUBJECT: rc_bundle_regression ($PANDORA_fub)" > $PANDORA_EMAILFILE
+
+stepname: customize_body
+command: echo "BODY:ARCRES: $ARCRES<br>" >> $PANDORA_EMAILFILE
+command: echo "DMXVER: $DMXVER<br>" >> $PANDORA_EMAILFILE
+command: echo "DMXDATAVER: $DMXDATAVER<br>" >> $PANDORA_EMAILFILE
+command: echo "LOGFILE: file://samba.$ARC_SITE.intel.com$PANDORA_WARD/regression/regression.log" >> $PANDORA_EMAILFILE
+
+stepname: unittest_abnr
+command: $MAKECMD unittest_abnr                 ARCRES=$ARCRES  DEVICE=$PANDORA_fub SANDBOX=/p/psg/flows/common/dmx/$DMXVER/ SETENVDMXDATA=pwd JOBNAME=$ARCRES   OPTS=  
+
+stepname: systemtest_tnr
+command: $MAKECMD systemtest_tnr                ARCRES=$ARCRES  DEVICE=$PANDORA_fub SANDBOX=/p/psg/flows/common/dmx/$DMXVER/ SETENVDMXDATA=pwd JOBNAME=$ARCRES   OPTS="--exclude=audit_file_generation --exclude=get_audit_file_paths_for_testable_item"  
+
+stepname: systemtest_ecolib 
+command: $MAKECMD systemtest_ecolib             ARCRES=$ARCRES  DEVICE=$PANDORA_fub SANDBOX=/p/psg/flows/common/dmx/$DMXVER/ SETENVDMXDATA=pwd JOBNAME=$ARCRES   OPTS=  
+
+stepname: systemtest_utillib
+command: $MAKECMD systemtest_utillib            ARCRES=$ARCRES  DEVICE=$PANDORA_fub SANDBOX=/p/psg/flows/common/dmx/$DMXVER/ SETENVDMXDATA=pwd JOBNAME=$ARCRES   OPTS=  
+
+stepname: systemtest_testrunner
+command: $MAKECMD systemtest_testrunner         ARCRES=$ARCRES  DEVICE=$PANDORA_fub SANDBOX=/p/psg/flows/common/dmx/$DMXVER/ SETENVDMXDATA=pwd JOBNAME=$ARCRES   OPTS=  
+
+stepname: create_sandbox_arc_res
+command: $MAKECMD create_sandbox_arc_res        ARCRES=$ARCRES  DEVICE=$PANDORA_fub SANDBOX=/p/psg/flows/common/dmx/$DMXVER/ SETENVDMXDATA=pwd JOBNAME=$ARCRES   OPTS=  
+
+stepname: inttest_dmx
+command: $MAKECMD inttest_dmx                   ARCRES=$ARCRES  DEVICE=$PANDORA_fub SANDBOX=/p/psg/flows/common/dmx/$DMXVER/ SETENVDMXDATA=pwd JOBNAME=$ARCRES   OPTS=  
+
+stepname: inttest_ecosphere
+command: $MAKECMD inttest_ecosphere             ARCRES=$ARCRES  DEVICE=$PANDORA_fub SANDBOX=/p/psg/flows/common/dmx/$DMXVER/ SETENVDMXDATA=pwd JOBNAME=$ARCRES   OPTS=  
+
+stepname: inttest_ipqc 
+command: $MAKECMD  inttest_ipqc                 ARCRES=$ARCRES  DEVICE=$PANDORA_fub SANDBOX=/p/psg/flows/common/dmx/$DMXVER/ SETENVDMXDATA=pwd JOBNAME=$ARCRES   OPTS=    
+

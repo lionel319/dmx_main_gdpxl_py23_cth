@@ -1,0 +1,16 @@
+#!/bin/sh
+SCRIPTDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+script="$0"
+command="$1"
+project="$2"
+variant="$3"
+libtype="$4"
+config="$5"
+dir="$6"
+user="$7"
+cfgfile="$8"
+icm_command="$9"
+misc="${10}"
+
+/p/psg/ctools/arc/bin/arc shell project/falcon/branch/fm8dot2main/rc -- $SCRIPTDIR/workspace_helper.py -cmd "'$command'" -p "'$project'" -v "'$variant'" -l "'$libtype'" -c "'$config'" -dir "'$dir'" -u "'$user'" -cfg "'$cfgfile'" -icmcmd "'$icm_command'" -misc "'$misc'"

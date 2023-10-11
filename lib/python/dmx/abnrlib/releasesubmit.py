@@ -1,0 +1,341 @@
+#!/usr/bin/env python
+'''
+$Header: //depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/releasesubmit.py#3 $
+$Change: 7480179 $
+$DateTime: 2023/02/12 18:24:49 $
+$Author: lionelta $
+
+Description: Library for interacting with the queue in the gated release system
+
+Author: Lee Cartwright
+
+Copyright (c) Altera Corporation 2014
+All rights reserved.
+'''
+
+## @addtogroup dmxlib
+## @{
+
+import logging
+import os
+import time
+import re
+import sys
+
+LIB = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')
+sys.path.insert(0, LIB)
+
+from dmx.tnrlib.release_runner import ReleaseRunner
+from dmx.abnrlib.config_factory import ConfigFactory
+
+from dmx.tnrlib.waiver_file import WaiverFile
+from dmx.utillib.utils import get_abnr_id, run_command, get_tools_path, is_pice_env, get_release_ver_map, quotify, remove_quotes
+from dmx.utillib.version import Version
+from dmx.abnrlib.icmconfig import IcmConfig
+from dmx.abnrlib.urls import TNR_DASHBOARD
+from dmx.utillib.server import Server
+from dmx.utillib.admin import get_dmx_admins
+from dmx.utillib.superuser import get_dmx_superusers
+from dmx.utillib.decorators import memoized
+import dmx.abnrlib.icm
+import dmx.ecolib.ecosphere
+import dmx.utillib.arcutils
+LOGGER = logging.getLogger(__name__)
+
+# These values should be part of dmxdata family.json
+# For now, they are hardcoded here for WHR release enablement
+WHR_TNR_DISK = '/nfs/site/disks/whr_tnr_1/release/'
+
+class ReleaseQueueError(Exception): pass
+class ReleaseJobError(Exception): pass
+
+def submit_release(immutable_config, input_config, milestone, thread, label,                
+                  abnr_id, libtype=None, preview=False, 
+                  waivers=None, description="", views=[],
+                  syncpoint='', skipsyncpoint='', skipmscheck='', regmode=False,
+                  prel=None):
+    '''
+    Sends the immutable config to the gated release system queue
+
+    :param immutable_config: The configuration to be released
+    :type immutable_config: object
+    :param input_config: The input configuration specified by the user
+    :type input_config: str
+    :param milestone: The milestone to release against
+    :type milestone: str
+    :param thread: The thread to release against
+    :type thread: str
+    :param label: The label to attach to the release
+    :type label: str
+    :param libtype: The libtype we're releasing. Only applicable to SimpleConfig releases. Otherwise leave as None.
+    :type libtype: str
+    :param preview: Boolean for preview mode. If True nothing will be sent to the queue
+    :type preview: bool
+    :param waivers: An optional WaiverFile object
+    :type waives: WaiverFile
+    :return: True equals success, False equals error
+    :type return: bool
+    '''
+    ret = False
+    cli = dmx.abnrlib.icm.ICManageCLI(preview=True)
+
+    # Get the version and id
+    version = Version().dmx
+
+
+    # New release method that doesn't use RabbitMQ
+    release_id = get_abnr_id()
+    user = os.getenv("USER")
+
+    ### Remove all quotes from description
+    description = remove_quotes(description)
+
+    # http://pg-rdjira:8080/browse/DI-1117
+    # apostrophe causes problem with arc, need to escape the character with sorcery
+    # abc's => abc'"'\''"'s
+    # description = description.replace('\'', '\'\"\'\\\'\'\"\'')
+    # Build command string
+    cmd = '-p {} -v {} -c {} {} -d "{}" {} -m {} -t {} --user {} --release_id {}'.format(
+        immutable_config.project, immutable_config.variant, 
+        immutable_config.config, '-l {}'.format(libtype) if libtype else '', 
+        description, '--label {}'.format(label) if label else '', 
+        milestone, thread, user, release_id)
+    if syncpoint:
+        cmd = '{} --syncpoint {}'.format(cmd, syncpoint)               
+    if skipsyncpoint:
+        #skipsyncpoint = skipsyncpoint.replace('\'', '\'\"\'\\\'\'\"\'')
+        cmd = '{} --skipsyncpoint "{}"'.format(cmd, remove_quotes(skipsyncpoint))
+    if skipmscheck:
+        #skipmscheck = skipmscheck.replace('\'', '\'\"\'\\\'\'\"\'')
+        cmd = '{} --skipmscheck "{}"'.format(cmd, remove_quotes(skipmscheck))
+    # If Regression Mode is turned on, don't create REL config and dashboard.
+    # https://jira01.devtools.intel.com/browse/PSGDMX-29
+    if regmode:
+        cmd = '{} --dont_create_rel --devmode '.format(cmd)
+        #pass
+    # If views are provided, append --view option to cmd
+    if views:
+        cmd = '{} --views'.format(cmd)
+        for view in views:
+            cmd = '{} {}'.format(cmd, view)
+    if prel:
+        cmd = '{} --prel {}'.format(cmd, prel)
+
+    if views and prel:
+        raise ReleaseQueueError("views:{} and prel:{} can not be used together.".format(views, prel))
+
+    family = dmx.ecolib.ecosphere.EcoSphere().get_family_for_icmproject(immutable_config.project)
+    ARCRES = 'project/ltm/ltma0/0.5/rtl/2023WW05,ic_manage_gdp/xl/47827,icmadmin/gdpxl/1.0,ostype/suse12,python/3.7.9/6'
+    if str(family) == 'Wharfrock':
+        cmd = '{} -w {}'.format(cmd, WHR_TNR_DISK)
+        ARCRES = ARCRES + ',set_var_project/wharfrock/whr/1.0'
+    elif str(family) == 'Falcon':
+        ARCRES = ARCRES + ',set_var_project/falcon/fm8/1.0'
+    elif str(family) == 'Ratonmesa':
+        ARCRES = ARCRES + ',set_var_project/RTMrevA0/1.0'
+    else:
+        ARCRES = ARCRES + ',set_var_project/RTMrevA0/1.0'
+
+    familyname = dmx.ecolib.ecosphere.EcoSphere().get_family_for_thread(thread)
+    
+    relvermap = get_release_ver_map(thread, milestone)
+    if not relvermap:
+        dmxver = 'current_gdpxl_py23_cth'
+        dmxdataver = 'current'
+    else:
+        [dmxver, dmxdataver] = relvermap
+
+    dmxpath = '/p/cth/cad/dmx/{}/lib/python/dmx/tnrlib/release_runner.py'.format(dmxver)
+    dmxdatapath = '/p/cth/cad/dmxdata/{}'.format(dmxdataver)
+
+    ### This section is meant for admins for debugging purpose.
+    ### when admins want to test 'dmx release' to use dmx/dmxdata from a certain path, 
+    ### then set these environment variables.
+    if user in get_dmx_admins() or regmode:
+        dmxpath = os.getenv("DMXREL_DMXPATH", dmxpath)  ### This should be the fullpath to release_runner.py
+        dmxdatapath = os.getenv("DMXREL_DMXDATAPATH", dmxdatapath)  ### This should be the path of DMXDATA_ROOT
+
+
+    setdmxdataroot = 'setenv DMXDATA_ROOT {}'.format(dmxdatapath)
+    release_runner = 'gdp info; {}; {}'.format(setdmxdataroot, dmxpath)
+    cmd = '{} {}'.format(release_runner, cmd) 
+    release_runner_command = cmd
+
+    tnrssh = '/p/psg/da/infra/admin/setuid/tnr_ssh'
+    tnrsh = '/p/psg/da/infra/admin/setuid/run_as_psginfraadm.sh'
+    
+    ### This part stitch up the entire one-liner command
+    LOGGER.debug("release_runner_command: {}".format(release_runner_command))
+    # psgfln is needed because all dashboard logfiles are still writen to /nfs/site/disks/fln_tnr_1/splunk/qa_data/
+    wash_command = 'wash -n `reportwashgroups23 -f {}` psgfln -c {}'.format(familyname, quotify(release_runner_command))   
+    LOGGER.debug("wash_command: {}".format(wash_command))
+    arc_submit_command = 'cd /p/psg/data/psginfraadm; {}/arc/bin/arc submit -nb {} -- {}'.format(get_tools_path('ctools'), ARCRES, quotify(wash_command))
+    LOGGER.debug("arc_submit_command: {}".format(arc_submit_command))
+    if os.getenv("ARC_SITE", "") == 'sc' or os.getenv("EC_SITE", "") == 'zsc7':
+        setuid_command = '{} {}'.format(tnrsh, quotify(arc_submit_command))
+    else:
+        server = Server(tnrssh=True, site='zsc7').get_working_server()
+        setuid_command = '{} -q {} {}'.format(tnrssh, server, quotify(arc_submit_command))
+    LOGGER.debug("setuid_command: {}".format(setuid_command))
+    final_command = setuid_command
+
+    # This whole command looks like some sort of sorcery gone bad, but it works...
+    LOGGER.debug("final release job command: {}".format(final_command))
+    arc_job_id = None
+    ret = False
+
+    if preview:
+        ret = True
+    else:
+        LOGGER.info("""
+        +===========================================================+
+        | PLEASE DO NOT ENTER ANY PASSWORD WHEN BEING ASKED FOR IT! |
+        | DOING THIS MIGHT GET THE RELEASE ACCOUNT LOCKED !!!       |
+        |                 !!! JUST WAIT !!!                         |
+        |          THANK YOU FOR YOUR PATIENCE !!!                  |
+        +===========================================================+
+        """)
+        exitcode, stdout, stderr = run_command(final_command)
+        # http://pg-rdjira:8080/browse/DI-880
+        LOGGER.debug('exitcode: {}'.format(str(exitcode)))
+        LOGGER.debug('stdout: {}'.format(str(stdout)))
+        LOGGER.debug('stderr: {}'.format(str(stderr)))
+
+        '''
+        A successful arc submission looks like this:
+
+        13975259
+        Job <13306404> is submitted to queue <batch>.
+        '''
+        results = stdout.splitlines()
+        arc_job_id = results[0]
+
+        if arc_job_id.isdigit():
+            ret = True
+        else:
+            errstr = '''Problem Dispatching Job.
+            exitcode: {}
+            stdout: {}
+            stderr: {}
+            '''.format(exitcode, stdout, stderr)
+            raise ReleaseQueueError(errstr)
+
+    return (ret, arc_job_id)
+
+
+@memoized
+def get_tnr_dashboard_url_for_id(abnr_id, project='*', requestor='*', variant='*', libtype='*'):
+    '''
+    Returns the TnR dashboard URL for abnr_id
+
+    NOTE: TNR Redirection is not working for PICE. For PICE, print the TNR mainpage
+          http://pg-rdjira.altera.com:8080/browse/DI-470
+
+    :param abnr_id: The abnr_id the URL should take the user to
+    :type abnr_id: str
+    :return: TnR URL to view a release
+    :type return: str
+    '''
+    if is_pice_env():
+        return '(http://goto/psg_rel_dashboard -or- http://goto/psg_rel_dashboard_wiki)'
+        return '{0}main?form.project={1}&form.user={2}&form.variant={3}&form.libtype={4}'.format(TNR_DASHBOARD, project, requestor, variant, libtype)
+    else:        
+        # The URL consists of the base TnR URL plus the information needed
+        # to go directly to a release
+        return '{0}release_by_id?abnr_release_id={1}'.format(TNR_DASHBOARD, abnr_id)
+
+class ReleaseJobHandler(object):
+    def __init__(self, arc_job_id):
+        self.arc_job_id = arc_job_id
+        self.logger = logging.getLogger(__name__)
+        self.rel_config = None
+        self.ssh = '/p/psg/da/infra/admin/setuid/tnr_ssh'
+        self.site = os.getenv("ARC_SITE")
+        self.motd = """
+        +===========================================================+
+        | PLEASE DO NOT ENTER ANY PASSWORD WHEN BEING ASKED FOR IT! |
+        | DOING THIS MIGHT GET THE RELEASE ACCOUNT LOCKED !!!       |
+        |                 !!! JUST WAIT !!!                         |
+        |          THANK YOU FOR YOUR PATIENCE !!!                  |
+        +===========================================================+
+        """
+        
+
+    def get_job_status(self):
+        if self.site == 'sc':
+            cmd = '{}/arc/bin/arc job-info {} status'.format(get_tools_path('ctools'), self.arc_job_id)
+        else:
+            self.server = Server().get_working_server()
+            cmd = '{} -q {} \'{}/arc/bin/arc job-info {} status\''.format(self.ssh, self.server, get_tools_path('ctools'), self.arc_job_id)
+        self.logger.debug(cmd)
+        self.logger.info(self.motd)
+        exitcode, stdout, stderr = run_command(cmd)
+        if exitcode:
+            LOGGER.error('stdout: {}'.format(stdout))
+            LOGGER.error('stderr: {}'.format(stderr))
+            raise ReleaseJobError('Failed getting {} job status'.format(self.arc_job_id))
+        return stdout.splitlines()[0]
+
+    def get_job_stdout(self):
+        if self.site == 'sc':
+            cmd = 'cat `{}/arc/bin/arc job-info {} storage`/stdout.txt'.format(get_tools_path('ctools'), self.arc_job_id)
+        else:
+            self.server = Server().get_working_server()
+            cmd = '{} -q {} \'cat `{}/arc/bin/arc job-info {} storage`/stdout.txt\''.format(self.ssh, self.server, get_tools_path('ctools'), self.arc_job_id)
+        self.logger.debug(cmd)
+        self.logger.info(self.motd)
+        exitcode, stdout, stderr = run_command(cmd)
+        if exitcode:
+            LOGGER.error('stdout: {}'.format(stdout))
+            LOGGER.error('stderr: {}'.format(stderr))
+            raise ReleaseJobError('Failed getting {} job stdout'.format(self.arc_job_id))
+        return stdout.splitlines()
+
+    def wait_for_job_completion(self):      
+        status = ''
+        done = True        
+        while done:
+            try:
+                time.sleep(60)
+                status = self.get_job_status()
+                self.logger.debug('job status: {}'.format(status))
+                if status == 'done' or status == 'failed' or status == 'error':
+                    done = False
+            except Exception as e:
+                self.logger.warning(str(e))
+
+        if status == 'done':
+            stdout = self.get_job_stdout()
+            for line in stdout:
+                m = re.match('.*Rel Config: (.*)', line)
+                if m:
+                    rel_config = m.group(1).strip()
+                    self.rel_config = None if rel_config == 'None' else rel_config
+        return 0                    
+
+def convert_waiver_files(waiver_files):
+    '''                                
+    Takes a list of file paths and converts them into a single
+    WaiverFile object for sending to the release queue        
+
+    :param waiver_files: List of waiver file paths
+    :type waiver_files: list                      
+    :return: A WaiverFile object                  
+    :type return: WaiverFile                      
+    '''                                           
+    wf = WaiverFile()                             
+
+    for waiver_file in waiver_files:
+        try:                        
+            wf.load_from_file(waiver_file)
+        except IndexError:                
+            # An IndexError is a strong sign that the waiver file was
+            # in a bad format                                        
+            raise ReleaseQueueError('Problem processing waiver file {0}. Check that it is in the correct format.'.format(                                                                                 
+                waiver_file                                                                          
+            ))                                                                                       
+
+
+    return wf
+        
+## @}

@@ -1,0 +1,2 @@
+﻿Project,Variant,Libtype,Topcell,Flow-Libtype,Releaser,Flow,Subflow,Waiver-creator,Waiver-reason,Error
+i10soc2,perictrl,lint,perictrl,lint,anushana,lint,rtl,CommandLine,ModulePrefixNotIpPrefix error waiveable for SM7 B0,FAILED validation of /perictrl/lint/audit/audit.perictrl.lint_rtl.xml: test results indicated failure: ModulePrefixNotIpPrefix error is not waivable. Please contact flow owner

@@ -1,0 +1,33 @@
+#!/bin/tcsh -f
+
+### a dmx wrapper that allows users without an icm-license to run dmx commands
+
+
+#set ARCRES = `arc job resources`
+#echo "arcres: $ARCRES"
+
+if ($argv[1] == "-h" || $argv[1] == "--help") then
+    echo
+    echo "========"
+    echo "Example:"
+    echo "========"
+    echo ">xldmx report list -p 'i10\*'"
+    echo ">xldmx report content -p i10socfm -i liotestfc1 -b dev --hier"
+    echo ">xldmx size -p i10socfm -i liotestfc1 -b dev"
+    echo ">xldmx roadmap -p i10socfm -i liotest1"
+    echo
+    exit
+endif
+
+if ($argv[1] != 'report' && $argv[1] != 'roadmap' && $argv[1] != 'size' && $argv[1] != 'search' && $argv[1] != 'content') then
+    echo "-INFO- This dmx service:(dmx $argv[1]) is not supported for non-icm-licensee."
+    echo "-INFO- Exiting ..."
+    exit
+endif
+
+
+#/p/psg/da/infra/admin/setuid/tnr_ssh sc-login.sc.intel.com -q '/p/psg/ctools/arc/2019.1/bin/arc submit -I '$ARCRES' -- '"'"'dmx '$argv:q"'"
+set DMXCMD = "env USER=psginfraadm USERNAME=psginfraadm HOME=/nfs/site/home/psginfraadm HOTEL=/p/psg/data/psginfraadm dmx $argv:q"
+#echo "dmxcmd:===$DMXCMD==="
+/p/psg/da/infra/admin/setuid/run_as_psginfraadm.sh "$DMXCMD"
+

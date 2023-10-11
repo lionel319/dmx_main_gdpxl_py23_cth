@@ -1,0 +1,153 @@
+#!/usr/bin/env python
+'''
+$Header: //depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/plugins/ipcreate.py#1 $
+$Change: 7411538 $
+$DateTime: 2022/12/13 18:19:49 $
+$Author: lionelta $
+
+Description: branch dmx subcommand
+Author: Lee Cartwright
+Copyright (c) Altera Corporation 2013
+All rights reserved.
+'''
+import os
+import sys
+import logging
+import textwrap
+import getpass
+import time
+import re
+
+from dmx.abnrlib.command import Command, Runner
+from dmx.utillib.utils import add_common_args
+from dmx.abnrlib.flows.createvariant import CreateVariant
+from dmx.utillib.admin import is_admin
+
+# Import ecolib
+import dmx.ecolib.ecosphere 
+
+class IPCreateError(Exception): pass
+
+class IPCreate(Command):
+    '''
+    dmx subcommand plugin class
+
+    Creates an IP and all deliverables associated with the type of IP
+    '''
+    @classmethod
+    def get_help(cls):
+        '''
+        Short help for the subcommand
+        '''
+        myhelp = '''\
+            Create an ip and all deliverabels associated with the ip-type
+            '''
+        return textwrap.dedent(myhelp)
+
+    @classmethod
+    def add_args(cls, parser):
+        '''
+        create ip arguments
+        '''
+        add_common_args(parser)
+        parser.add_argument('-p', '--project',
+                            metavar='project', required=True)
+        parser.add_argument('-i', '--ip',
+                            metavar='ip', required=True)
+        parser.add_argument('--type', dest='ip_type',
+                            metavar='ip_type', required=True)
+        parser.add_argument('--desc', dest='description',
+                            metavar='description', required=False)
+
+        # http://pg-rdjira.altera.com:8080/browse/DI-621
+        # 2 new options added which can only be run by admins
+        # https://jira.devtools.intel.com/browse/PSGDMX-1682
+        # allow anyone to use --nocheck when family_test.json is used.
+        if is_admin() or "family_test.json" in os.getenv("DMX_FAMILY_LOADER", ""):
+            parser.add_argument('--nocheck', required=False, action='store_true',
+                                 default=False, help='Bypass prefix name checking')
+            parser.add_argument('--owner', required=False, default=os.getenv('USER'),
+                                help='Owner name for the new variant')
+
+        # http://pg-rdconfluence:8090/pages/viewpage.action?pageId=4523862
+        # IP can now be created with custom roadmap
+        parser.add_argument('--roadmap', dest='roadmap',
+                            metavar='roadmap', required=False)
+
+    @classmethod
+    def extra_help(cls):
+        '''
+        Detailed help for create ip
+        '''
+        if is_admin():
+            admin_help = '''
+        ### ADMIN OPTIONS
+        --nocheck and --owner allow an admin to help designers to create IP which 
+        bypasses the prefix name checking. These options and help messages appear only 
+        to the admins and will not appear to the normal users.
+        ###
+        '''
+        else:
+            admin_help = ''            
+                    
+        extra_help = '''\
+        "ip create" creates a new ip and associated libtypes within project.
+
+        --project <project>
+        --ip <ip>
+        --type <ip_type>
+
+        Creates a new ip within <project>. All deliverables defined by the <ip_type> 
+        are created within the ip.
+        For more information on IP type, please refer to goto/roadmap_fm8
+
+        IP name must follow this naming convention:
+        *   Starts with only alphabet (capital letter not allowed)
+        *   Ends with only alphabet or number (capital letter not allowed)
+        *   Contain zero or more underscores (other special characters not allowed 
+            such as $ or &)
+
+        From dmx/6.0 onwards, IP creation now requires a roadmap to be attached to it. 
+        If --roadmap is not provided, dmx will attempt to attach the roadmap info associated 
+        with the project bundle in the current terminal.
+        If no roadmap info could be found in the project bundle in the current terminal, dmx
+        will error out.
+        If --roadmap is provided, dmx will create the IP and attach the roadmap info to the 
+        newly created IP.
+        To get a list of available roadmaps: dmx roadmap -p <project> --roadmap
+
+        {0}    
+        Example
+        =======
+        Create a ip named my_new_ip of type fc inside the my_project project.
+        $ dmx ip create --project i10socfm --ip my_new_ip --type fc        
+        Create a new IP named my_new_ip in i10socfm with the type fc
+        '''.format(admin_help)
+
+        return textwrap.dedent(extra_help)
+
+    @classmethod
+    def command(cls, args):
+        '''
+        Execute the subcommand
+        '''
+        project = args.project
+        ip = args.ip
+        ip_type = args.ip_type
+        description = args.description
+        preview = args.preview
+        roadmap = args.roadmap
+        if is_admin():
+            nocheck = args.nocheck
+            owner = args.owner
+        else:
+            nocheck = False
+            owner = os.getenv('USER')
+
+        ret = 1
+        create = CreateVariant(project, ip, ip_type, description=description,
+                               preview=preview, nocheck=nocheck, owner=owner,
+                               roadmap=roadmap)
+        ret = create.run()
+
+        return (ret)

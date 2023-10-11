@@ -1,0 +1,99 @@
+#!/usr/intel/pkgs/python3/3.9.6/bin/python3
+# 2014 Altera Corporation. All rights reserved. This source code is highly
+# confidential and proprietary information of Altera and is to be used for
+# internal Altera purposes only.   Altera assumes no responsibility or
+# liability arising out of the application or use of this source code for
+# non-Altera purposes.
+#
+# Tests the abnr utils library
+#
+import UsrIntel.R1
+
+import unittest
+from mock import patch
+import os, sys
+import datetime
+import time
+import tempfile
+from mock import patch
+import logging
+
+LIB = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))), 'lib', 'python')
+sys.path.insert(0, LIB)
+
+import cmx.abnrlib.flows.dmxmoab
+import cmx.utillib.utils
+
+
+class TestFlowDmxMoab(unittest.TestCase):
+
+    def setUp(self):
+        self.dmxmoab = cmx.abnrlib.flows.dmxmoab
+        self.project = 'da_i16'
+        self.ip = 'kv_cth_ip1'
+        self.bom = 'kv_dev'
+        self.wsname = 'regtestws'
+        self.envvar = 'DMX_WORKSPACE'
+
+        self.wsdisk = '/tmp'
+        os.environ[self.envvar] = self.wsdisk
+        os.environ['WASHGROUP_DBFILE'] = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'washgroups.json')
+
+    def tearDown(self):
+        self._undefine_envvar()
+
+    def _undefine_envvar(self):
+        os.environ.pop(self.envvar, None)
+        os.environ.pop('DB_FAMILIES', None)
+        os.environ.pop('WASHGROUP_DBFILE', None)
+
+    def test_100___bom_collection_check(self):
+        self.wsroot = os.path.join(self.wsdisk, self.wsname)
+        moab = self.dmxmoab.DmxMoab(self.wsroot, self.project, self.ip, self.bom)
+        moab._transform_bom_into_collection()
+        
+        # expected bom collection
+        expected_list = []
+        expected_list.append(self.dmxmoab.Bom(1, "kv_cth_ip1", "Variant", [2, 3] , True))
+        expected_list.append(self.dmxmoab.Bom(2, "kv_cth_ip2", "Variant", [4] , True))
+        expected_list.append(self.dmxmoab.Bom(3, "kv_cth_ip3", "Variant", [5] , True))
+        expected_list.append(self.dmxmoab.Bom(4, "kv_cth_ip5", "Variant", [] , True))
+        expected_list.append(self.dmxmoab.Bom(5, "kv_cth_ip4", "Variant", [4] , False))
+        
+        # perform assert
+        self.assertEqual(5, len(moab._bom_collection))
+        for i in range(5):
+            for j in range(5):
+                if moab._bom_collection[i].name == expected_list[j].name:
+                    self.assertEqual(expected_list[j].has_cthfe, moab._bom_collection[i].has_cthfe)
+                    # retrieve name of the subip
+                    expected_subips = []
+                    for k in range(0, len(expected_list[j].subips)):
+                        expected_subips.append(expected_list[expected_list[j].subips[k-1]-1].name)
+
+                    for l in range(0, len(moab._bom_collection[i].subips)): 
+                        self.assertEqual(True, moab._bom_collection[moab._bom_collection[i].subips[l-1]-1].name in expected_subips)
+
+    def test_101___filelist_collection_check(self):
+        return
+        self.wsroot = os.path.join(self.wsdisk, self.wsname)
+        moab = self.dmxmoab.DmxMoab(self.wsroot, self.project, self.ip, self.bom)
+        moab.set_filelist_details('kv_cth_ip1', 'kv_cth_ip2', 'sip')
+        moab.set_filelist_details('kv_cth_ip1', 'kv_cth_ip5', 'sip')
+        moab.set_filelist_details('kv_cth_ip1', 'kv_cth_ip3', 'sip')
+        moab.set_filelist_details('kv_cth_ip2', 'kv_cth_ip5', 'sip')
+        moab.set_filelist_details('kv_cth_ip3', 'kv_cth_ip5', 'sip')
+        
+        data = {
+            'kv_cth_ip1' : {'sip': ['kv_cth_ip2', 'kv_cth_ip5', 'kv_cth_ip3'], 'hip': [], 'vip': []},
+            'kv_cth_ip2' : {'sip': ['kv_cth_ip5'], 'hip': [], 'vip': []},
+            'kv_cth_ip3' : {'sip': ['kv_cth_ip5'], 'hip': [], 'vip': []}
+        }
+        
+        self.assertEqual(data, moab._filelist_collection)
+
+if __name__ == '__main__':
+    logging.basicConfig(format="[%(asctime)s] - [%(lineno)s][%(pathname)s]: %(message)s".format(), level=logging.DEBUG)
+
+    unittest.main()
+

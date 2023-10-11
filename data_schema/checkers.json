@@ -1,0 +1,29 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Product set",
+    "type": "array",
+    "minItems": 1,
+    "items": {
+        "type": "object",
+        "patternProperties": {
+            "^(Audit Ready|Filelist)$": {
+                "type": "integer",
+                "maximum": 1,
+                "minimum": 0
+            },
+            "^(Check Name|Deliverable|Documentation|Flow|SubFlow|Type|Unix Userid)$": {
+                "type": "string"
+            },
+            "^milestones$": {
+                "type": "array",
+                "items": {
+                    "type": "string",
+                    "pattern": "^([0-9]\\.[0-9]|99)$"
+                }
+            }
+        },
+        "additionalProperties": false
+    }
+}
+
+

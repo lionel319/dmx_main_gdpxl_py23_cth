@@ -1,0 +1,6 @@
+### Dump table's data (from CLINKZ database) into file
+mysqldump -ukillim -pkillim -hpg-icesql1 CLINKZ owners > owners.txt
+
+### Load table's data into new database(DMXTEST)
+cat owners.txt | mysql -ukillim -pkillim -hpg-icesql1 DMXTEST
+

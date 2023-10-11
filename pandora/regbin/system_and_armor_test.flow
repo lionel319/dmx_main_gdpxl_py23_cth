@@ -1,0 +1,36 @@
+define: "MAKECMD": MAKECMD: "make -f $PANDORA_CENTRAL_REGRESSION_ROOT/../regression.makefile "
+define: "PARAM": PARAM: " DEVICE=FM6 VER=main TYPE=systemtest ARCRES=project/falcon/branch/fm6dot2main/rc SERVER=sjdacron.sc "
+
+
+stepname: print_var
+command: echo " PARAM: " $PARAM
+
+stepname: customize_subject
+command: echo "SUBJECT: system_and_armor_test " > $PANDORA_EMAILFILE
+
+stepname: customize_body
+command: echo "BODY:ARCRES: $ARCRES<br>" >> $PANDORA_EMAILFILE
+command: echo "PARAM:  $PARAM<br>" >> $PANDORA_EMAILFILE
+command: echo "LOGFILE: file://samba.$ARC_SITE.intel.com$PANDORA_WARD/regression/regression.log" >> $PANDORA_EMAILFILE
+
+
+stepname: precheck
+command: $MAKECMD precheck                      $PARAM  OPTS=
+
+stepname: cleanup_and_sync
+command: $MAKECMD cleanup_and_sync              $PARAM  OPTS=
+
+
+stepname: systemtest_abnr
+command: $MAKECMD login                         $PARAM  OPTS=
+command: $MAKECMD systemtest_abnr               $PARAM  OPTS=
+
+stepname: armortest_fm
+command: $MAKECMD login                         $PARAM  OPTS=
+command: $MAKECMD armortest_fm                  $PARAM  OPTS=
+
+stepname: armortest_whr
+command: $MAKECMD login                         $PARAM  OPTS=
+command: $MAKECMD armortest_whr                 $PARAM   OPTS=  
+
+

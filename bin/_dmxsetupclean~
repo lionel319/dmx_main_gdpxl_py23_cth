@@ -1,0 +1,114 @@
+#!/bin/tcsh -f
+
+#######################################################
+### a dmx standalone wrapper that allows dmx to be run under ANY environment.
+#######################################################
+
+set realpath = `realpath $0`
+set bindir = `dirname $realpath`
+set rootdir = `cd $bindir/.. && pwd`
+#echo $rootdir
+
+### ARC env var
+set hostname = `hostname`
+set pid = $$
+set username = $USER
+setenv ARC_TEMP_STORAGE /tmp/${username}_${hostname}_${pid}
+
+### arc resource: DMX
+setenv DMX_ROOT $rootdir
+#setenv DMX_ROOT /nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23
+setenv ICD_CAD_QA_TCLLIB "${DMX_ROOT}/lib/tcl/dmx/tnrlib"
+setenv PATH /p/psg/ctools/arc/2019.1/bin:/nfs/site/home/lionelta/bin:/usr/sbin:/usr/bin/X11:/usr/games:/usr/lib/mit/bin:/usr/lib/mit/sbin:/p/psg/da/infra/utils/bin:/usr/intel/bin:/bin:/usr/bin:/usr/local/bin:.
+setenv PATH "${PATH}:${DMX_ROOT}/bin"
+setenv DMX_LEGACY 1
+setenv DMX_TNRLIB "${DMX_ROOT}/lib/tcl/dmx/tnrlib"
+setenv DMX_LIB "${DMX_ROOT}/lib/python"
+setenv IPQC_ROOT ${DMX_ROOT}
+setenv DMX_PATH "${DMX_ROOT}/bin"
+setenv DMX_TCLLIB /p/psg/flows/common/icd_cad_tcllib/5/linux64/lib
+setenv PYTHONPATH "${DMX_ROOT}/lib/python:${DMX_ROOT}/lib/python/dmx/tnrlib"
+
+### arc resource PYTHON
+#setenv PYTHON_ROOT /p/psg/ctools/python/2.7.13/linux64/suse12
+setenv PYTHON_ROOT /p/psg/ctools/python/3.7.9/6/linux64/suse12
+setenv PYTHON_PATH ${PYTHON_ROOT}/bin
+setenv LD_LIBRARY_PATH ${PYTHON_ROOT}/lib
+#PYTHON_EGG_CACHE : $ARC_TEMP_STORAGE/.python_eggs
+setenv CMD_PATH ${PYTHON_ROOT}
+setenv PATH "${PYTHON_ROOT}:${PATH}"
+setenv PATH "${PYTHON_PATH}:${PATH}"
+
+### arc resource icd_cad_pylib/5.35
+setenv PYLINTRC "/p/psg/flows/common/icd_cad_pylib/5.35/.pylintrc"
+setenv PYLIB_PATH "/p/psg/flows/common/icd_cad_pylib/5.35/bin:/p/psg/flows/common/icd_cad_pylib/5.35/packages/bin"
+setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:/p/psg/flows/common/icd_cad_pylib/5.35/packages:/p/psg/flows/common/icd_cad_pylib/5.35/packages/../lib"
+setenv PYTHONPATH "${PYTHONPATH}:/p/psg/flows/common/icd_cad_pylib/5.35/packages:/p/psg/flows/common/icd_cad_pylib/5.35/packages/lib/python2.7/site-packages"
+setenv QT_PLUGIN_PATH /p/psg/ctools/qt/4.7.0/linux64/plugins
+
+### arc resource python_altera_modules/1.0
+setenv PYTHONPATH "${PYTHONPATH}:/p/psg/flows/sw/python_altera_modules/1.0"
+
+### arc resource django/1.3.1
+setenv DJANGO_PATH /p/psg/ctools/django/trunk/1.3.1/django/bin
+setenv PYTHONPATH "${PYTHONPATH}:/p/psg/ctools/django/trunk/1.3.1"
+
+### arc resource icd_cad_arc_utils/1.7
+setenv ARC_UTILS_PATH /p/psg/flows/common/arc_utils/1.7
+setenv PYTHONPATH "${PYTHONPATH}:/p/psg/flows/common/arc_utils/1.7"
+
+### arc resource icmadmin/gdpxl/1.0
+setenv       ICMADMIN_ROOT /p/psg/flows/common/icmadmin/gdpxl/1.0
+setenv            PSG_ICM_HOME ${ICMADMIN_ROOT}/icm_home
+setenv               PATH  "${PATH}:${ICMADMIN_ROOT}/bin"
+setenv         PYTHONPATH "${PYTHONPATH}:${ICMADMIN_ROOT}/lib"
+
+### arc resource ic_manage_gdp/xl/47827
+setenv  DMX_GDPSITE intel
+setenv  DISABLE_DAEMON_JS   1
+setenv  GDP_HOME    /p/psg/eda/icmanage/gdpxl/47827/linux64
+setenv  ICM_HOME    /p/psg/eda/icmanage/gdpxl/47827/linux64
+setenv  CDS_GDM_SHLIB_LOCATION  "${GDP_HOME}/gdm.lnx86-64"
+setenv  LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:${GDP_HOME}/gdm.lnx86-64"
+setenv PATH "$GDP_HOME/bin:$PATH"
+setenv ICM_GDP_SERVER "http://scylicm.sc.intel.com:5000"
+setenv P4PORT "scylicm.sc.intel.com:1666"
+setenv ICM_SkillRoot "$GDP_HOME/"
+setenv P4CONFIG ".icmconfig"
+setenv XLP4 "$ICM_HOME/bin/xlp4"
+#setenv  ICM_TMPDIR  $ARC_TEMP_STORAGE
+#setenv  PATH "${ICM_HOME}/scripts:${PATH}"
+#source /p/psg/eda/icmanage/gdpxl/47827/linux64/configs/gdpxl_3.cshrc
+
+### CICQ
+setenv  CICQ_ROOT   /p/psg/flows/common/cicq/latestdev
+setenv  PATH    "${PATH}:${CICQ_ROOT}/bin"
+setenv  PYTHONPATH  "${PYTHONPATH}:${CICQ_ROOT}/lib"
+
+### DMXDATA & set_var_project
+#setenv  DMXDATA_ROOT /p/psg/flows/common/dmxdata/latestdev
+#setenv  DB_DEVICE   LTM
+#setenv  DB_THREAD   LTMrevA0
+#setenv  DB_FAMILY   Libertymesa
+#setenv  DB_PROJECT  da_i16
+#setenv  DB_PROCESS  i16
+setenv  DMX_SETTING_FILES_DIR   /p/psg/flows/common/dmx/dmx_setting_files
+
+### Allow user to override their own env var
+if (-r ./.dmxsource.$USER) then
+    source ./.dmxsource.$USER
+endif
+
+
+
+### for DEBUGGING
+#echo $PATH
+#echo $PYTHONPATH
+#echo $LD_LIBRARY_PATH
+#echo $ARC_TEMP_STORAGE
+#which dmx
+#which python
+
+#${DMX_ROOT}/bin/dmx $argv:q
+$argv:q
+

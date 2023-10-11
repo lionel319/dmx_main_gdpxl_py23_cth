@@ -1,0 +1,284 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Copyright 2011-2015 Altera Corporation. All rights reserved.
+# This source code is highly confidential and proprietary information of Altera
+# and is to be used for internal Altera purposes only.   Altera assumes no
+# responsibility or liability arising out of the application or use of this
+# source code for non-Altera purposes.
+# $Header: //depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/dmlib/CheckType.py#1 $
+
+"""
+Check a workspace to make sure that all files described in the deliverable manifest
+set XML are present and readable.
+
+TO_DO: The `<filelist minimum>` attribute is only checked for wildcards
+recognized by Python :py:class:glob.glob`.  Namely, it does not check
+the number of files matched by the `...` pattern.
+"""
+
+from __future__ import absolute_import
+
+import os
+import glob
+import logging
+logging = logging.getLogger(__name__)
+from .CheckerBase import CheckerBase
+
+class CheckType(CheckerBase):
+    '''Construct a verifier for the specified template set XML and verify it.'''
+     
+    failureException = AssertionError
+
+    def __init__(self, icmws, ipname, cell, roadmap='', prel=None, workarea=None, familyobj=None):
+        super(CheckType, self).__init__(icmws, ipname, cell, workarea=workarea)
+        self._deliverableName = None
+        self._topCells = None # Alternatively: a list of all top cells
+        self._roadmap = roadmap
+        self.prel = prel
+
+        '''
+        ### These are defined in CheckerBase base-class
+        self.ip_name = ipname
+        self.cell_name = cell
+        '''
+        self.familyobj = familyobj
+         
+    def __str__(self):
+        '''English language name of this check.'''
+        return "{} type check".format(self._deliverableName)
+
+    def checkType(self, deliverableName, verbose): \
+        # pylint: disable=W0613,R0201,W0221
+        '''
+        Reset the checker and run the type check on the specified
+        `deliverableName`.  This `check()` method is unique in that it has a
+        `deliverableName` argument.  All the other checkers use the `check()`
+        method defined in :py:class:`dm.CheckerBase`.
+        
+        The method returns True if the check passed, and False if it failed.
+        '''
+        self._deliverableName = deliverableName
+        return super(CheckType, self).check(verbose)
+
+    def _check(self): # THIS IS A BASE CLASS ABSTRACT METHOD OVERRIDE
+        '''Perform a type check on the deliverable specified in the `check()`
+        method,  The type check makes sure that all deliverable items exist and
+        are readable.
+        '''
+        self._checkPattern(self._deliverableName)
+        self._checkFilelist(self._deliverableName)
+        #self._checkMilkyway(self._deliverableName)
+        if self._verbose:
+            if self.isCorrect:
+                logging.info("Verified that the files are present as described in "
+                             "the manifest set for deliverable '{}'.".
+                                format(self._deliverableName))
+            else:
+                logging.error ("Found problems with the files described in the manifest"
+                      " set for deliverable '{}':".format(self._deliverableName))
+                for error in self.errors:
+                    logging.error ('  ' + error)
+        return self.isCorrect
+
+    def get_deliverable_obj(self, deliverable_name=None):
+        if not deliverable_name:
+            deliverable_name = self._deliverableName
+        return self.familyobj.get_deliverable(deliverable_name)
+
+    def _checkPattern(self, deliverableName):
+        '''Perform a type check on the `<pattern>` items within the specified
+        deliverable to make sure that all files exist and are readable.
+        '''
+        ### iptype aware check. https://jira.devtools.intel.com/browse/PSGDMX-1600
+        # XXX: iptype = self._ip.iptype
+        iptype = None
+
+        if self.prel:
+            prel_filter = '^{}$'.format(self.prel)
+        else:
+            prel_filter = ''
+
+        # XXX: 
+        '''
+        patterns = self._ip.get_deliverable(deliverableName, roadmap=self._roadmap).get_patterns(ip=self.ip_name,
+            cell=self.cell_name, iptype_filter='^{}$'.format(iptype), prel_filter=prel_filter)
+        '''
+        patterns = self.get_deliverable_obj().get_patterns(ip=self.ip_name, cell=self.cell_name)
+
+        logging.debug("patterns:{}".format(patterns))
+        logging.debug("iptype:{}".format(iptype))
+        logging.debug("prel:{}".format(prel_filter))
+
+        for pattern in patterns:
+            # http://pg-rdjira.altera.com:8080/browse/DI-545
+            # minimum renamed to optional and is a boolean 
+            # to support backward compatibility, dmlib will read optional as boolean
+            # and convert to integer
+            # true = 1, false = 0
+            if 'optional' in patterns[pattern]:
+                minimum = 0 if patterns[pattern]['optional'] else 1
+            else:                
+                # Support for families that are still using minimum properties
+                minimum = patterns[pattern]['minimum']
+                # if minimum is blank, it's compulsory
+                minimum = int(minimum) if minimum else 1
+
+            if pattern.count('...') > 0:
+                self._checkDotDotDotPattern(pattern, minimum, deliverableName)
+            else:
+                # patterns that contain only glob wild cards, or no wild card at all
+                self._checkAsteriskPattern(pattern, minimum, deliverableName)
+
+    def _checkAsteriskPattern(self, pattern, minimum, deliverableName):
+        '''Perform a type check on a single `<pattern>` that contains only a 
+        Python wild card, or no wild card at all.
+        '''
+        assert pattern.count('...') == 0, \
+            "'...' combined with glob wild cards like '*' and '?' is not supported"
+
+        fileNames = glob.iglob(pattern)
+        count = 0
+        for fileName in fileNames:
+            #331883: File type check should filter out directory.
+            if not os.path.isdir(fileName):
+                if self._checkFile(fileName, deliverableName, 'pattern file'):
+                    count += 1
+
+        # Check the minimum number of files
+        if count < minimum:
+            if minimum == 1:
+                self._errors.append("pattern file '{}' does not exist.".
+                                        format(pattern))
+                return
+            self._errors.append("minimum of {} pattern "
+                                 "files '{}' does not exist.".
+                                 format(minimum, pattern))                
+            
+    def _checkDotDotDotPattern(self, pattern, minimum, deliverableName):
+        '''Perform a type check on a single `<pattern>` that contains the Perforce
+        '...' wild card.
+        '''
+        assert (pattern.count('*') == 0) and (pattern.count('?') == 0), \
+            "Glob wild cards like '*' and '?' combined with '...' are not supported"
+
+        (startDir, startFileName) = os.path.split(pattern)
+        assert (startFileName.count('...') == 1) and startFileName.startswith('...'), \
+                    ("'...' is only handled at the beginning of the "
+                    "file name in a <pattern>")
+        assert not startDir.count('...'), ("'...' in <pattern> directories "
+                                          "is not supported.")
+        
+        count = 0
+        # Strip off the leading ...
+        ext = startFileName[3:]
+        for root, dirs, fileNames in os.walk(startDir): 
+            if dirs: pass # suppress a warning
+            for fileName in fileNames: 
+                if fileName.endswith(ext):
+                    pathName = os.path.join(root, fileName)
+                    if self._checkFile(pathName, deliverableName, 'pattern file'):
+                        count += 1
+
+        # Check the minimum number of files
+        if count < minimum:
+            if minimum == 1:
+                self._errors.append("pattern file '{}' does not exist.".
+                                       format(pattern))
+                return
+            self._errors.append("minimum of {} "
+                                    "pattern files '{}' does not exist.".
+                                format(minimum, pattern))                
+            
+    def _checkFilelist(self, deliverableName):
+        '''Perform a type check on the `<filelist>` items within the specified
+        deliverable to make sure that all filelists and the files listed within
+        the filelists exist and are readable.
+        '''
+        filelists = self.get_deliverable_obj().get_filelists(ip=self.ip_name, cell=self.cell_name)
+        logging.debug("filelists:{}".format(filelists))
+        for filelist in filelists:
+            # http://pg-rdjira.altera.com:8080/browse/DI-545
+            # minimum renamed to optional and is a boolean 
+            # to support backward compatibility, dmlib will read optional as boolean
+            # and convert to integer
+            # true = 1, false = 0
+            if 'optional' in filelists[filelist]:
+                minimum = 0 if filelists[filelist]['optional'] else 1
+            else:                
+                # Support for families that are still using minimum properties
+                minimum = filelists[filelist]['minimum']
+                # if minimum is blank, it's compulsory
+                minimum = int(minimum) if minimum else 1
+
+            # Check the files that do exist for readability
+            # And count them
+            filelistFileNames = glob.glob(filelist)
+            count = 0
+            for filelistFileName in filelistFileNames:
+                if self._checkFile(filelistFileName, deliverableName, 'filelist file'):
+                    # Filelist file exists and is readable
+                    count += 1
+                    
+            # Check the minimum number of filelists
+            if count < minimum:
+                if minimum == 1:
+                    self._errors.append("filelist '{}' does not exist.".
+                                            format(filelist))
+                    return
+                self._errors.append("minimum of {} "
+                                        "filelists '{}' does not exist.".
+                                    format(minimum, filelist))                
+
+    def checkFilelistLines(self, lines, deliverableName, filelistFileName):
+        '''Check the given (non-comment) lines of a filelist and return a list
+        of the errors found.
+        
+        If the line begins with `+incdir+`, the specified directories are checked.
+        
+        If the line begins with `-` or `+`, the line is presumed to be a VCS
+        command line option and it will not be checked.
+        
+        Arguments `deliverableName` and `filelistFileName` are merely for
+        messages.
+        '''
+        for line in lines:
+            tokens = line.split()
+            if len(tokens) == 2 and tokens[0] == '-f': # filelist
+                # "Normal" file. Not there anymore, see http://fogbugz/default.asp?224883
+                pass
+            elif line.startswith('+incdir+'):
+                incDirs = line.split('+')
+                for incDir in incDirs[2:]:
+                    self._checkDir(incDir, 
+                                   deliverableName,
+                                   "filelist '{}', +incdir+ '{}'".format(filelistFileName, 
+                                                                         incDir))
+            elif line.startswith(('+', '-')):
+                self._errors.append("filelist '{}' contains the VCS option '{}'."
+                                        " Specify VCS options on the VCS command line, "
+                                        "not in the filelist."
+                                    "".format(filelistFileName, line))   
+            else:
+                # "Normal" file. Not there anymore, see http://fogbugz/default.asp?224883
+                pass
+    
+    def _checkMilkyway(self, deliverableName):
+        '''Perform a type check on the `<Milkyway>` items within the specified
+        deliverable to make sure that all Milkyway libraries exist and are readable.
+        
+        A Milkyway library is judged to exist if there is a `lib` file in the
+        `libPath/` directory. 
+        '''
+        libs = self._ip.get_deliverable(deliverableName, roadmap=self._roadmap).get_milkyway(ip=self.ip_name,
+            cell=self.cell_name)
+        for lib in libs:
+            libPath = libs[lib]
+            self._checkMilkywayLibrary(libPath, deliverableName,
+                                       "Milkyway library '{}'".format(libPath))
+        
+
+if __name__ == "__main__":
+    # Running CheckType_test.py is the preferred test method,
+    # but run doctest alone if the user requests.
+    import doctest
+    doctest.testmod(verbose=2)

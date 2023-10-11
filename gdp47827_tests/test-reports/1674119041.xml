@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8"?><testsuite name="nosetests" tests="2" errors="0" failures="0" skip="0"><testcase classname="test_cmx_roadmap.TestDmxRoadmap" name="test_001___dmx_roadmap_thread" time="6.394"><system-out><![CDATA[exitcode: 0
+
+stdout: Acomarock
+===============
+- ACRrevA0/0.0
+- ACRrevA0/0.3
+- ACRrevA0/0.5
+- ACRrevA0/0.8
+- ACRrevA0/1.0
+- ACRrevA0/POLO
+- ACRrevA0/PROD
+
+Availarock
+===============
+- AVRrevB0/1.0
+- AVRrevB0/2.0
+- AVRrevB0/3.0
+- AVRrevB0/4.0
+- AVRrevB0/5.0
+
+Avoncrest
+===============
+- AVCrevA0/0.3
+- AVCrevA0/0.5
+- AVCrevA0/0.8
+- AVCrevA0/1.0
+
+Carsoncreek
+===============
+- CNCrevA0/0.0
+- CNCrevA0/0.3
+- CNCrevA0/0.5
+- CNCrevA0/0.8
+- CNCrevA0/1.0
+
+Daprojects
+===============
+- DAN5revA0/0.0
+- DAN5revA0/0.3
+- DAN5revA0/0.5
+- DAN5revA0/0.8
+- DAN5revA0/1.0
+- DAN5revA0/POLO
+- DAN5revA0/PROD
+
+Diamondmesa
+===============
+- DMDrevA0/2.0
+- DMDrevA0/3.0
+- DMDrevA0/4.0
+- DMDrevA0/5.0
+
+Diamondmesa2
+===============
+- DM2revA0/0.0
+- DM2revA0/0.3
+- DM2revA0/0.5
+- DM2revA0/0.8
+- DM2revA0/1.0
+
+Diamondpeaktrail
+===============
+- DPT8revA0/2.0
+- DPT8revA0/3.0
+- DPT8revA0/4.0
+- DPT8revA0/5.0
+
+Dolanrock
+===============
+- DLRrevA0/1.0
+- DLRrevA0/2.0
+- DLRrevA0/3.0
+- DLRrevA0/4.0
+- DLRrevA0/5.0
+
+Eanescreek
+===============
+- ENCrevA0/0.0
+- ENCrevA0/0.3
+- ENCrevA0/0.5
+- ENCrevA0/0.8
+- ENCrevA0/1.0
+- ENCrevA0/POLO
+- ENCrevA0/PROD
+
+Falcon
+===============
+- FM3revA0/3.0
+- FM3revA0/4.0
+- FM3revA0/5.0
+- FM4revA0/3.0
+- FM4revA0/4.0
+- FM4revA0/5.0
+- FM5revA0/3.0
+- FM5revA0/4.0
+- FM5revA0/5.0
+- FM6revA0/4.0
+- FM6revA0/5.0
+- FM6revA1/4.0
+- FM6revA1/5.0
+- FM6revB0/4.0
+- FM6revB0/5.0
+- FM6revB1/4.0
+- FM6revB1/5.0
+- FM6revB2/4.0
+- FM6revB2/5.0
+- FM6revB3/4.0
+- FM6revB3/5.0
+- FM7revA0/3.0
+- FM7revA0/4.0
+- FM7revA0/5.0
+- FM7revA0P1/3.0
+- FM7revA0P1/4.0
+- FM7revA0P1/5.0
+- FM7revA1/3.0
+- FM7revA1/4.0
+- FM7revA1/5.0
+- FM7revA2/3.0
+- FM7revA2/4.0
+- FM7revA2/5.0
+- FM8revA0/3.0
+- FM8revA0/4.0
+- FM8revA0/5.0
+- FM8revA1/3.0
+- FM8revA1/4.0
+- FM8revA1/5.0
+- FM8revA2/3.0
+- FM8revA2/4.0
+- FM8revA2/5.0
+- FM8revA3/3.0
+- FM8revA3/4.0
+- FM8revA3/5.0
+- FM9revA0/3.0
+- FM9revA0/4.0
+- FM9revA0/5.0
+- FM9revA1/3.0
+- FM9revA1/4.0
+- FM9revA1/5.0
+
+Falconpark
+===============
+- FP4revA0/0.0
+- FP4revA0/0.3
+- FP4revA0/0.5
+- FP4revA0/0.8
+- FP4revA0/1.0
+- FP6revA0/0.0
+- FP6revA0/0.3
+- FP6revA0/0.5
+- FP6revA0/0.8
+- FP6revA0/1.0
+- FP8revA0/0.0
+- FP8revA0/0.3
+- FP8revA0/0.5
+- FP8revA0/0.8
+- FP8revA0/1.0
+
+Gundersonrock
+===============
+- GDRrevA0/0.3
+- GDRrevA0/0.5
+- GDRrevA0/0.8
+- GDRrevA0/1.0
+- GDRrevB0/0.3
+- GDRrevB0/0.5
+- GDRrevB0/0.8
+- GDRrevB0/1.0
+
+Ironspringmesa
+===============
+- ISM8revA0/0.0
+- ISM8revA0/0.3
+- ISM8revA0/0.5
+- ISM8revA0/0.8
+- ISM8revA0/1.0
+
+Kernriver
+===============
+- KNRrevA0/0.0
+- KNRrevA0/0.3
+- KNRrevA0/0.5
+- KNRrevA0/0.8
+- KNRrevA0/1.0
+- KNRrevA0/POLO
+- KNRrevA0/PROD
+
+Kinneloamesa
+===============
+- KM5revA0/0.0
+- KM5revA0/0.3
+- KM5revA0/0.5
+- KM5revA0/0.8
+- KM5revA0/1.0
+
+Nadderp
+===============
+- ND1revA/0.5
+- ND1revA/1.0
+- ND1revA/1.5
+- ND1revA/2.0
+- ND1revA/2.5
+- ND1revA/3.0
+- ND1revA/3.5
+- ND1revA/4.0
+- ND1revA/4.5
+- ND1revA/5.0
+- ND2revA/0.5
+- ND2revA/1.0
+- ND2revA/1.5
+- ND2revA/2.0
+- ND2revA/2.5
+- ND2revA/3.0
+- ND2revA/3.5
+- ND2revA/4.0
+- ND2revA/4.5
+- ND2revA/5.0
+- ND3revA/0.5
+- ND3revA/1.0
+- ND3revA/1.5
+- ND3revA/2.0
+- ND3revA/2.5
+- ND3revA/3.0
+- ND3revA/3.5
+- ND3revA/4.0
+- ND3revA/4.5
+- ND3revA/5.0
+- ND4revA/0.5
+- ND4revA/1.0
+- ND4revA/1.5
+- ND4revA/2.0
+- ND4revA/2.5
+- ND4revA/3.0
+- ND4revA/3.5
+- ND4revA/4.0
+- ND4revA/4.5
+- ND4revA/5.0
+- ND5revA/0.5
+- ND5revA/1.0
+- ND5revA/1.5
+- ND5revA/2.0
+- ND5revA/2.5
+- ND5revA/3.0
+- ND5revA/3.5
+- ND5revA/4.0
+- ND5revA/4.5
+- ND5revA/5.0
+- ND5revA0/0.5
+- ND5revA0/1.0
+- ND5revA0/1.5
+- ND5revA0/2.0
+- ND5revA0/2.5
+- ND5revA0/3.0
+- ND5revA0/3.5
+- ND5revA0/4.0
+- ND5revA0/4.5
+- ND5revA0/5.0
+- ND5revA0P2/0.5
+- ND5revA0P2/1.0
+- ND5revA0P2/1.5
+- ND5revA0P2/2.0
+- ND5revA0P2/2.5
+- ND5revA0P2/3.0
+- ND5revA0P2/3.5
+- ND5revA0P2/4.0
+- ND5revA0P2/4.5
+- ND5revA0P2/5.0
+- ND5revA1/0.5
+- ND5revA1/1.0
+- ND5revA1/1.5
+- ND5revA1/2.0
+- ND5revA1/2.5
+- ND5revA1/3.0
+- ND5revA1/3.5
+- ND5revA1/4.0
+- ND5revA1/4.5
+- ND5revA1/5.0
+- ND5revB0/0.5
+- ND5revB0/1.0
+- ND5revB0/1.5
+- ND5revB0/2.0
+- ND5revB0/2.5
+- ND5revB0/3.0
+- ND5revB0/3.5
+- ND5revB0/4.0
+- ND5revB0/4.5
+- ND5revB0/5.0
+
+Ratonmesa
+===============
+- RTMrevA0/0.0
+- RTMrevA0/0.3
+- RTMrevA0/0.5
+- RTMrevA0/0.8
+- RTMrevA0/1.0
+
+Reynoldsrock
+===============
+- RNRrevA0/0.3
+- RNRrevA0/0.5
+- RNRrevA0/0.8
+- RNRrevA0/1.0
+- RNRrevB0/0.3
+- RNRrevB0/0.5
+- RNRrevB0/0.8
+- RNRrevB0/1.0
+
+Stanislausriver
+===============
+- SLRrevA0/0.0
+- SLRrevA0/0.3
+- SLRrevA0/0.5
+- SLRrevA0/0.8
+- SLRrevA0/1.0
+
+Sundancemesa
+===============
+- SM7revA0/0.0
+- SM7revA0/0.3
+- SM7revA0/0.5
+- SM7revA0/0.8
+- SM7revA0/1.0
+
+Valleycrest
+===============
+- VLCrevA0/0.3
+- VLCrevA0/0.5
+- VLCrevA0/0.8
+- VLCrevA0/1.0
+
+Wharfrock
+===============
+- WHRrevA0/0.3
+- WHRrevA0/0.5
+- WHRrevA0/0.8
+- WHRrevA0/1.0
+
+
+
+stderr: INFO: DMX-id: dmx_lionelta_20230119_scc919046_19936_sc
+
+
+]]></system-out></testcase><testcase classname="test_cmx_size.TestDmxSize" name="test_003___mutable_deliverable" time="7.857"><system-out><![CDATA[exitcode:0
+stdout:Raton_Mesa/rtmliotest1:ipspec@dev[] - Size : 94 File : 4
+Total size : 94, total file : 4
+
+stderr:INFO: DMX-id: dmx_lionelta_20230119_scc919046_20261_sc
+
+
+]]></system-out></testcase></testsuite>

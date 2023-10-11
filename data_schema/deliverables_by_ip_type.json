@@ -1,0 +1,17 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Deliverables by IP type",
+    "type": "object",
+    "minItems": 1,
+    "patternProperties": {
+        "^(asic|custom|fc|intfclib|physintspec|sector|softip|asicustom)$": {
+            "type": "array",
+	    "items": {
+                        "type": "string"
+                    }
+                }
+    },
+    "additionalProperties": false
+}
+
+

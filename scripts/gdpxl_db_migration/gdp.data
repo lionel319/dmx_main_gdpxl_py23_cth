@@ -1,0 +1,855 @@
+variant: iossm
+project: i10socfm
+iptype: asic
+subips: i10socfm/cnt_shared i10socfm/iossmram_wrappers
+==========================
+variant: fmio48tile_lib
+project: i10socfm
+iptype: asic
+subips: i10socfm/intfclib i10socfm/fmio12lane_lib i10socfm/fmiocenter_lib i10socfm/intfclibioss
+==========================
+variant: fmsn_lib
+project: i10socfm
+iptype: asicustom
+subips: i10socfm/cdclib i10socfm/soc_std_macro
+==========================
+variant: soc_fpga_bridge_lib
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: iopll_lib
+project: i10socfm
+iptype: asicustom
+subips: i10socfm/ioregulator_lib
+==========================
+variant: soc_emac_wrapper
+project: hpsi10
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_hps_ram_wrappers
+==========================
+variant: ciopg_lib
+project: i10socfm
+iptype: custom
+subips: 
+==========================
+variant: fmiocenter_oct
+project: i10socfm
+iptype: asic
+subips: i10socfm/cfg_shared i10socfm/fmiocenter_algoct
+==========================
+variant: soc_security_manager
+project: hpsi10
+iptype: softip
+subips: i10socfm/soc_common
+==========================
+variant: aibnd_lib
+project: i10socfm
+iptype: custom
+subips: i10socfm/aibndauxcustom_lib i10socfm/aibndpnr_lib
+==========================
+variant: soc_smmu_wrapper
+project: hpsi10
+iptype: softip
+subips: i10socfm/soc_common
+==========================
+variant: soc_mpfe
+project: i10socfm
+iptype: asic
+subips: i10socfm/soc_ecc_ram i10socfm/soc_aps_bridge hpsi10/soc_smmu_wrapper i10socfm/soc_common i10socfm/soc_std_macro hpsi10/soc_cs_lib
+==========================
+variant: intfclibcore
+project: i10socfm
+iptype: intfclib
+subips: 
+==========================
+variant: soc_sdm_clk_rst_manager
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_nsp_scr i10socfm/soc_std_macro i10socfm/ip752hppll_lib i10socfm/osc_lib
+==========================
+variant: soc_ssi_slave_wrapper
+project: hpsi10
+iptype: softip
+subips: i10socfm/soc_common
+==========================
+variant: soc_cs_wrapper
+project: hpsi10
+iptype: softip
+subips: i10socfm/soc_common hpsi10/soc_cs_lib
+==========================
+variant: soc_dma_wrapper
+project: hpsi10
+iptype: asic
+subips: i10socfm/soc_common i10socfm/soc_std_macro i10socfm/soc_hps_ram_wrappers
+==========================
+variant: soc_nand_wrapper
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_nand_ip i10socfm/soc_std_macro i10socfm/soc_sdm_ram_wrappers
+==========================
+variant: cr_lib
+project: i10socfm
+iptype: asic
+subips: i10socfm/soc_psi_repeater i10socfm/intfclib i10socfm/jtag_common i10socfm/bg_lib i10socfm/soc_cnoc_router
+==========================
+variant: io_common_custom
+project: i10socfm
+iptype: asicustom
+subips: i10socfm/cfg_shared i10socfm/ioregulator_lib
+==========================
+variant: soc_cnoc_if
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: soc_ca53_cpu
+project: hpsi10
+iptype: asic
+subips: i10socfm/soc_common
+==========================
+variant: soc_sdm
+project: i10socfm
+iptype: asic
+subips: i10socfm/soc_p_ctrl i10socfm/soc_p_anaip i10socfm/soc_p_fdata
+==========================
+variant: fusepwr_lib
+project: i10socfm
+iptype: custom
+subips: i10socfm/bg_lib i10socfm/ioregulator_lib
+==========================
+variant: lsmram_wrappers
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_ecc_ram i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: soc_uart_wrapper
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: soc_mpfe_wrapper
+project: i10socfm
+iptype: asic
+subips: i10socfm/intfclib i10socfm/soc_mpfe hpsi10/intfclibhpsfm
+==========================
+variant: soc_usbotg_wrapper
+project: hpsi10
+iptype: softip
+subips: i10socfm/soc_hps_ram_wrappers
+==========================
+variant: fmmisc
+project: i10socfm
+iptype: asic
+subips: 
+==========================
+variant: soc_hps_ram_wrappers
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_ecc_ram i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: intfclib
+project: i10socfm
+iptype: intfclib
+subips: 
+==========================
+variant: soc_watchdog_wrapper
+project: hpsi10
+iptype: softip
+subips: i10socfm/soc_common
+==========================
+variant: soc_clock_manager
+project: hpsi10
+iptype: asic
+subips: i10socfm/flxpll_lib i10socfm/ip752hppll_lib i10socfm/soc_common i10socfm/soc_std_macro i10socfm/osc_lib
+==========================
+variant: soc_ecc_ram
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: crsa_lib
+project: i10socfm
+iptype: sector
+subips: i10socfm/cw_lib i10socfm/cr_lib
+==========================
+variant: soc_sdm_pinmux
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_std_macro i10socfm/soc_dedio
+==========================
+variant: soc_hps_wrapper
+project: hpsi10
+iptype: asic
+subips: i10socfm/intfclib hpsi10/soc_hps hpsi10/intfclibhpsfm
+==========================
+variant: soc_pss
+project: hpsi10
+iptype: asic
+subips: i10socfm/soc_aps_bridge hpsi10/soc_ssi_slave_wrapper hpsi10/soc_hps_nand_wrapper hpsi10/soc_hps_mobile_storage_wrapper hpsi10/soc_dma_wrapper i10socfm/soc_i2c_wrapper i10socfm/por_lib hpsi10/soc_emac_wrapper hpsi10/soc_serial_ctrl hpsi10/soc_pss_noc i10socfm/soc_uart_wrapper hpsi10/soc_ssi_master_wrapper hpsi10/soc_cs_wrapper hpsi10/soc_watchdog_wrapper hpsi10/soc_hps_pinmux hpsi10/soc_hps_fpga_bridges hpsi10/soc_reset_manager hpsi10/soc_clock_manager hpsi10/soc_smmu_wrapper hpsi10/soc_timer_wrapper hpsi10/soc_system_manager hpsi10/soc_security_manager hpsi10/soc_hps_psi hpsi10/soc_usbotg_wrapper hpsi10/soc_hps_idvp i10socfm/soc_gpio_wrapper
+==========================
+variant: soc_ccu_wrapper
+project: hpsi10
+iptype: softip
+subips: i10socfm/soc_common
+==========================
+variant: hdpldadapt
+project: i10socfm
+iptype: asic
+subips: i10socfm/cfg_shared i10socfm/soc_common i10socfm/cdclib
+==========================
+variant: fmio96fsspacer_lib
+project: i10socfm
+iptype: asic
+subips: i10socfm/intfclib i10socfm/intfclibioss
+==========================
+variant: ce_lib
+project: i10socfm
+iptype: custom
+subips: 
+==========================
+variant: sectorpls
+project: i10socfm
+iptype: sector
+subips: i10socfm/sa_lib
+==========================
+variant: soc_pkc_wrapper
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_std_macro i10socfm/soc_sdm_ram_wrappers
+==========================
+variant: fmioadcpnr_lib
+project: i10socfm
+iptype: asic
+subips: i10socfm/cfg_shared i10socfm/ioadc_lib
+==========================
+variant: fmio12lane_lib
+project: i10socfm
+iptype: asic
+subips: i10socfm/fmio12pnr_lib i10socfm/iobuffer_lib
+==========================
+variant: intfclibaib
+project: i10socfm
+iptype: intfclib
+subips: 
+==========================
+variant: sectorvfs
+project: i10socfm
+iptype: sector
+subips: i10socfm/sa_lib
+==========================
+variant: ioadc_lib
+project: i10socfm
+iptype: custom
+subips: i10socfm/fmio_common_ana
+==========================
+variant: soc_gic_wrapper
+project: hpsi10
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: lsm_shared
+project: i10socfm
+iptype: asic
+subips: i10socfm/cnt_shared i10socfm/lsmram_wrappers i10socfm/soc_cnoc_router
+==========================
+variant: aibndaux_lib
+project: i10socfm
+iptype: asic
+subips: i10socfm/aibndauxcustom_lib
+==========================
+variant: aibndpnr_lib
+project: i10socfm
+iptype: asic
+subips: i10socfm/cdclib i10socfm/soc_std_macro
+==========================
+variant: zip_lib
+project: i10socfm
+iptype: asic
+subips: i10socfm/intfclib i10socfm/soc_common i10socfm/soc_psi_repeater i10socfm/soc_std_macro i10socfm/cdclib
+==========================
+variant: soc_hps_fpga_bridges
+project: hpsi10
+iptype: softip
+subips: i10socfm/soc_fpga_bridge_lib i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: fmciodts
+project: i10socfm
+iptype: asic
+subips: i10socfm/intfclibdts i10socfm/ciopg_lib i10socfm/intfclib i10socfm/tstnm
+==========================
+variant: sectorafs
+project: i10socfm
+iptype: sector
+subips: i10socfm/sa_lib
+==========================
+variant: soc_p_ctrl
+project: i10socfm
+iptype: asic
+subips: i10socfm/soc_sdm_clk_rst_manager i10socfm/soc_i2c_pwrmgt_wrapper i10socfm/soc_i2c_wrapper i10socfm/soc_sdm_fpga_bridges i10socfm/soc_uart_wrapper i10socfm/soc_qspi_wrapper i10socfm/soc_sdm_noc i10socfm/soc_nsp_scr i10socfm/soc_gpio_wrapper i10socfm/soc_nsp i10socfm/soc_nand_wrapper i10socfm/soc_mobile_storage_wrapper
+==========================
+variant: fmio12pnr_lib
+project: i10socfm
+iptype: asic
+subips: i10socfm/fmiodbccmn_lib i10socfm/cfg_shared i10socfm/io_common_custom i10socfm/fmgpio_reg i10socfm/fmio12pnr_serdesdpa_top
+==========================
+variant: aibssmram_wrappers
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_ecc_ram i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: dvaib_lib
+project: i10socfm
+iptype: sector
+subips: i10socfm/cw_lib
+==========================
+variant: maib_ss_lib
+project: i10socfm
+iptype: asic
+subips: i10socfm/aib_ssm i10socfm/intfclibaib i10socfm/aibnd_lib i10socfm/aibndaux_lib i10socfm/hdpldadapt
+==========================
+variant: soc_aps
+project: hpsi10
+iptype: asic
+subips: i10socfm/soc_aps_bridge hpsi10/soc_hps_idvp i10socfm/soc_common hpsi10/soc_cs_lib hpsi10/soc_smmu_wrapper hpsi10/soc_gic_wrapper hpsi10/soc_aps_ram hpsi10/soc_ccu_wrapper
+==========================
+variant: z1chiplet
+project: i10socfm
+iptype: sector
+subips: i10socfm/sectorvpls i10socfm/zipsa_lib i10socfm/sectorfs i10socfm/sectorpls i10socfm/cl_lib i10socfm/sectorapls i10socfm/sectorvfs i10socfm/sectorafs i10socfm/cr_lib
+==========================
+variant: aibndauxcustom_lib
+project: i10socfm
+iptype: custom
+subips: i10socfm/aibndpnr_lib
+==========================
+variant: soc_hps
+project: hpsi10
+iptype: asic
+subips: hpsi10/soc_mpu_cortexa53 hpsi10/soc_aps hpsi10/soc_pss
+==========================
+variant: soc_sha_wrapper
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: fmio_common_ana
+project: i10socfm
+iptype: custom
+subips: 
+==========================
+variant: z1574b
+project: Falcon_Mesa
+iptype: fc
+subips: i10socfm/sectorvpls i10socfm/dvaib_lib i10socfm/crsa_lib i10socfm/sectorvfs i10socfm/maib_ss_lib i10socfm/fmio96fsspacer_lib i10socfm/sectorapls i10socfm/sectorafs i10socfm/soc_mpfe_wrapper i10socfm/clsa_lib hpsi10/soc_hps_wrapper i10socfm/zipsa_lib i10socfm/z1chiplet i10socfm/fmiozip_lib i10socfm/fmesram i10socfm/physintspecfmetc i10socfm/physintspecfm i10socfm/sectorpls i10socfm/fmciopio_lib i10socfm/soc_sdm_wrapper i10socfm/fmmisc i10socfm/sectorfs i10socfm/fmio96fs_lib
+==========================
+variant: soc_sdm_fpga_bridges
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_fpga_bridge_lib i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: aib_ssm
+project: i10socfm
+iptype: asic
+subips: i10socfm/cnt_shared i10socfm/aibssmram_wrappers i10socfm/soc_cnoc_router i10socfm/cdclib
+==========================
+variant: soc_hps_mobile_storage_wrapper
+project: hpsi10
+iptype: softip
+subips: i10socfm/soc_mobile_storage_ip i10socfm/soc_hps_ram_wrappers
+==========================
+variant: sectorapls
+project: i10socfm
+iptype: sector
+subips: i10socfm/sa_lib
+==========================
+variant: bg_lib
+project: i10socfm
+iptype: custom
+subips: i10socfm/intfclib
+==========================
+variant: fmciopio_lib
+project: i10socfm
+iptype: asic
+subips: i10socfm/fmciodts i10socfm/intfclib i10socfm/intfclibdts i10socfm/soc_cnoc_router
+==========================
+variant: fmio96fs_lib
+project: i10socfm
+iptype: asic
+subips: i10socfm/fmio96sidecap_lib i10socfm/intfclib i10socfm/fmio96core_intf_lib i10socfm/fmio96_lib i10socfm/intfclibioss
+==========================
+variant: sa_lib
+project: i10socfm
+iptype: sector
+subips: i10socfm/cw_lib
+==========================
+variant: ip752hppll_lib
+project: i10socfm
+iptype: asic
+subips: i10socfm/flxpll_lib
+==========================
+variant: soc_nsp
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_nsp_scr i10socfm/soc_std_macro i10socfm/soc_nsp_rom i10socfm/cnt_shared i10socfm/soc_nsp_ram
+==========================
+variant: por_lib
+project: i10socfm
+iptype: custom
+subips: 
+==========================
+variant: tstnm
+project: i10socfm
+iptype: softip
+subips: i10socfm/cnt_shared i10socfm/tnt_shared
+==========================
+variant: iossmram_wrappers
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_ecc_ram i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: iobuffervsshi_fsm
+project: i10socfm
+iptype: asic
+subips: i10socfm/cdclib i10socfm/soc_std_macro
+==========================
+variant: soc_nsp_rom
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_ecc_ram i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: soc_gpio_wrapper
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: soc_dft_wrapper
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_std_macro
+==========================
+variant: soc_decomp
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_ecc_ram i10socfm/soc_common i10socfm/soc_std_macro i10socfm/soc_sdm_ram_wrappers
+==========================
+variant: bbram_lib
+project: i10socfm
+iptype: asicustom
+subips: 
+==========================
+variant: fmiocenter_phase_alignment
+project: i10socfm
+iptype: asic
+subips: i10socfm/cfg_shared i10socfm/io_common_custom
+==========================
+variant: soc_nand_ip
+project: i10socfm
+iptype: softip
+subips: 
+==========================
+variant: soc_sdm_mailbox
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: fmiodbccmn_lib
+project: i10socfm
+iptype: asic
+subips: i10socfm/cfg_shared
+==========================
+variant: fmiocenter_algoct
+project: i10socfm
+iptype: custom
+subips: i10socfm/fmio_common_ana
+==========================
+variant: jtag_common
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_std_macro
+==========================
+variant: fmgpio_reg
+project: i10socfm
+iptype: asicustom
+subips: 
+==========================
+variant: sectorvpls
+project: i10socfm
+iptype: sector
+subips: i10socfm/sa_lib
+==========================
+variant: ioregulator_lib
+project: i10socfm
+iptype: custom
+subips: 
+==========================
+variant: soc_dedio
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: cfg_shared
+project: i10socfm
+iptype: asicustom
+subips: i10socfm/cdclib
+==========================
+variant: puf_lib
+project: i10socfm
+iptype: custom
+subips: 
+==========================
+variant: fmesram
+project: i10socfm
+iptype: asic
+subips: i10socfm/intfclib i10socfm/cfg_shared i10socfm/cnt_shared i10socfm/tnt_shared
+==========================
+variant: soc_hps_nand_wrapper
+project: hpsi10
+iptype: softip
+subips: i10socfm/soc_nand_ip i10socfm/soc_hps_ram_wrappers
+==========================
+variant: soc_sdm_jtag
+project: i10socfm
+iptype: softip
+subips: i10socfm/cnt_shared i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: fmfbrpllwrap_lib
+project: i10socfm
+iptype: asic
+subips: i10socfm/cfg_shared i10socfm/soc_common i10socfm/iopll_lib i10socfm/soc_std_macro
+==========================
+variant: soc_qspi_wrapper
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_std_macro i10socfm/soc_sdm_ram_wrappers
+==========================
+variant: soc_sdm_noc
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: soc_nsp_ram
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_std_macro i10socfm/soc_sdm_ram_wrappers
+==========================
+variant: physintspecfmetc
+project: i10socfm
+iptype: physintspec
+subips: 
+==========================
+variant: intfclibsdm
+project: i10socfm
+iptype: intfclib
+subips: 
+==========================
+variant: soc_psi_repeater
+project: i10socfm
+iptype: asic
+subips: i10socfm/cdclib i10socfm/soc_std_macro i10socfm/soc_common i10socfm/intfclib
+==========================
+variant: intfclibdts
+project: i10socfm
+iptype: intfclib
+subips: 
+==========================
+variant: soc_hps_dedio
+project: hpsi10
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: soc_cnoc_router
+project: i10socfm
+iptype: asic
+subips: i10socfm/soc_std_macro i10socfm/soc_common i10socfm/intfclib
+==========================
+variant: zipsa_lib
+project: i10socfm
+iptype: sector
+subips: i10socfm/cw_lib i10socfm/zip_lib
+==========================
+variant: soc_bbram
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_std_macro i10socfm/soc_common i10socfm/bbram_lib
+==========================
+variant: soc_i2c_wrapper
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: soc_common
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_std_macro
+==========================
+variant: soc_mobile_storage_ip
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: cw_lib
+project: i10socfm
+iptype: asicustom
+subips: i10socfm/ce_lib i10socfm/cfg_shared i10socfm/intfclib i10socfm/cdclib i10socfm/intfclibcore i10socfm/cnt_shared i10socfm/jtag_common i10socfm/bg_lib i10socfm/lsm_shared i10socfm/soc_cnoc_router
+==========================
+variant: fmio96sidecap_lib
+project: i10socfm
+iptype: asic
+subips: i10socfm/io_common_custom
+==========================
+variant: soc_nsp_scr
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: clsa_lib
+project: i10socfm
+iptype: sector
+subips: i10socfm/cl_lib i10socfm/cw_lib
+==========================
+variant: fmio96core_intf_lib
+project: i10socfm
+iptype: asic
+subips: i10socfm/io_common_custom
+==========================
+variant: soc_sdm_wrapper
+project: i10socfm
+iptype: asic
+subips: i10socfm/soc_sdm i10socfm/intfclibsdm
+==========================
+variant: soc_sdm_cip_wrapper
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_key_vault i10socfm/bg_lib i10socfm/soc_std_macro i10socfm/soc_enviro i10socfm/por_lib
+==========================
+variant: soc_sdm_metal_key
+project: i10socfm
+iptype: asic
+subips: 
+==========================
+variant: soc_serial_ctrl
+project: hpsi10
+iptype: softip
+subips: i10socfm/cnt_shared i10socfm/soc_common
+==========================
+variant: cl_lib
+project: i10socfm
+iptype: asic
+subips: i10socfm/intfclib i10socfm/soc_psi_repeater i10socfm/jtag_common i10socfm/soc_cnoc_router
+==========================
+variant: soc_aps_ram
+project: hpsi10
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_hps_ram_wrappers
+==========================
+variant: soc_aps_bridge
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_fpga_bridge_lib i10socfm/soc_common
+==========================
+variant: fmio12pnr_serdesdpa_top
+project: i10socfm
+iptype: asic
+subips: i10socfm/cfg_shared
+==========================
+variant: fmio96_lib
+project: i10socfm
+iptype: asic
+subips: i10socfm/fmiocenter_t2buffer i10socfm/fmsn_lib i10socfm/fmioadcpnr_lib i10socfm/iossm i10socfm/fmfbrpllwrap_lib i10socfm/fmio48tile_lib
+==========================
+variant: soc_enviro
+project: i10socfm
+iptype: softip
+subips: i10socfm/fmsn_lib i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: soc_system_manager
+project: hpsi10
+iptype: softip
+subips: i10socfm/soc_common
+==========================
+variant: cnt_shared
+project: i10socfm
+iptype: asic
+subips: i10socfm/soc_ecc_ram i10socfm/soc_common i10socfm/soc_std_macro i10socfm/jtag_common
+==========================
+variant: physintspecfm
+project: i10socfm
+iptype: physintspec
+subips: 
+==========================
+variant: soc_ssi_master_wrapper
+project: hpsi10
+iptype: softip
+subips: i10socfm/soc_common
+==========================
+variant: soc_efuse_wrapper
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_std_macro i10socfm/soc_common i10socfm/fusepwr_lib
+==========================
+variant: soc_mpu_cortexa53
+project: hpsi10
+iptype: asic
+subips: hpsi10/soc_ca53_cpu i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: intfclibhpsfm
+project: hpsi10
+iptype: intfclib
+subips: 
+==========================
+variant: soc_reset_manager
+project: hpsi10
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: soc_p_anaip
+project: i10socfm
+iptype: asic
+subips: i10socfm/aux_lib i10socfm/soc_sdm_pinmux i10socfm/soc_puf_wrapper i10socfm/soc_sdm_cip_wrapper
+==========================
+variant: aux_lib
+project: i10socfm
+iptype: custom
+subips: 
+==========================
+variant: soc_hps_idvp
+project: hpsi10
+iptype: softip
+subips: i10socfm/soc_common i10socfm/jtag_common
+==========================
+variant: soc_puf_wrapper
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_common i10socfm/puf_lib i10socfm/soc_std_macro
+==========================
+variant: flxpll_lib
+project: i10socfm
+iptype: custom
+subips: 
+==========================
+variant: fmiozip_lib
+project: i10socfm
+iptype: asic
+subips: i10socfm/intfclib i10socfm/intfclibioss
+==========================
+variant: intfclibioss
+project: i10socfm
+iptype: intfclib
+subips: 
+==========================
+variant: osc_lib
+project: i10socfm
+iptype: custom
+subips: 
+==========================
+variant: fmiohmc_lib
+project: i10socfm
+iptype: asic
+subips: i10socfm/fmiodbccmn_lib
+==========================
+variant: soc_hps_pinmux
+project: hpsi10
+iptype: softip
+subips: hpsi10/soc_hps_dedio i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: soc_timer_wrapper
+project: hpsi10
+iptype: softip
+subips: i10socfm/soc_common
+==========================
+variant: soc_hps_psi
+project: hpsi10
+iptype: softip
+subips: i10socfm/soc_fpga_bridge_lib i10socfm/soc_common
+==========================
+variant: soc_sdm_ram_wrappers
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_ecc_ram
+==========================
+variant: soc_i2c_pwrmgt_wrapper
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: soc_p_fdata
+project: i10socfm
+iptype: asic
+subips: i10socfm/soc_sdm_noc i10socfm/soc_sdm_mailbox i10socfm/soc_sdm_jtag i10socfm/soc_crypto i10socfm/soc_sdm_psi i10socfm/soc_dft_wrapper i10socfm/soc_cnoc_if
+==========================
+variant: sectorfs
+project: i10socfm
+iptype: sector
+subips: i10socfm/sa_lib
+==========================
+variant: soc_key_vault
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_sdm_metal_key i10socfm/soc_bbram i10socfm/soc_std_macro i10socfm/soc_sdm_ram_wrappers i10socfm/soc_efuse_wrapper
+==========================
+variant: soc_crypto
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_sha_wrapper i10socfm/soc_aes_wrapper i10socfm/soc_pkc_wrapper i10socfm/soc_sdm_ram_wrappers i10socfm/soc_common i10socfm/soc_std_macro i10socfm/soc_decomp i10socfm/osc_lib
+==========================
+variant: fmiocenter_t2buffer
+project: i10socfm
+iptype: custom
+subips: i10socfm/fmio_common_ana
+==========================
+variant: soc_aes_wrapper
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: soc_std_macro
+project: i10socfm
+iptype: softip
+subips: 
+==========================
+variant: soc_cs_lib
+project: hpsi10
+iptype: softip
+subips: i10socfm/soc_common
+==========================
+variant: fmiocenter_lib
+project: i10socfm
+iptype: asic
+subips: i10socfm/cfg_shared i10socfm/fmiopllwrap_lib i10socfm/fmiohmc_lib i10socfm/fmiocenter_oct i10socfm/fmiocenter_phase_alignment
+==========================
+variant: soc_pss_noc
+project: hpsi10
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_std_macro
+==========================
+variant: tnt_shared
+project: i10socfm
+iptype: softip
+subips: i10socfm/cnt_shared
+==========================
+variant: fmiopllwrap_lib
+project: i10socfm
+iptype: asic
+subips: i10socfm/cfg_shared i10socfm/iopll_lib
+==========================
+variant: iobuffer_lib
+project: i10socfm
+iptype: asicustom
+subips: i10socfm/cfg_shared i10socfm/fmio_common_ana i10socfm/iobuffervsshi_fsm
+==========================
+variant: cdclib
+project: i10socfm
+iptype: asic
+subips: 
+==========================
+variant: soc_mobile_storage_wrapper
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_sdm_ram_wrappers i10socfm/soc_mobile_storage_ip
+==========================
+variant: soc_sdm_psi
+project: i10socfm
+iptype: softip
+subips: i10socfm/soc_common i10socfm/soc_std_macro
+==========================

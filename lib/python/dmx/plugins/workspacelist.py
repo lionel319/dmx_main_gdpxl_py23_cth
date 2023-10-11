@@ -1,0 +1,100 @@
+#!/usr/bin/env python
+'''
+$Header: //depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/plugins/workspacelist.py#1 $
+$Change: 7411538 $
+$DateTime: 2022/12/13 18:19:49 $
+$Author: lionelta $
+
+Description: plugin for "dmx newws"
+
+Author: Lionel Tan Yoke-Liang
+Copyright (c) Altera Corporation 2014
+All rights reserved.
+
+'''
+
+# pylint: disable=C0301,F0401,E1103,R0914,R0912,R0915
+
+import os
+import sys
+import logging
+import textwrap
+import argparse
+
+from dmx.abnrlib.command import Command
+from dmx.utillib.utils import add_common_args
+from dmx.abnrlib.flows.workspace import Workspace
+
+LOGGER = logging.getLogger(__name__)
+
+class WorkspaceList(Command):
+    '''
+    '''
+    @classmethod
+    def get_help(cls):
+        '''
+        Short help for the subcommand
+        '''
+        myhelp = '''\
+            Returns a list of workspaces (Equivalent to pm workspace -l)
+            '''
+        return textwrap.dedent(myhelp)
+
+    @classmethod
+    def extra_help(cls):
+        ''' Extra help '''
+        myhelp = '''\
+        List all the workspaces which meet a given set of criteria.
+        If --user/-u is not specified, your username will be used.
+        If --older_than/-o is not specified, default:0 days (meaning all workspaces)
+
+        Example
+        =======
+        $dmx workspace list -u yltan
+        List all workspace for user 'yltan' 
+
+        $dmx workspace list -u yltan -o 35
+        List all workspace for user 'yltan' which has been inactive for 35 days
+        '''
+        return textwrap.dedent(myhelp)
+        
+    @classmethod
+    def add_args(cls, parser):
+        '''set up argument parser for "dmx workspace" subcommand'''
+        add_common_args(parser)
+        parser.add_argument('-u', '--user', required=False, help='User name. Default:{}'.format(os.environ['USER']), 
+                default=None)
+
+        parser.add_argument('-p', '--project', required=False, help='project name.', default=None)
+        parser.add_argument('-i', '--ip', required=False, help='ip name.', default=None)
+        parser.add_argument('-b', '--bom', required=False, help='bom.', default=None)
+
+        # DI466: dmx workspace list should list current workspaces by default
+        parser.add_argument('-o', '--older-than', metavar='DAYS', required=False, type=int, default=0,
+                help='days of inactive workspace. Default:0. To list out all available workspace, set this value to 0(zero)')
+        
+        # -t is to cater for backward compatibility for exsiting dmx workspace list to print out information
+        # new switch --format should only exists if -t is not present and vice versa
+        mutual_exclude_group = parser.add_mutually_exclusive_group()
+        mutual_exclude_group.add_argument('-t', '--tabulated', required=False, default=False, action='store_true',
+                help='List out the workspace infomation in a tabulated format.')
+        mutual_exclude_group.add_argument('-f', '--format', required=False, choices=('csv', 'xml', 'json'), default='human',
+                help='List out the workspace infomation in a csv/xml/json format.')
+
+
+    @classmethod
+    def command(cls, args):
+        '''the "workspace" subcommand'''
+
+        ret = 1
+        user = args.user
+        older_than = args.older_than
+        tabulated = args.tabulated
+        preview = args.preview
+        format = args.format
+        project = args.project
+        ip = args.ip
+        bom = args.bom
+
+        ret = Workspace.list_action(user, older_than, tabulated, preview, format, project, ip, bom)
+        return ret

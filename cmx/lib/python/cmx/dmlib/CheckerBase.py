@@ -1,0 +1,636 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Copyright 2011 Altera Corporation. All rights reserved.
+# This source code is highly confidential and proprietary information of Altera
+# and is to be used for internal Altera purposes only.   Altera assumes no
+# responsibility or liability arising out of the application or use of this
+# source code for non-Altera purposes.
+# $Header: //depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/dmlib/CheckerBase.py#3 $
+
+"""
+CheckerBase is an abstract base class for VP checkers.
+"""
+
+from builtins import map
+from builtins import range
+from past.builtins import basestring
+from builtins import object
+from abc import ABCMeta, abstractmethod
+import os
+import shutil # @UnusedImport; pylint: disable=W0611
+import dmx.utillib.naa
+import dmx.utillib.cache
+from future.utils import with_metaclass
+
+'''
+This module is imported from icd_cad_dm/nd5.
+Only specific APIs that are used in type-check are fixed to work in DMX.
+Used at your own discretion.
+'''
+
+class CheckerBase(with_metaclass(ABCMeta, object)):
+    '''Construct a verifier for the specified template set XML and verify it.
+    
+    The `vp` argument is an instance of :py:class:`VpNadder` or when unit testing,
+    :py:class:`dm.VpMock`.
+    
+    >>> if os.path.exists('ip1/vpout/'):
+    ...     # Clean up so we consistently get the "VpInfo: creating 'ip1/vpout/'" message below
+    ...     shutil.rmtree('ip1/vpout/')
+    >>> manifestSetXml = """<?xml version="1.0" encoding="utf-8"?>
+    ...    <templateset>
+    ...      <template id="TEST">
+    ...      </template>
+    ...    </templateset>"""
+    >>> from dm.VpMock import VpMock
+    >>> checker = CheckerForTesting(VpMock('ip1', templatesetString=manifestSetXml))
+    >>> checker.errors
+    []
+    >>> checker.check(False)
+    False
+    >>> checker.isCorrect
+    False
+    >>> checker.errors
+    ['Pretending to find an error.']
+    '''
+    failureException = AssertionError
+    
+    def __init__(self, ipname, cell, workarea=None):
+        self._ip_name = ipname
+        self._cell_name = cell
+        
+        if workarea == None:
+            self._workspacePath = os.getenv("WORKAREA")
+        else:
+            self._workspacePath = workarea
+
+        self._errors = []
+        self.reset()
+
+        self.naa = dmx.utillib.naa.NAA()
+        self.cache = dmx.utillib.cache.Cache()
+    
+    @abstractmethod
+    def __str__(self):
+        '''The English language name of this checker, in the format:
+        
+        * "ABC data check"
+        * "ABC vs. DEF context check"
+
+        >>> from dm.VpMock import VpMock as VpNadder
+        >>> checker = CheckerForTesting(VpNadder('ip1'))
+        >>> str(checker)
+        'ABC data check'
+         '''
+        return ''
+    
+    def reset(self):
+        '''Initialize the class to perform another check.
+    
+        >>> manifestSetXml = """<?xml version="1.0" encoding="utf-8"?>
+        ...    <templateset>
+        ...      <template id="TEST">
+        ...      </template>
+        ...    </templateset>"""
+        >>> from dm.VpMock import VpMock as VpNadder
+        >>> checker = CheckerForTesting(VpNadder('ip1', templatesetString=manifestSetXml))
+        >>> checker.errors
+        []
+        >>> checker.check(False)
+        False
+        >>> checker.isCorrect
+        False
+        >>> checker.errors
+        ['Pretending to find an error.']
+        >>> checker.reset()
+        >>> checker.isCorrect
+        True
+        >>> checker.errors
+        []
+        '''
+        self._errors = []
+        
+    @property
+    def ip_name(self):
+        '''The name of the IP under test.
+        
+        >>> from dm.VpMock import VpMock as VpNadder
+        >>> checker = CheckerForTesting(VpNadder('ip1'))
+        >>> checker.ip_name
+        'ip1'
+        '''
+        return self._ip_name
+
+    @property
+    def cell_name(self):
+        return self._cell_name         
+        
+    @property
+    def errors(self):
+        '''List of strings explaining any errors.
+    
+        >>> manifestSetXml = """<?xml version="1.0" encoding="utf-8"?>
+        ...    <templateset>
+        ...      <template id="TEST">
+        ...      </template>
+        ...    </templateset>"""
+        >>> from dm.VpMock import VpMock as VpNadder
+        >>> checker = CheckerForTesting(VpNadder('ip1', templatesetString=manifestSetXml))
+        >>> checker.errors
+        []
+        >>> checker.check(False)
+        False
+        >>> checker.errors
+        ['Pretending to find an error.']
+        '''
+        return self._errors
+    
+    def _addError(self, errorString):
+        '''Add a new error string to `errors`.
+    
+        >>> manifestSetXml = """<?xml version="1.0" encoding="utf-8"?>
+        ...    <templateset>
+        ...      <template id="TEST">
+        ...      </template>
+        ...    </templateset>"""
+        >>> from dm.VpMock import VpMock as VpNadder
+        >>> checker = CheckerForTesting(VpNadder('ip1', templatesetString=manifestSetXml))
+        >>> checker.errors
+        []
+        >>> checker._addError('First error.')
+        >>> checker._addError('Second error.')
+        >>> checker._addError('Third error.')
+        >>> checker.errors
+        ['First error.', 'Second error.', 'Third error.']
+        '''
+        self._errors.append(errorString)
+        
+    @property
+    def isCorrect(self):
+        '''Is the content of the XML string free of semantic errors?
+    
+        >>> manifestSetXml = """<?xml version="1.0" encoding="utf-8"?>
+        ...    <templateset>
+        ...      <template id="TEST">
+        ...      </template>
+        ...    </templateset>"""
+        >>> from dm.VpMock import VpMock as VpNadder
+        >>> checker = CheckerForTesting(VpNadder('ip1', templatesetString=manifestSetXml))
+        >>> checker.isCorrect
+        True
+        >>> checker.check(False)
+        False
+        >>> checker.isCorrect
+        False
+        '''
+        return not self._errors
+
+    def check(self, verbose=False): # Don't remove the default; 
+                                    # see http://fogbugz.altera.com/default.asp?306661
+        # pylint: disable=W0613,R0201
+        '''Reset the checker and run the check that is defined by the abstract
+        method `_check()`.
+        
+        The individual checker developers may decide whether to use or ignore
+        the `_verbose` instance variable.
+        
+        The method returns True if the check passed, and False if it failed.
+        '''
+        self.reset()
+        self._verbose = verbose # pylint: disable = W0201
+        self._check()
+        return self.isCorrect
+
+    @abstractmethod
+    def _check(self): \
+        # pylint: disable=W0613,R0201
+        '''Check the data, registering any errors found using the `addError()`
+        method.
+        
+        This method is called by `check()`, which performs common work before
+        and after `_check()`.
+        
+        Derived classes must define this abstract method.
+        '''        
+        pass
+
+                    
+    def _checkFile(self, path, deliverableName, itemName):
+        '''Generate an error if the specified path is not:
+        
+        * An existing file
+        * Readable
+        * Free of symbolic links
+        * Within the current workspace, which is presumed to be the current \
+          working directory
+        
+        Return True if there were no errors.
+        
+        Arguments `deliverableName` and `itemName` are merely used to create the
+        error text.
+        '''
+        if not self._isFileReadable(path):
+            self._errors.append("In '{}', {} '{}' is not readable.".format(deliverableName, itemName, path))
+            return False
+        return self._checkFileDirCommon(path, deliverableName, itemName)
+
+    def _checkDir(self, path, deliverableName, itemName):
+        '''Generate an error if the specified path is not:
+        
+        * An existing directory
+        * Readable
+        * Free of symbolic links
+        * Within the current workspace, which is presumed to be the current \
+          working directory
+        
+        Return True if there were no errors.
+        
+        Arguments `deliverableName` and `itemName` are merely used to create the
+        error text.
+        '''
+        if not self._isDirReadable(path):
+            self._errors.append("In '{}', {} '{}' is not a readable directory.".format(deliverableName, itemName, path))
+            return False
+        return self._checkFileDirCommon(path, deliverableName, itemName)
+    
+    def _checkFileDirCommon(self, path, deliverableName, itemName):
+        '''Perform the checks common to files and directories.
+        Generate an error if the specified path is not:
+        
+        * Free of symbolic links
+        * Within the current workspace, which is presumed to be the current \
+          working directory
+        
+        Return True if there were no errors.
+        
+        Arguments `deliverableName` and `itemName` are merely used to create the
+        error text.
+        '''
+        isPassing = True
+        if self._hasLink(path):
+            '''
+            ### https://jira01.devtools.intel.com/browse/PSGDMX-36
+            ### Symlinks to NAA should be ignored.
+            if not self.naa.is_path_naa_path(path) and not self.cache.is_path_cache_path(path):
+                self._errors.append("In '{}', {} '{}' contains symbolic link(s).".format(deliverableName, itemName, path))
+                isPassing =  False
+            '''
+            
+            ### Does not allow symlink which links OUTSIDE from self._workspacePath
+            #print("hasLink ==> {}".format(path))
+            #print(not self._isAllowedToBeOutsideWorkspace(path))
+            #print(self._isOutsideWorkspace(os.path.realpath(path), workspacePath=self._workspacePath))
+            if ((not self._isAllowedToBeOutsideWorkspace(path)) and self._isOutsideWorkspace(os.path.realpath(path), workspacePath=self._workspacePath)):
+                self._errors.append("In '{}', {} '{}' is outside the current workspace '{}'.".format(deliverableName, itemName, os.path.abspath(path), self._workspacePath))
+                isPassing =  False
+        return isPassing
+
+    @classmethod
+    def _isFileReadable(cls, path):
+        '''Return true if the specified path is an existing, readable file.
+        
+        >>> # Set up
+        >>> if os.path.exists('testip1'):
+        ...     if os.path.exists('testip1/test/testfile.txt'):
+        ...         os.chmod('testip1/test/testfile.txt', 0777)
+        ...     shutil.rmtree('testip1')
+        >>> os.makedirs('testip1/test')
+        >>>
+        >>> # The interesting part
+        >>> CheckerForTesting._isFileReadable('testip1/test/testfile.txt')
+        False
+        >>> f = open('testip1/test/testfile.txt', 'w')
+        >>> f.write('')
+        >>> f.close()
+        >>> CheckerForTesting._isFileReadable('testip1/test/testfile.txt')
+        True
+        >>> os.chmod('testip1/test/testfile.txt', 0000)
+        >>> CheckerForTesting._isFileReadable('testip1/test/testfile.txt') and \
+                   platform.system() != 'Windows'
+        False
+        >>> os.chmod('testip1/test/testfile.txt', 0777)
+        '''
+        # BUGGY CODE:
+#        try:
+#            f = open(path, 'r')
+#        except IOError:
+#            return False
+#        else:
+#            f.close()
+#        return True
+    
+        # BECAME:
+        try:
+            f = open(path, 'r')
+            f.close()
+            return True
+        except Exception: # pylint: disable = W0703
+            return False
+    
+                    
+    @classmethod
+    def _isDirReadable(cls, path):
+        '''Return true if the specified path is an existing, readable directory
+        and the path contains no symbolic links.
+
+        >>> # Set up
+        >>> if os.path.exists('testip1'):
+        ...     if os.path.exists('testip1/test/testfile.txt'):
+        ...         os.chmod('testip1/test/testfile.txt', 0777)
+        ...     shutil.rmtree('testip1')
+        >>>
+        >>> # The interesting part
+        >>> CheckerForTesting._isDirReadable('testip1/test')
+        False
+        >>> os.makedirs('testip1/test')
+        >>> CheckerForTesting._isDirReadable('testip1/test')
+        True
+        >>> os.chmod('testip1/test', 0000)
+        >>> CheckerForTesting._isDirReadable('testip1/test') and platform.system() != 'Windows'
+        False
+        >>> os.chmod('testip1/test', 0777)
+        '''
+        return (os.path.isdir(path) and
+                os.access(path, os.R_OK) and
+                not cls._hasLink(path))
+                    
+    @classmethod                    
+    def _hasLink(cls, path_):
+        '''Return true if the specified path contains a symbolic link.
+        
+        For example, these paths have no links:
+        
+        >>> os.makedirs('testip1/targetDir1/targetDir2/targetDir3')
+        >>> f = open('testip1/targetDir1/targetDir2/targetDir3/targetFile.txt', 'w')
+        >>> f.write('')
+        >>> f.close()
+        >>> CheckerForTesting._hasLink('testip1/')
+        False
+        >>> CheckerForTesting._hasLink('testip1/targetDir1/')
+        False
+        >>> CheckerForTesting._hasLink('testip1/targetDir1/targetDir2')
+        False
+        >>> CheckerForTesting._hasLink('testip1/targetDir1/targetDir2/targetDir3')
+        False
+        >>> CheckerForTesting._hasLink('testip1/targetDir1/targetDir2/targetDir3/targetFile.txt')
+        False
+        
+        Here, intermediate directory `symlink2/` is a link:
+                
+        >>> os.symlink('testip1/targetDir1/targetDir2', 'testip1/targetDir1/symlink2')
+        >>> CheckerForTesting._hasLink('testip1/')
+        False
+        >>> CheckerForTesting._hasLink('testip1/targetDir1/')
+        False
+        >>> CheckerForTesting._hasLink('testip1/targetDir1/symlink2')
+        True
+        >>> CheckerForTesting._hasLink('testip1/targetDir1/symlink2/targetDir3')
+        True
+        >>> CheckerForTesting._hasLink('testip1/targetDir1/symlink2/targetDir3/targetFile.txt')
+        True
+        
+        And here, file `symlinkFile.txt` is a link:
+        
+        >>> os.symlink('testip1/targetDir1/targetDir2/targetDir3/targetFile.txt',
+        ...            'testip1/targetDir1/targetDir2/targetDir3/symlinkFile.txt')
+        >>> CheckerForTesting._hasLink('testip1/targetDir1/targetDir2/targetDir3/symlinkFile.txt')
+        True
+
+        Finally, nonexistent files and directories are not links:
+        
+        >>> CheckerForTesting._hasLink('testip1/targetDir1/targetDir2/targetDir3/NONEXISTENT.txt')
+        False
+        >>> CheckerForTesting._hasLink('NONEXISTENT/targetDir1/NONEXISTENT/targetDir3/targetFile.txt')
+        False
+
+        
+        '''
+        path = path_
+        while path:
+            if os.path.islink(path):
+                return True
+            d = os.path.dirname(path)
+            if d == path:
+                break # FB 103364
+            path = d
+            
+        return False 
+        
+    @classmethod                    
+    def _isAllowedToBeOutsideWorkspace(self, path):
+        '''Return True if the given path is allowed to be outside the workspace.
+        Standard cell reference libraries are the most common such case.
+
+        Checking for readability and existence is left to other methods.
+        
+        >>> CheckerForTesting._isAllowedToBeOutsideWorkspace('/tools/stdCellLib')
+        True
+        >>> CheckerForTesting._isAllowedToBeOutsideWorkspace('../relative/path')
+        False
+        >>> CheckerForTesting._isAllowedToBeOutsideWorkspace('relative')
+        False
+        >>> CheckerForTesting._isAllowedToBeOutsideWorkspace('/absolute')
+        False
+        >>> CheckerForTesting._isAllowedToBeOutsideWorkspace('/absolute/path')
+        False
+        '''
+        assert isinstance(path, basestring)
+        if not os.path.isabs(path):
+            return False
+        directories = path.split(os.path.sep)
+        if len(directories) < 2:
+            return False
+        if directories[0] == '' and directories[1] == 'tools':
+            # Allow any path in /tools
+            return True
+        return False
+
+    @classmethod                    
+    def _isOutsideWorkspace(cls, path, allowedAbsPath=None, workspacePath='.'):
+        '''Return true if the specified path is outside the specified workspace.
+        
+        The `workspacePath` argument is chiefly for testing because VP always
+        runs with the top of the workspace as the working directory.
+        
+        For example:
+        
+        >>> os.makedirs('testip1/workspace/dir1/dir2')
+        >>> os.makedirs('testip1/anotherWorkspace/dir1/dir2')
+        >>> CheckerForTesting._isOutsideWorkspace('testip1/workspace/dir1/dir2', workspacePath='testip1/workspace')
+        False
+        >>> CheckerForTesting._isOutsideWorkspace('testip1/workspace/dir1/', workspacePath='testip1/workspace')
+        False
+        >>> CheckerForTesting._isOutsideWorkspace('testip1/workspace', workspacePath='testip1/workspace')
+        False
+        >>> CheckerForTesting._isOutsideWorkspace('testip1/anotherWorkspace/', workspacePath='testip1/workspace')
+        True
+        >>> CheckerForTesting._isOutsideWorkspace('testip1/anotherWorkspace/dir1', workspacePath='testip1/workspace')
+        True
+        >>> CheckerForTesting._isOutsideWorkspace('testip1/anotherWorkspace/dir1/dir2', workspacePath='testip1/workspace')
+        True
+        
+        Additionally, you can specify an absolute path that is allowed.
+        Generally this is a path that contains common libraries like standard
+        cell libraries:
+        
+        >>> CheckerForTesting._isOutsideWorkspace('/tools/process_sj/this/that', allowedAbsPath='/tools/process_sj', workspacePath='testip1/workspace')
+        False
+        >>> CheckerForTesting._isOutsideWorkspace('/tools/process_pg/this/that', allowedAbsPath='/tools/process_sj', workspacePath='testip1/workspace')
+        True
+        
+        The default workspace path is the current working directory:
+
+        >>> CheckerForTesting._isOutsideWorkspace('testip1/workspace/dir1/dir2')
+        False
+        '''
+        if allowedAbsPath is not None:
+            assert os.path.isabs(allowedAbsPath), 'Argument allowedAbsPath must be absolute'
+            commonPrefix = os.path.commonprefix([allowedAbsPath, path])
+            if allowedAbsPath == commonPrefix:
+                return False
+
+        absPath = os.path.abspath(path)
+        workspaceAbsPath = os.path.abspath(workspacePath)
+        commonPrefix = os.path.commonprefix([absPath, workspaceAbsPath])
+        return (commonPrefix != workspaceAbsPath)
+
+    def _checkProgramVersionInFile(self, fileName, prefix, programNameForMessage,
+                            minVersion, maxLines=50):
+        '''If the specified file does not contain a version number greater than
+        or equal to the specified version, add an error.
+        
+        Give up after reading `maxLines` lines.
+        
+        >>> f = open('testfile.txt', 'w')
+        >>> f.write('Beginning of file\\n')
+        >>> f.write('// program      2.0   \\n')
+        >>> f.write('// program      4.0   \\n')
+        >>> f.write('// programWithNonconformingVersion      x.0   \\n')
+        >>> f.close()
+        >>>
+        >>> from dm.VpMock import VpMock as VpNadder
+        >>> checker = CheckerForTesting(VpNadder('ip1'))
+        >>> checker._checkProgramVersionInFile('testfile.txt', '// program', 'program', '1.0')
+        >>> checker.errors
+        []
+        >>> checker.reset()
+        >>> checker._checkProgramVersionInFile('testfile.txt', '// program', 'program', '2.0')
+        >>> checker.errors
+        []
+        >>> checker.reset()
+        >>> checker._checkProgramVersionInFile('testfile.txt', '// program', 'program', '3.0')
+        >>> checker.errors
+        ["File 'testfile.txt' line 2 contains 'program' version '2.0'\\n    which is inadequate because it is less than '3.0'."]
+        >>> checker.reset()
+        >>> checker._checkProgramVersionInFile('testfile.txt', '// otherProgram', 'otherProgram', '1.0')
+        >>> checker.errors
+        ["File 'testfile.txt' contains no version at all for program 'otherProgram'.\\n    It must contain a line like '// otherProgram 1.0' that specifies a version of at least '1.0'."]
+        >>> checker.reset()
+        >>> checker._checkProgramVersionInFile('testfile.txt', '// programWithNonconformingVersion', 'programWithNonconformingVersion', '1.0')
+        >>> checker.errors
+        ["File 'testfile.txt' line 4 contains non-conforming version number 'x.0' for program 'programWithNonconformingVersion'.\\n    Version numbers should be of the format 'integer.integer.integer'."]
+        >>> checker.reset()
+        >>> checker._checkProgramVersionInFile('nonexistent.txt', '// program', 'program', '1.0')
+        >>> checker.errors
+        ["File 'nonexistent.txt' does not contain '// program' version '1.0'\\n    because the file itself is not readable."]
+        '''
+        assert programNameForMessage in prefix, \
+            "Using a program name that does not appear in the prefix is too cruel"
+        assert isinstance(minVersion, basestring)
+        
+        try:
+            f = open(fileName)
+        except IOError:
+            self._addError("File '{}' does not contain '{}' version '{}'\n"
+                           "    because the file itself is not readable."
+                           "".format(fileName, prefix, minVersion))
+            return
+        
+        actualVersion = None
+        lineNumber = 0
+        for lineNumber in range(1, maxLines):
+            line = f.readline()
+            if line.startswith(prefix):
+                actualVersion = line[len(prefix):].strip()
+                break
+        f.close()
+        
+        if actualVersion is None:
+            self._addError("File '{}' contains no version at all for program '{}'.\n"
+                           "    It must contain a line like '{} {}' that specifies a version of at least '{}'."
+                           "".format(fileName, programNameForMessage, prefix, minVersion, minVersion))
+            return
+        
+        try:
+            isVersionLess = self.isVersionLess(actualVersion, minVersion)
+        except ValueError:
+            self._addError("File '{}' line {} contains non-conforming version number '{}' for program '{}'.\n"
+                           "    Version numbers should be of the format 'integer.integer.integer'."
+                           "".format(fileName, lineNumber, actualVersion,
+                                     programNameForMessage))
+            return
+            
+        if isVersionLess:
+            self._addError("File '{}' line {} contains '{}' version '{}'\n"
+                           "    which is inadequate because it is less than '{}'."
+                           "".format(fileName, lineNumber, programNameForMessage, actualVersion,
+                                     minVersion))
+    
+    @classmethod        
+    def isVersionLess(cls, actualVersionString, minVersionString):
+        ''' Return `True` if the actual version is less than the minimum version.
+        The versions are represented as dot delimited strings.
+        
+        Raise an exception of type `ValueError` if the version strings are not
+        of the format `integer.integer. ...`
+        
+        >>> CheckerBase.isVersionLess('1.0.0', '2.0.0')
+        True
+        >>> CheckerBase.isVersionLess('1.0.0', '1.0.0')
+        False
+        >>> CheckerBase.isVersionLess('2.0.0', '1.0.0')
+        False
+        >>> CheckerBase.isVersionLess('2', '1')
+        False
+        
+        The version numbers in between the dots are compared as integers.
+
+        >>> CheckerBase.isVersionLess('1.9', '1.10')
+        True
+        
+        The above result would be different if the versions were considered
+        floating point integers:
+        
+        >>> 1.9 < 1.10
+        False
+        '''
+        def versiontuple(v):
+            '''Copied from
+            http://stackoverflow.com/questions/11887762/how-to-compare-version-style-strings
+            '''
+            return tuple(map(int, (v.split(".")))) #pylint: disable = W0141
+
+        actualVersion = versiontuple(actualVersionString)
+        minVersion    = versiontuple(minVersionString)
+        return actualVersion < minVersion
+        
+        
+# TO_DO: How to elide this except when __name__ == "__main__" or when
+# CheckerBase_test.py is being run?
+class CheckerForTesting(CheckerBase):
+    '''Mock derived class just for testing.  This simulates something like
+    :py:class:`dm.CheckType` or :py:class:`dm.templateset.verifier`.
+    '''
+    def __str__(self):
+        return 'ABC data check'
+    
+    def _check(self):
+        '''Execute the check.'''
+        self._addError('Pretending to find an error.')
+    
+    
+if __name__ == "__main__":
+    # Running CheckerBase_test.py is the preferred test method,
+    # but run doctest alone if the user requests.
+    import doctest
+    doctest.testmod(verbose=2)

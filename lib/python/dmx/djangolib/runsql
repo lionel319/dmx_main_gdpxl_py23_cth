@@ -1,0 +1,6 @@
+### How to make use of this script:-
+###    ./runsql sql_commands/<filename>
+### Example (if we wanna create the 'owners' table):-
+###    ./runsql sql_commands/create_owner_table
+
+mysql --verbose -ukillim -pkillim -hpg-icesql1 CLINKZ < $1

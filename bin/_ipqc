@@ -1,0 +1,37 @@
+#!/bin/sh
+if [ -z ${IPQC_ROOT+x} ]; then
+    echo " ipqc not loaded !"
+    echo " do arc shell dmx"
+fi
+
+
+#########################
+# PROJECT ENVIRONMENT ? #
+#########################
+if [ -z ${DB_FAMILY+x} ] || [ -z ${DB_DEVICE+x} ] || [ -z ${DB_PROJECT+x} ] || [ -z ${DB_PROCESS} ]; then
+    echo ""
+    echo " No project environment !"
+    echo " Need to launch IPQC in project environment !"
+    echo " Set DB_FAMILY, DB_PROJECT, DB_DEVICE and DB_PROCESS environment variables."
+    echo " Exit 1"
+    echo ""
+    echo "####################################################"
+    exit 1
+fi
+
+
+##########################
+# VERSION CONTROL SYSTEM #
+##########################
+if [ -z ${ICM_HOME+x} ]; then
+    echo ""
+    echo " No ICManage version control system !"
+    echo " Need to have version control system."
+    echo " Exit 1"
+    echo ""
+    echo "####################################################"
+    exit 1
+fi
+
+python ${IPQC_ROOT}/lib/python/dmx/ipqclib/main.py ${1+"$@"}
+

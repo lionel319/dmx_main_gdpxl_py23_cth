@@ -1,0 +1,2 @@
+python ${DMX_ROOT}/lib/python/dmx/checklib/ipspec_check.py ${1+"$@"}
+

@@ -1,0 +1,53 @@
+#!/usr/intel/pkgs/python3/3.10.8/bin/python3
+
+import UsrIntel.R1
+import sys
+import os
+import argparse 
+import logging
+
+logging.basicConfig(level=logging.CRITICAL)
+
+DMXLIB = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'lib', 'python')
+CMXLIB = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'lib', 'python')
+sys.path.insert(0, DMXLIB)
+sys.path.insert(0, CMXLIB)
+
+import dmx.tnrlib.audit_check
+
+def main():
+    args = set_argparse()
+    workarea = get_workspace_root()
+    a = dmx.tnrlib.audit_check.AuditFile(update_dashboard=False, workspace_rootdir=workarea)
+    a.set_test_info(args.flow, args.subflow, 'run_dir', 'cmdline', args.deliverable, topcell=args.cell, variant=args.ip)
+    if args.fail:
+        a.add_result("pass test", True)
+    else:
+        a.add_result("fail test", False)
+    a.save()
+    if not args.quiet:
+        print("Audit File Generated: {}".format(a.get_audit_file_path()))
+
+
+def get_workspace_root():
+    return os.getenv("WORKAREA", os.getcwd())
+    
+
+def set_argparse():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--flow', '-f', required=True)
+    parser.add_argument('--subflow', '-s', required=False, default='')
+    parser.add_argument('--cell', '-c', required=True)
+    parser.add_argument('--ip', '-i', required=True)
+    parser.add_argument('--deliverable', '-d', required=False, default='cthfe')
+    parser.add_argument('--quiet', '-q', default=False, action='store_true')
+    passfail = parser.add_mutually_exclusive_group()
+    passfail.add_argument('--pass', default=True, action='store_true')
+    passfail.add_argument('--fail', default=False, action='store_true')
+
+    args = parser.parse_args()
+    return args
+
+
+if __name__ == '__main__':
+    sys.exit(main())

@@ -1,0 +1,293 @@
+'''
+$Header: //depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/utillib/git.py#3 $
+$Change: 7627810 $
+$DateTime: 2023/05/24 02:19:26 $
+$Author: lionelta $
+
+Description: Class to return list of DMX superusers
+
+Author: Kevin Lim Khai - Wern
+
+Copyright (c) Altera Corporation 2016
+All rights reserved.
+'''
+
+from builtins import object
+import os
+import re
+import logging
+import sys
+import datetime
+import time
+
+LIB = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
+sys.path.insert(0, LIB)
+
+import dmx.utillib.utils
+import dmx.abnrlib.icm
+import dmx.utillib.diskutils
+
+class GitError(Exception): pass
+
+class Git(object):
+    '''
+    API that starts with git_* are git native commands, eg:-
+    - git_add
+    - git_clone
+    - git_commit
+    - git_addtag
+    '''
+    def __init__(self, preview=False):
+        self.icm = dmx.abnrlib.icm.ICManageCLI()
+        self.repopath = None
+        self.logger = logging.getLogger(__name__)
+
+    def git_clone(self, srcpath, dstpath, tagname=None, server=None):
+        ''' git clone <srcpath> <dstpath> 
+
+        if tagname is given, git clone will be based on a given tag.
+        '''
+        if server:
+            srcpath = '{}:{}'.format(server, srcpath)
+        if tagname:
+            cmd = 'git clone --depth 1 --branch {} {} {}'.format(tagname, srcpath, dstpath)
+        else:
+            cmd = 'git clone {} {}'.format(srcpath, dstpath)
+        exitcode, stdout, stderr = self.__runcmd(cmd)
+        if exitcode:
+            raise Exception("FAILED: {}".format(cmd))
+        return 0
+
+    def rsync_data_from_icm_to_git(self, srcpath, dstpath):
+        ''' rsync content from srcdir -> dstdir 
+
+        This API is customized to specific need. 
+        It rsyncs everything from 
+        - srcpath (which is an icm-wsroot/ip/cthfe/)
+        - dstpath (which is a git-wsroot/
+        '''
+        srcdir = os.path.realpath(srcpath)
+        dstdir = os.path.realpath(dstpath)
+        cmd = """ rsync -avxzl --delete --exclude=.git --exclude='.icm*'  {}/   {}/ """.format(srcdir, dstdir)
+        self.__runcmd(cmd)
+
+    def git_add(self, filespec='.'):
+        cmd = 'git add {}'.format(filespec)
+        exitcode, stdout, stderr = self.__runcmd(cmd)
+        if exitcode:
+            raise Exception("FAILED: {}".format(cmd))
+        return 0
+
+    def git_commit(self, msg='by dmx git.py'):
+        cmd = """git commit -m {}""".format(dmx.utillib.utils.quotify(msg))
+        exitcode, stdout, stderr = self.__runcmd(cmd)
+        if exitcode:
+            raise Exception("FAILED: {}".format(cmd))
+        return 0
+
+    def git_addtag(self, tagname, msg='by dmx git.py'):
+        cmd = """git tag -a {} -m {}""".format(dmx.utillib.utils.quotify(tagname), dmx.utillib.utils.quotify(msg))
+        exitcode, stdout, stderr = self.__runcmd(cmd)
+        if exitcode:
+            raise Exception("FAILED: {}".format(cmd))
+        return 0
+
+    def get_release_git_repo_path(self, project, variant, libtype, release, stepping='a0'):
+        ''' Return the fullpath to release git repo.
+        '''
+        library = self.icm.get_library_from_release(project, variant, libtype, release)
+        masterpath = self.get_master_git_repo_path(project=project, variant=variant, libtype=libtype, library=library)
+        psgreltag, gkreltag, turnintag = self.get_reltag_mapping(masterpath, release)
+        return self.locate_fullpath_of_gatekeeper_release_git_repo(gkreltag)
+
+
+    def get_pvll_from_git_repo_name(self, reponame):
+        '''
+        reponame could be 2 possibilities:-
+        - L123456-a0            - this is from GK git repo (psg.git.001)
+        - L123456-a0-22ww40a    - this is from GK release (psg.mod.001)
+        '''
+        sname = reponame.split('-')
+        if len(sname) == 2:
+            libraryId = sname[0]
+            gkreltag = ''
+        else:
+            libraryId = sname[0]
+            gkreltag = sname[2]
+
+        self.logger.debug("\nlibraryId: {}\ngkreltag: {}".format(libraryId, gkreltag))
+
+        pvll = self.get_pvll_from_id(libraryId)
+        self.logger.debug("PVLL: {}".format(pvll))
+
+        ret = [pvll['project:parent:name'], pvll['variant:parent:name'], pvll['libtype:parent:name'], pvll['name']]
+        if gkreltag:
+            repopath = self.locate_fullpath_of_gatekeeper_release_git_repo(gkreltag)
+            (psgreltag, gkreltag, turnintag) = self.get_reltag_mapping(repopath, reponame)
+            ret[-1] = psgreltag
+        return ret
+
+    def get_equivalent_tags(self, repopath, tag):
+        ''' Given a tag, return all the equivale tags 
+        `tag` can be tags, or md5sum
+        if it is md5sum, it needs to be the complete md5sum.
+
+        retlist = [checksum, tag1, tag2, ...]
+        '''
+        cmd = """ git ls-remote --tags {} """.format(repopath)
+        exitcode, stdout, stderr = self.__runcmd(cmd)
+        if exitcode:
+            raise Exception("FAILED: {}".format(cmd))
+
+        '''
+        >git ls-remote --tags /nfs/site/disks/psg.mod.001/GK4/release/liotest5/liotest5-a0-23ww21a
+        f4305b6635944668caeb4ace407df25f8b1f1280        refs/tags/liotest5-a0-23ww21a
+        3ef1fa2a09f32ed35bd605e482d7e3acbc862fa6        refs/tags/liotest5-a0-23ww21a^{}
+        57d0e7906a2d161b380290b5433b64cbcf699c5d        refs/tags/psg_turnin387
+        3ef1fa2a09f32ed35bd605e482d7e3acbc862fa6        refs/tags/psg_turnin387^{}
+        '''
+        ### Search for matching md5sum first
+        match = re.search('^({})\s+'.format(tag) ,stdout, re.MULTILINE)
+        if match:
+            md5 = match.group(1)
+        else:
+            md5 = None
+
+        ### Couldn't find matching `tag` based on checksum,
+        ### so seems like the `tag` is a tagname. Lets try to match
+        if not md5:
+            match = re.search('(\S+)\s+refs/tags/{}'.format(tag) + '\^{}', stdout)
+            if not match:
+                raise Exception("Could not find tag: {} from remote: {}".format(tag, repopath))
+            md5 = match.group(1)
+        
+        retlist = [md5]
+       
+        ### Now that we have found the md5, let's find all the matching tags
+        matches = re.findall('^{}\s+refs/tags/'.format(md5) + '(.+)\^{}' ,stdout, re.MULTILINE)
+        if matches:
+            retlist += matches
+        return retlist
+ 
+
+    def get_reltag_mapping(self, repopath, reltag):
+        '''
+        During a successful 'dmx release', when the content is bring pushed to git_repo by gatekeeper, 
+        2 tags will be created, 
+        - tag created by gatekeeper == L7371246-a0-22ww40c)
+        - tag created by dmx        == REL1.0KMTRrevA0__22ww123a
+        - tag from turnin           == psg_turnin123
+
+        Given either one of the release name, this api returns a tuple, 
+            (PSG_REL_NAME, gatekeeper_rel_name, turnin_name), eg:-
+            (REL1.0KMTRrevA0__22ww123a, L7371246-a0-22ww40c, psg_turnin123)
+        '''
+        cmd = """ git ls-remote --tags {} """.format(repopath)
+        exitcode, stdout, stderr = self.__runcmd(cmd)
+        if exitcode:
+            raise Exception("FAILED: {}".format(cmd))
+
+        ### Find the md5sum for the REL tag (ie: REL1.0KMTRrevA0__22ww123a)
+        match = re.search('(\S+)\s+refs/tags/{}'.format(reltag) + '\^{}', stdout)
+        if not match:
+            raise Exception("Could not find release tag: {} from remote: {}".format(reltag, repopath))
+        md5 = match.group(1)
+
+        info = {
+            'gk': {
+                'searchtext': 'L\d+.+',
+                'reltag': None
+            },
+            'psg': {
+                'searchtext': 'REL.+',
+                'reltag': None
+            },
+            'turnin': {
+                'searchtext': 'psg_turnin.+',
+                'reltag': None
+            }
+        }
+
+        for cat in info:
+            match = re.search('{}\s+refs/tags/({})'.format(md5, info[cat]['searchtext']) + '\^{}', stdout)
+            if not match:
+                self.logger.warning("Could not find gatekeeper's matching release tag for REL: {} from remote: {}".format(reltag, repopath))
+            else:
+                info[cat]['reltag'] = match.group(1)
+        
+        self.logger.debug(info)
+        return (info['psg']['reltag'], info['gk']['reltag'], info['turnin']['reltag'])
+
+
+    def locate_fullpath_of_gatekeeper_release_git_repo(self, gkreltag):
+        ''' gkreltag == L123456-a0-22ww40a  '''
+        reldir = self.get_git_rel_dir()     # reldir = /nfs/site/disks/psg.mod.000
+        du = dmx.utillib.diskutils.DiskUtils(site='sc')
+        diskdata = du.get_all_disks_data(reldir[:-3])
+        ret = du.find_folder_from_disks_data(diskdata=diskdata, matchpath=gkreltag, diskpostfix='GK4/release', maxdepth=2, mindepth=2)
+        if not ret:
+            raise Exception("Could not find git release repo for {}.".format(gkreltag))
+        return ret
+
+
+    def get_master_git_repo_path(self, idtag=None, project=None, variant=None, libtype=None, library=None, stepping='a0'):
+        ''' Return the fullpath to master git repo.
+        
+        There are 2 ways of using this API:-
+
+        if idtag is given:
+            return $GIT_REPOS/git_repos/$idtag-$stepping
+        else:
+            project, variant, libtype, library must be given.
+            this api will find the respective obj id from the PVLL, and return the path
+        '''
+        if not idtag:
+            idtag = self.get_id_from_pvll(project, variant, libtype, library)
+            if not idtag:
+                raise Exception("Can not find id from PVLL ({}/{}/{}/{})!".format(project, variant, libtype, library))
+        retval = os.path.join(self.get_git_repos_dir(), 'git_repos', '{}-{}'.format(idtag, stepping))
+        return retval
+
+    def get_id_from_pvll(self, project, variant, libtype, library):
+        objpath = '/intel/{}/{}/{}/{}'.format(project, variant, libtype, library)
+        retlist = self.icm._get_objects(objpath, retkeys=['id'])
+        if retlist:
+            return retlist[0]
+        else:
+            return None
+
+    def get_pvll_from_id(self, idtag):
+        objpath = '/id/{}'.format(idtag)
+        retlist = self.icm._get_objects(objpath, retkeys=['project:parent:name', 'variant:parent:name', 'libtype:parent:name', 'name'])
+        if retlist:
+            return retlist[0]
+        else:
+            return None
+
+    def get_git_repos_dir(self):
+        return os.getenv("GIT_REPOS", '/nfs/site/disks/psg.git.001')
+
+    def get_git_rel_dir(self):
+        return os.getenv("IP_MODELS", '/nfs/site/disks/psg.mod.000')
+
+    def git_pull(self, force=False):
+        if not force:
+            cmd = 'git pull'
+            self.__runcmd(cmd)
+        else:
+            cmd = 'git fetch origin master'
+            self.__runcmd(cmd)
+
+            cmd = 'git reset --hard FETCH_HEAD'
+            self.__runcmd(cmd)
+
+            cmd = 'git clean -df'
+            self.__runcmd(cmd)
+
+
+    def __runcmd(self, cmd):
+        exitcode, stdout, stderr = dmx.utillib.utils.run_command(cmd)
+        self.logger.debug("cmd: {}\n- exitcode:{}\n- stdout: {}\n- stderr: {}\n".format(cmd, exitcode, stdout, stderr))
+        return exitcode, stdout, stderr
+
+

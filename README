@@ -1,0 +1,273 @@
+##############################################################
+DMX README
+##############################################################
+
+------------------------
+DMX directory structure
+------------------------
+bin - All binaries that users would see and invoke
+cfg - All cfg files used by dmx
+doc - All documentations for dmx
+lib - All libraries (python, tcl) for dmx
+web - All web related modules for dmx
+scripts - All scripts for dmx (not meant for general usage)
+system_tests - All systemtests for dmx (actual testing with actual data)
+unit_tests - All unittests for dmx (functional testing)
+armor_tests - All armortests for dmx (ICM protect rules testing)
+integration_tests - All integrationtests for dmx (dead-on-arrival testing)
+run_tests.py - Modules to run tests in batch
+setuid_deploy.c - Customized script to allow developer to deploy in PICE easily
+
+--------------------------------------------
+Legacy deployment special customization
+--------------------------------------------
+We are deploying as icetools in legacy. A few groundwork is needed:
+1.  Compile setuid_deploy.c via 'gcc setuid_deploy.c -o deploy_as_icetools'
+2.  Copy deploy_as_icetools to /tools/dmx as icetools
+3.  chmod 4750 deploy_as_icetools
+4.  chmod +s deploy_as_icetools
+
+------------------------------------------
+How to freeze a weekly development branch
+------------------------------------------
+1.  make freeze BRANCH='main_YYwwWW' (For example: main_16ww47)
+
+-----------------
+How to deploy
+-----------------
+1. Ensure that 'version' file has the right version. Note: Use 'VERSION = main' for development releases (dmx/main arc resource).
+2. arc shell  p4/,python/2.7.1,doxygen/,graphviz
+3. Deploy dmx resource:
+    --> If your Intel and Altera user names are the same, run:
+        make deploy
+    --> Else -- this case should no longer be needed as we moved Perforce to Intel.
+        setenv P4CLIENT <client_name>
+        make deploy P4='/p/psg/ctools/perforce/2015.1/linux64/p4 -u <intel_userid> -c <client_name> -p ssl:p4proxy06.devtools.intel.com:6110 '
+
+-------------------------------------------
+How to deploy to a new release version
+-------------------------------------------
+1. arc shell  p4/,python/2.7.1,doxygen/,graphviz
+2. Integrate files from main to targeted release version
+        p4 integrate main/... rel/X.X/...
+3. Submit all files
+        p4 submit rel/X.X/...
+4. Update version in rel/X.X/version
+        p4 edit rel/X.X/version
+        edit 'VERSION =' and 'PREVIOUS_VERSION =' fields
+        p4 submit rel/X.X/version
+5. Deploy
+        make deploy
+6. Don't forget to create the arc resource in both SJ and PG.  If you don't check it in, it won't auto sync to the other site.
+
+--------------------------------------------
+How to create a dmx/dmxdata resource in PICE
+--------------------------------------------
+For dmxdata:
+cd <your_p4_workspace>/devenv/psg_resources/dmxdata
+p4 edit (latest).pm
+cp <latest>.pm <whatyouwillrelease>.pm
+p4 revert <latest>.pm
+p4 edit <whatyouwillrelease>.pm
+p4 submit -d "dmxdata/#.# resource" <whatyouwillrelease>.pm
+cd ../
+./define_resource dmxdata/#.#
+
+For dmx:
+cd <your_p4_workspace>/devenv/psg_resources/dmx
+p4 edit (latest).pm
+cp <latest>.pm <whatyouwillrelease>.pm
+p4 revert <latest>.pm
+p4 edit <whatyouwillrelease>.pm
+p4 submit -d "dmx/#.# resource" <whatyouwillrelease>.pm
+cd ../
+./define_resource dmx/#.#
+
+--------------------
+Test classification
+--------------------
+Unittest - Testing only correctness of functions of modules. Doesn't require actual data, data is mocked
+Systemtests - Testing actual flows of modules. Requires actual data
+Integrationtests - Basic testing that ensures modules can be imported and invoked in user's environment and production environment
+    integrationtest_before_deploy - Testing with user's environment
+    integrationtest_after_deploy - Testing with production environment
+Armortests - Testing the ICM protect rules that governs release, variant creation capability, etc
+
+----------------------
+How to run tests
+----------------------
+Unittest:
+    make unittest
+Systemtest:
+    make systemtest
+Integrationtest:
+    make integrationtest_before_deploy
+    make integrationtest_after_deploy
+Armortest:
+    In PICE:
+    icmp4 -u icmAdmin login -a fmlibrarian
+    icmp4 -u icmAdmin login -a icmtester
+    icmp4 -u icmAdmin login -a icetnr
+    icmp4 -u icmAdmin login -a icmmgr
+    icmp4 -u icmAdmin login -a psginfraadm
+    make armortest            
+
+    In PSGL:
+    icmp4 -u icmAdmin login -a ndintegrator
+    icmp4 -u icmAdmin login -a fmlibrarian
+    icmp4 -u icmAdmin login -a hrvintegrator
+    icmp4 -u icmAdmin login -a icmtester
+    icmp4 -u icmAdmin login -a icetnr
+    icmp4 -u icmAdmin login -a icmmgr
+    make armortest    
+      
+-------------------------
+Dependency on dmxdata
+-------------------------
+DMX depends on data in dmxdata resource. There are 2 versions that matter: main and current
+dmxdata/main is the latest development branch. Every dmx call from main branch (either from user's local workspace or from dmx/main resource) will pull data from dmxdata/main resource
+dmxdata/current is the latest production release. Every dmx call from any branch other than main (either from user's local workspace or from dmx/current (or dmx/X.X) resource) will pull data from dmxdata/current resource
+
+------------------------------
+Softlinks for legacy support
+------------------------------
+1.  dm -> dmx.dmlib
+2.  abnrlib -> dmx.abnrlib
+3.  dmx.dmxlib -> dmx.abnrlib
+
+
+
+
+--------------------------------------------------------------------------
+NOTE: THIS IS NO LONGER NEEDED WITH SLINK/SINSTALL METHOD
+--------------------------------------------
+PICE deployment special customization
+--------------------------------------------
+We are deploying as psgdaadm in PICE. A few groundwork is needed:
+1.  Compile setuid_deploy.c via 'gcc setuid_deploy.c -o deploy_as_psgdaadm'
+2.  Copy deploy_as_psgdaadm to /p/psg/da/infra/admin/setuid as psgdaadm
+3.  chmod 4750 deploy_as_psgdaadm
+4.  chmod +s deploy_as_psgdaadm
+--------------------------------------------------------------------------
+
+
+
+
+--------------------------------------------------------------------------
+POST DEPLOY MANUAL TEST 
+--------------------------------------------------------------------------
+Every time a deploy is made, Lionel has a set of manual tests.
+Here's where he keeps it:-
+    //depot/icd_cad/yltan/misc/makefiles/dmx.makefile
+
+2 targets are ran:-
+    - make -f dmx.makefile test_all
+    - make -f dmx.makefile check_all
+    - make -f dmx.makefile rel_all
+
+test_all:
+---------
+- the purpose of this target is to run a few random checks to make sure that
+    > the 'dmx' cmdline tool works
+    > the env var of PYTHONPATH is set correctly (from the test which imports dmx.* libraries)
+    > other random tests
+- Some targets might not work, becuase it needs a workspace path. eg:-
+    > the workspacecreate: target, which creates a workspace at a given path.
+
+check_all:
+----------
+- the purpose of this target is to make sure 'dmx workspace check' works
+
+rel_all:
+--------
+- the purpose of this target is to make sure 'dmx release' works
+- the configurations provided to these rel_* targets are crafted in a way so that it works (and pass) for these tests
+    > PLEASE DO NOT MODIFY THESE CONFIGURATIONS !
+- after running this targets, you should expect to see 8 releases from the release dashboard
+    > http://dashboard.altera.com:8080/en-US/app/tnr/main?form.project=i10socfm&form.user=*&form.variant=liotest1&form.libtype=*&earliest=0&latest=
+
+--------------------------------------------------------------------------
+
+
+
+--------------------------------------------------------------------------
+HOW TO DEPLOY dmx_setting_files (release_ver_map.json)
+--------------------------------------------------------------------------
+- make appropriate changes to main/dmx_setting_files/release_ver_map.json
+- check in
+- cd into <loacl>/da/infra/dmx/main
+- slink     --category flows/common --toolname dmx --sandbox dmx_setting_files --name dmx_release_ver_map
+- sinstall  --category flows/common --toolname dmx --ver dmx_setting_files  --name dmx_release_ver_map --override
+
+--------------------------------------------------------------------------
+HOW TO TEST locally from a workspace or main
+--------------------------------------------------------------------------
+Example from Lionel:
+
+This is my perforce workspace:-
+/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main
+
+If I do this:-
+$ arc shell project/falcon/blablabla
+$ cd /nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main/bin
+$ ./dmx.py help
+
+Then all the modules that are picked up are actually from my local.
+
+
+Continuing from here, we can even make our own dmxdata for testing purposes.
+If I want to test my own dmxdata, I can do this:-
+cp -rf nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmxdata/main/data $HOME/mydata
+setenv DMXDATA_ROOT $HOME/mydata
+
+… and now, you can go ahead and change the data at $HOME/mydata to get it reflected in your run.
+
+Testing on ‘dmx release’ is a bit different, as the release job is sent to the backend release system, and as such, this requires the codes to be released to the official site as main, ie:-
+     /p/psg/flows/common/dmx/main
+     /p/psg/flows/common/dmxdata/main
+
+Once the codes are deployed, we can then test this with the following:-
+$ arc shell project/falcon/blablabla,dmx/main,dmxdata/main
+$ dmx release blablabla …
+
+--------------------------------------------------------------------------
+HOW TO TEST locally by creating an arc resource
+--------------------------------------------------------------------------
+Adjust and paste the example commands into your terminal to create your resource:
+
+Example 1:
+arc resource-new dev/dmx/sion_test \
+    +PATH=/nfs/site/disks/da_scratch_1/users/nbaklits/workspace/da/infra/dmx/rel/sion_test/bin \
+    +PYTHONPATH=/nfs/site/disks/da_scratch_1/users/nbaklits/workspace/da/infra/dmx/rel/sion_test/lib/python:/nfs/site/disks/da_scratch_1/users/nbaklits/workspace/da/infra/dmx/rel/sion_test/lib/python/dmx/tnrlib \
+    IPQC_ROOT=/nfs/site/disks/da_scratch_1/users/nbaklits/workspace/da/infra/dmx/rel/sion_test \
+    DMX_ROOT=/nfs/site/disks/da_scratch_1/users/nbaklits/workspace/da/infra/dmx/rel/sion_test \
+    DMXDATA_ROOT=/p/psg/flows/common/dmxdata/current
+
+Example 2:
+arc resource-new dev/srabadan/dmxmain \
+    +PATH=/p/psg/data/srabadan/p4root/da/infra/dmx/main/bin \
+    +PYTHONPATH=/p/psg/data/srabadan/p4root/da/infra/dmx/main/lib/python:/p/psg/data/srabadan/p4root/da/infra/dmx/main/lib/python/dmx/tnrlib \
+    IPQC_ROOT=/p/psg/data/srabadan/p4root/da/infra/dmx/main \
+    DMX_ROOT=/p/psg/data/srabadan/p4root/da/infra/dmx/main \
+    DMXDATA_ROOT=/p/psg/data/srabadan/p4root/da/infra/dmxdata/main
+
+You can edit and check in the data in the p4 branch that your path is pointing to to test your changes.
+
+NOTE: For above, you must use the following naming convention for the arc resource (line 1 of examples):
+arc resource-new dev/dmx/<resource_name> \
+
+Likewise, for dmxdata resource you can use the following:
+arc resource-new dev/dmxdata/<resource_name> \
+
+You can view the created arc resources under dev here: https://psg-sc-arc.sc.intel.com/arc/dashboard/reports/show_dev_resources
+
+---------------------------------
+Updating dmxdata/current softlink
+---------------------------------
+DO NOT SIMPLY UPDATE THE SOFTLINK WITHOUT CONSULTING THE TEAMMEMBER.
+It should match what is in the project bundle(s)
+arc shell <latest project bundle>
+dmx/current softlink will point to the latest documentation
+To update the softlink:
+1.  make updatelink VER=<VER>
+

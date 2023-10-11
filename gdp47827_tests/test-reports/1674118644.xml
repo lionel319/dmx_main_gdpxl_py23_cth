@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?><testsuite name="nosetests" tests="1" errors="0" failures="0" skip="0"><testcase classname="test_cmx_size.TestDmxSize" name="test_003___mutable_deliverable" time="9.748"><system-out><![CDATA[exitcode:0
+stdout:Raton_Mesa/rtmliotest1:ipspec@dev[] - Size : 94 File : 4
+Total size : 94, total file : 4
+
+stderr:INFO: DMX-id: dmx_lionelta_20230119_scc919046_10146_sc
+
+
+]]></system-out></testcase></testsuite>

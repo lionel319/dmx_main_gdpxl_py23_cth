@@ -1,0 +1,234 @@
+#!/usr/bin/env python
+# $Header: //depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/tnrlib/dashboard_query_es.py#2 $
+# $DateTime: 2023/06/12 03:54:09 $
+# $Author: lionelta $
+
+"""
+Interfacing module that queries for TNR waived errors from ELK Dashboard.
+"""
+from __future__ import print_function
+
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
+import logging
+import sys
+import os
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
+import base64
+import json
+import ssl
+
+rootdir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, rootdir)
+
+import dmx.abnrlib.config_factory
+
+logger = logging.getLogger(__name__)
+
+
+class DashboardQueryEs(object):
+    """ """
+
+    def __init__(self, userid, password, host='elkprdes1.intel.com', port='3602'):
+        """
+        You must provide a valid Splunk userid and password.
+        """
+
+        
+        self.host = host
+        self.port = port
+        #self.address = 'https://{}:{}/psgtnr-pice-20*/_search?size=10000'.format(self.host, self.port)
+        self.address = 'https://{}:{}/psgtnr-pice-000*/_search?size=10000'.format(self.host, self.port)
+        logger.debug("Address:{}".format(self.address))
+
+        logger.debug("Initializing DashboardQueryEs instance...")
+        self.username = userid
+        self.password = password
+        self.token = base64.b64encode(str.encode('{}:{}'.format(self.username, self.password)))
+        self.token = self.token.decode()
+        logger.debug("Token:{}".format(self.token))
+    
+    
+
+        ''' Keeping these for future reference
+
+        query1 = 'psgtnr-pice-20*/_search?q=user:lionelta'
+        query2 = 'psgtnr-pice-20*/_search?size=10000&q=abnr_release_id:ppglif0102_jkiu_127011_1552222436'
+        query3 = 'psgtnr-pice-20*/_search?size=10000&q=elkrelconfig:REL4.0FM6revA0--PHYS_IO_PHASE2__19ww114a%20AND%20libtype:None%20project:i10socfm%20variant:iossm'
+        query4 = 'psgtnr-pice-20*/_search?size=10000'
+        '''
+
+
+    def run_query(self, query='', data=None):
+        """
+
+        """
+        queryurl = self.address + query
+        headers = {
+            "Authorization": "Basic {}".format(self.token),
+            "Content-Type": "application/json"
+        }
+        datajson = json.dumps(data).encode('utf-8')
+        logger.debug("Running query: {}, Data: {}, Headers: {}".format(queryurl, datajson, headers))
+      
+        scontext = ssl.SSLContext(ssl.PROTOCOL_TLS)
+        scontext = ssl._create_unverified_context()
+      
+        req = urllib.request.Request(queryurl, datajson, headers)
+        res = urllib.request.urlopen(req, context=scontext)
+        output = json.loads(res.read())
+        logger.debug("Response:{}".format(json.dumps(output, indent=2, sort_keys=True)))
+
+        return output
+
+
+    def get_release_id_from_pvlc(self, project, variant, libtype, config):
+        ''' '''
+        query = ''
+        data = {
+            'query': {
+                'constant_score': {
+                    'filter': {
+                        'bool': {
+                            'must': [
+                                {'match': {"project": {
+                                    "query": project,
+                                    "minimum_should_match": "100%"
+                                }}},
+                                {'match': {"variant": {
+                                    "query": variant,
+                                    "minimum_should_match": "100%"
+                                }}},
+                                {'match': {"libtype": {
+                                    "query": libtype,
+                                    "minimum_should_match": "100%"
+                                }}},
+                                {'match': {"elkrelconfig": {
+                                    "query": config,
+                                    "minimum_should_match": "100%"
+                                }}},
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+        res = self.run_query(query=query, data=data)
+
+        try:
+            return res['hits']['hits'][0]['_source']['abnr_release_id']
+        except Exception as e:
+            logger.error(str(e))
+            return ''
+
+
+    def get_waived_errors_from_pvlc(self, project, variant, libtype, config, with_topcell=False):
+        ''' 
+        | Returns all the waived errors for a given ``project, variant, libtype, config``.
+        | Specify ``libtype="None"`` if you are looking for a variant's waived errors.
+        | The variant level waived errors only returns the waived-errors during the variant release.
+        | It does not return the waived-errors for all the libtypes/variants within the given variant.
+        | If you need a complete full list of all the waived-errors of the variants and libtypes for a given pvc,
+        | then you need to list out all the variants and libtypes of each of them, greb the waived for each of those,
+        | and concatenate them together.
+        |
+        | Returns a list of dictionaries, eg::
+
+            retlist == [
+                [project variant flow-libtype RelConfig releaser flow subflow waiver-creator waiver-reason error],
+                ... ... ...
+            ]
+
+        Usage example::
+            
+            d = DashboardQueryEs('prdls_psgtnr', 'qr12R8Fs033%Y5')
+            p = 'i10socfm'
+            v = 'iossm'
+            l = 'None'
+            c = 'REL4.0FM6revA0--PHYS_IO_PHASE2__19ww114a'
+            waivers = d.get_waived_errors_from_pvlc(p, v, l, c)
+            print "waivers:{}".format(json.dumps(waivers, indent=2, sort_keys=True)) 
+
+        '''
+        rid = self.get_release_id_from_pvlc(project, variant, libtype, config)
+
+
+        data = {
+            'query': {
+                'constant_score': {
+                    'filter': {
+                        'bool': {
+                            'must': [
+                                {'match': {"abnr_release_id": {
+                                    "query": rid,
+                                    "minimum_should_match": "100%"
+                                }}},
+                                {'match': {"status": {
+                                    "query": 'waived',
+                                    "minimum_should_match": "100%"
+                                }}}
+                            ]
+                        }
+                    }
+                }
+            },
+            'sort': [
+                {'abnr_release_id': 'asc'}
+            ]
+        }
+
+
+
+
+        ''' ###################################################################
+        As each query can only return a max of 10000 hits, we need to use the 
+        search_after feature to keep looping thru until the returned hit count is 0.
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html#request-body-search-search-after
+        '''
+        finalhits = []
+        while True:
+            res = self.run_query(query='', data=data)
+ 
+            ### meaning no more hits, 
+            hitcount = len(res['hits']['hits'])
+            if not hitcount:
+                break
+
+            finalhits += res['hits']['hits']
+            data['search_after'] = finalhits[-1]['sort']
+
+
+        retlist = []
+        try:
+            for element in finalhits:
+                e = element['_source']
+
+                retlist.append([e['project'], e['variant'], e['libtype'], e['flow-topcell'],  
+                    e['flow-libtype'], e['user'], e['flow'], e['subflow'], e['waiver-creator'], 
+                    e['waiver-reason'], e['error']]
+                )
+        except Exception as e:
+            logger.error(str(e))
+
+        return retlist
+
+       
+
+
+if __name__ == '__main__':
+    logging.basicConfig(format='[%(asctime)s] - %(levelname)s-[%(module)s]: %(message)s', level=logging.DEBUG)
+
+
+    ### Usage Example:-
+    d = DashboardQueryEs('username', 'password')
+    p = 'i10socfm'
+    v = 'iossm'
+    l = 'None'
+    c = 'REL4.0FM6revA0--PHYS_IO_PHASE2__19ww114a'
+    waivers = d.get_waived_errors_from_pvlc(p, v, l, c)
+    print("waivers:{}".format(json.dumps(waivers, indent=2, sort_keys=True))) 
+
+

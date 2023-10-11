@@ -1,0 +1,78 @@
+#!/usr/bin/env python
+# 2014 Altera Corporation. All rights reserved. This source code is highly
+# confidential and proprietary information of Altera and is to be used for
+# internal Altera purposes only.   Altera assumes no responsibility or
+# liability arising out of the application or use of this source code for
+# non-Altera purposes.
+#
+# Tests the abnr icm library
+#
+# $File: //depot/da/infra/dmx/main_gdpxl_py23_cth/gdp47827_tests/utillib/test_gkutils.py $
+# $Revision: #2 $
+# $Change: 7593512 $
+# $DateTime: 2023/05/01 18:43:46 $
+# $Author: lionelta $
+
+import unittest
+import inspect
+import os
+import sys
+import re
+import logging
+from mock import patch
+
+LIB = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))), 'lib', 'python')
+sys.path.insert(0, LIB)
+import dmx.utillib.contextmgr
+import dmx.utillib.gkutils
+
+
+class TestGkUtils(unittest.TestCase):
+    def setUp(self):
+        self.gu = dmx.utillib.gkutils.GkUtils()
+        self.cfgdir = '/p/hdk/pu_tu/prd/gatekeeper_configs/psg/latest'
+
+    def test_010___get_gk_cfg_dir___env_var_not_set(self):
+        ret = self.gu.get_gk_cfg_dir()
+        #self.assertEqual(ret, '/nfs/site/disks/.crt_linktree_1/cheetah_flow/gatekeeper_configs/psg/latest')
+        self.assertEqual(ret, self.cfgdir)
+
+    def test_011___get_gk_cfg_dir___env_var_set(self):
+        with dmx.utillib.contextmgr.setenv({"GK_CONFIG_DIR": "/a/b/c"}):
+            ret = self.gu.get_gk_cfg_dir()
+            self.assertEqual(ret, '/a/b/c')
+
+    def test_030___get_gktuil_cfg_file___default(self):
+        ret = self.gu.get_gkutil_cfg_file(thread=None, milestone=None)
+        ans = '/nfs/site/disks/.crt_linktree_1/cheetah_flow/gatekeeper_configs/psg/latest/cfg/gk/GkUtils.cfg'
+        ans = '{}/cfg/gk/GkUtils.cfg'.format(self.cfgdir)
+        self.assertEqual(ret, ans)
+
+    def test_031___get_gktuil_cfg_file___with_thread_milestone(self):
+        ret = self.gu.get_gkutil_cfg_file(thread='KMTRrevA0', milestone='1.0')
+        ans = '/nfs/site/disks/.crt_linktree_1/cheetah_flow/gatekeeper_configs/psg/latest/cfg/gk/GkUtils.KMTRrevA0.1.0.cfg'
+        ans = '{}/cfg/gk/GkUtils.KMTRrevA0.1.0.cfg'.format(self.cfgdir)
+        self.assertEqual(ret, ans)
+
+    def test_040___prepare_turnin_run_for_icm___invalid_pvll(self):
+        with self.assertRaisesRegexp(Exception, 'Invalid project/variant/libtype/library'):
+            self.gu.prepare_turnin_run_for_icm('wsroot', 'p', 'v', 'l', 'll')
+
+    @patch("dmx.utillib.git.Git.get_id_from_pvll")
+    def test_041___prepare_turnin_run_for_icm___invalid_srcdir(self, mocka):
+        mocka.return_value = True
+        with self.assertRaisesRegexp(Exception, 'Source folder not found:'):
+            self.gu.prepare_turnin_run_for_icm('xxxxwsrootxxxx', 'p', 'v', 'l', 'll')
+
+    @patch("dmx.utillib.git.Git.get_id_from_pvll")
+    @patch("os.path.isdir")
+    def test_042___prepare_turnin_run_for_icm___invalid_cfgfile(self, mocka, mockb):
+        mocka = True
+        mockb = True
+        with self.assertRaisesRegexp(Exception, 'Can not find GkUtil cfg file'):
+            self.gu.prepare_turnin_run_for_icm('wsroot', 'da_i18a', 'dai18aliotest1', 'cthfe', 'dev', 'thread', 'milestone')
+
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG)
+    unittest.main()

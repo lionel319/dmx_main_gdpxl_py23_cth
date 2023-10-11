@@ -1,0 +1,3 @@
+#Modified manually for owner when releasing new version of DMX
+VERSION = main_gdpxl_py23
+PREVIOUS_VERSION = 0.0

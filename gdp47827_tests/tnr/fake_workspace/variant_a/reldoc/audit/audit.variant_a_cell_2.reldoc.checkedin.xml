@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<audit>
+  <environment arc_job_id="5007421" arc_resources="No resources logged during testing." configuration="Not_a_real_configuration" dmx_version="main" dmxdata_version="8.0" machine="ppgyli0004.png.intel.com" open_files="" run_date="2017-10-25 12:52:56.909043" user="lionelta" workspace="Not_a_real_workspace"/>
+  <flow arc_job_id="" audit_log_initialized="2017-10-25 12:52:56.910178" audit_log_saved="2017-10-25 12:52:57.004030" cmdline="cmdline" libtype="reldoc" lsf_job_id="" name="reldoc" run_dir="run_dir" subflow="" subtest="" topcell="variant_a_cell_2" variant="variant_a"/>
+  <files>
+    <file checksum="bcc46e175f9974295f7eeeed3fc23fd1" file_path="variant_a/ipspec/cell_names.txt" filter="" have_revision="-1" rcs_disable=""/>
+    <file checksum="bcc46e175f9974295f7eeeed3fc23fd1" file_path="variant_a/ipspec/no_such_file" filter="" have_revision="-1" rcs_disable=""/>
+  </files>
+  <results>
+    <result failure="pass" severity="error" text="first pass result"/>
+    <result failure="fail" severity="error" text="failed result"/>
+  </results>
+  <data>
+    <record tag="myname" text="lionel"/>
+    <record tag="myage" text="28"/>
+  </data>
+</audit>

@@ -1,0 +1,3 @@
+setenv TV_PROJECT ltm
+setenv P4CONFIG .icmconfig
+setenv P4PORT scylicm.sc.intel.com:1666

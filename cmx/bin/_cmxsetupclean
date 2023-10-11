@@ -1,0 +1,63 @@
+#!/bin/tcsh -f
+
+set realpath = `realpath $0`
+set bindir = `dirname $realpath`
+set rootdir = `cd $bindir/.. && pwd`
+
+#### These are all ICM related environments
+setenv P4PORT scylicm.sc.intel.com:1666
+setenv P4CONFIG .icmconfig
+setenv ICMADMIN_ROOT  /p/psg/flows/common/icmadmin/gdpxl/1.2
+setenv PSG_ICM_HOME  ${ICMADMIN_ROOT}/icm_home
+setenv DMX_GDPSITE  intel
+setenv DISABLE_DAEMON_JS  1
+setenv GDP_HOME  /p/psg/eda/icmanage/gdpxl/47827/linux64
+setenv ICM_HOME  /p/psg/eda/icmanage/gdpxl/47827/linux64
+setenv CDS_GDM_SHLIB_LOCATION  ${GDP_HOME}/gdm.lnx86-64
+setenv ICM_GDP_SERVER  http://scylicm.sc.intel.com:5000
+setenv ICM_SkillRoot  ${GDP_HOME}/
+setenv XLP4  ${ICM_HOME}/bin/xlp4
+
+if ($?LB_LIBRARY_PATH) then
+    setenv LD_LIBRARY_PATH /p/psg/eda/icmanage/gdpxl/47827/linux64/gdm.lnx86-64:$LD_LIBRARY_PATH
+else
+    setenv LD_LIBRARY_PATH /p/psg/eda/icmanage/gdpxl/47827/linux64/gdm.lnx86-64
+endif
+
+if ($?PYTHONPATH) then
+    setenv PYTHONPATH /p/psg/flows/common/icmadmin/gdpxl/1.2/lib:$PYTHONPATH
+else
+    setenv PYTHONPATH /p/psg/flows/common/icmadmin/gdpxl/1.2/lib
+endif
+
+if ($?PATH) then
+    setenv PATH ${bindir}:/p/psg/flows/common/icmadmin/gdpxl/1.2/bin:/p/psg/eda/icmanage/gdpxl/47827/linux64/bin:$PATH
+else
+    setenv PATH ${bindir}:/p/psg/flows/common/icmadmin/gdpxl/1.2/bin:/p/psg/eda/icmanage/gdpxl/47827/linux64/bin
+    
+endif
+
+############################################################
+### These env vars are to be defined so that if the user is not in any cth_psetup environment
+### dmx will still work with the bare minimum functionality.
+if (! ($?DMXDATA_ROOT) ) then
+    setenv DMXDATA_ROOT /p/psg/flows/common/dmxdata/latestdev
+endif
+if (! ($?DB_FAMILY) ) then
+    setenv DB_FAMILY Km
+endif
+if (! ($?DB_THREAD) ) then
+    setenv DB_THREAD KM2revA0
+endif
+if (! ($?DB_DEVICE) ) then
+    setenv DB_DEVICE KM2
+endif
+if (! ($?DMX_POSTHOOK_DIR) ) then
+    setenv DMX_POSTHOOK_DIR /p/cth/cad/dmx/latestdev/cmx/DMX_RELEASE_POSTHOOK
+endif
+if (! ($?DMX_SETTING_FILES_DIR) ) then
+    setenv DMX_SETTING_FILES_DIR /p/psg/flows/common/dmx/dmx_setting_files
+endif
+############################################################
+
+$argv:q

@@ -1,0 +1,83 @@
+#!/usr/bin/env python
+'''
+$Header: //depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/plugins/bomvalidate.py#1 $
+$Change: 7463577 $
+$DateTime: 2023/01/31 01:08:26 $
+$Author: lionelta $
+
+Description: plugin for "dmx clonehier"
+
+Author: Rudy Albachten
+Copyright (c) Altera Corporation 2012
+All rights reserved.
+'''
+from __future__ import print_function
+import logging
+import textwrap
+import sys
+import itertools
+from pprint import pprint
+
+from cmx.abnrlib.command import Command
+from cmx.utillib.utils import add_common_args, dispatch_cmd_to_other_tool, get_old_dmx_exe_from_folder 
+
+class BomValidateError(Exception): pass
+
+class BomValidate(Command):
+    @classmethod
+    def get_help(cls):
+        '''one-dine description for "dmx help"'''
+        myhelp = '''\
+            Check for conflicting boms hierarchically.
+            '''
+        return textwrap.dedent(myhelp)
+
+    @classmethod
+    def add_args(cls, parser):
+        '''set up argument parser for "dmx bom validate" subcommand'''
+        add_common_args(parser)
+        parser.add_argument('-p', '--project', metavar='project', required=False, default=None)
+        parser.add_argument('-i', '--ip', metavar='ip', required=True)
+        parser.add_argument('-b', '--bom',  metavar='bom', required=True)
+        parser.add_argument('-s', '--syncpoint', metavar='syncpoint', required=False,
+                            action='append', nargs='+',
+                            help='Syncpoint(s) to use when validating the bom.')
+
+    @classmethod
+    def extra_help(cls):
+        '''extra narrative for dmx help bom validate'''
+        extra_help = '''\
+            "bom validate" validates a BOM and reports any ips that
+            are referenced with different bom names from different parent boms.
+
+            The standard options ("-p/--project", "-i/--ip", and "-b/--bom") are 
+            required to specify the root of a bom to validate.
+
+            To validate a bom against a syncpoint use the --syncpoint option with
+            a syncpoint name as the argument. Multiple syncpoints can be specified 
+            using a space delimited list of syncpoint names, or by specifying the 
+            --syncpoint option multiple times.
+            
+            Example
+            =======
+            $ dmx bom validate -p project1 -i zz1 -b test1
+            INFO: Project=project1 IP=zz1 BOM=test1
+            ERROR: Multiple boms of project1 zz4 found:
+            ERROR:   project1/zz4/test1 called from project1/zz3/test1
+            ERROR:   project1/zz4/dev called from project1/zz1/test1
+
+            * In this example, the test1 bom of zz3 references the test1
+              bom of zz4, but the test1 bom of zz1 references the dev bom of zz4.
+            * it turns out that in this example, the 2 competing boms of zz4 are 
+              exactly equivalent, so in some usages this would not be an issue, 
+              but it can create issues for some commands and the 2 boms might 
+              "drift" apart (in which case it would be an issue for almost any usage).
+
+            $ dmx bom validate -p i10socfm -i cw_lib -b dev
+            INFO: No issues found        
+        '''
+        return textwrap.dedent(extra_help)
+
+    @classmethod
+    def command(cls, args):
+        return dispatch_cmd_to_other_tool(get_old_dmx_exe_from_folder('plugins'), sys.argv)

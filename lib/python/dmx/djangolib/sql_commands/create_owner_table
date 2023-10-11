@@ -1,0 +1,9 @@
+CREATE TABLE owners (
+    id INT NOT NULL AUTO_INCREMENT,
+    datetime DATETIME NOT NULL,
+    project VARCHAR(250) NOT NULL,
+    variant VARCHAR(250) NOT NULL,
+    owner VARCHAR(20) NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    PRIMARY KEY ( id )
+);

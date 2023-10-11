@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?><testsuite name="nosetests" tests="8" errors="1" failures="0" skip="0"><testcase classname="test_derivebom.TestDeriveBom" name="test_001___get_normalized_config__exact_is_false_bom_is_mutable" time="0.000"></testcase><testcase classname="test_derivebom.TestDeriveBom" name="test_002___get_normalized_config__exact_is_false_bom_is_rel" time="0.000"></testcase><testcase classname="test_derivebom.TestDeriveBom" name="test_003___get_normalized_config__exact_is_false_bom_is_snap" time="0.000"></testcase><testcase classname="test_derivebom.TestDeriveBom" name="test_004___get_normalized_config__exact_is_true_bom_is_mutable" time="0.000"></testcase><testcase classname="test_derivebom.TestDeriveBom" name="test_005___get_normalized_config__exact_is_true_bom_is_rel" time="0.000"></testcase><testcase classname="test_derivebom.TestDeriveBom" name="test_006___get_normalized_config__exact_is_true_bom_is_snap" time="0.000"></testcase><testcase classname="test_dmxmoab.TestFlowDmxMoab" name="test_100___bom_collection_check" time="0.010"><error type="builtins.FileNotFoundError" message="[Errno 2] No such file or directory: 'gdp'&#10;-------------------- &gt;&gt; begin captured logging &lt;&lt; --------------------&#10;cmx.abnrlib.flows.dmxmoab: INFO: /tmp/regtestws&#10;dmx.abnrlib.icm: DEBUG: gdp '--user=icmanage' list '/intel/**/da_i16/kv_cth_ip1/kv_dev:config/.**::content' --columns '*' --output-format json&#10;--------------------- &gt;&gt; end captured logging &lt;&lt; ---------------------"><![CDATA[  File "/usr/intel/pkgs/python3/3.9.6/lib/python3.9/unittest/case.py", line 59, in testPartExecutor
+    yield
+  File "/usr/intel/pkgs/python3/3.9.6/lib/python3.9/unittest/case.py", line 593, in run
+    self._callTestMethod(testMethod)
+  File "/usr/intel/pkgs/python3/3.9.6/lib/python3.9/unittest/case.py", line 550, in _callTestMethod
+    method()
+  File "/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/gdp47827_tests/abnrlib/flows/test_dmxmoab.py", line 53, in test_100___bom_collection_check
+    moab._transform_bom_into_collection()
+  File "/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/dmxmoab.py", line 117, in _transform_bom_into_collection
+    cfobj = ConfigFactory.create_from_icm(self._project, self._ip,
+  File "/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/../../../../../lib/python/dmx/abnrlib/config_factory.py", line 130, in create_from_icm
+    obj = cls.__build_hierarchical_icmconfig(project, variant, config, preview=preview)
+  File "/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/../../../../../lib/python/dmx/abnrlib/config_factory.py", line 177, in __build_hierarchical_icmconfig
+    metadata = cli.get_config_content_details(project, variant, config, hierarchy=True)  # details of each self+children config
+  File "/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/../../../../../lib/python/dmx/abnrlib/icm.py", line 3622, in get_config_content_details
+    ret = self._get_objects('{}/**/{}/{}/{}:config/{}'.format(self.__SITE, project, variant, config, postfix), retkeys=retkeys)
+  File "/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/../../../../../lib/python/dmx/abnrlib/icm.py", line 1656, in _get_objects
+    (exitcode, stdout, stderr) = self.__run_read_command(command)
+  File "/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/../../../../../lib/python/dmx/abnrlib/icm.py", line 681, in __run_read_command
+    return run_read_command(command, stdin=stdin, timeout=timeout)
+  File "/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/../../../../../lib/python/dmx/abnrlib/icm.py", line 264, in __call__
+    value = self.func(*args, **kwargs)
+  File "/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/../../../../../lib/python/dmx/abnrlib/icm.py", line 497, in run_read_command
+    return run_subcommand(command, stdin=stdin, timeout=timeout)
+  File "/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/../../../../../lib/python/dmx/abnrlib/icm.py", line 392, in run_subcommand
+    proc = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env)
+  File "/usr/intel/pkgs/python3/3.9.6/lib/python3.9/subprocess.py", line 951, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/usr/intel/pkgs/python3/3.9.6/lib/python3.9/subprocess.py", line 1821, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+[Errno 2] No such file or directory: 'gdp'
+-------------------- >> begin captured logging << --------------------
+cmx.abnrlib.flows.dmxmoab: INFO: /tmp/regtestws
+dmx.abnrlib.icm: DEBUG: gdp '--user=icmanage' list '/intel/**/da_i16/kv_cth_ip1/kv_dev:config/.**::content' --columns '*' --output-format json
+--------------------- >> end captured logging << ---------------------]]></error></testcase><testcase classname="test_dmxmoab.TestFlowDmxMoab" name="test_101___filelist_collection_check" time="0.000"></testcase></testsuite>

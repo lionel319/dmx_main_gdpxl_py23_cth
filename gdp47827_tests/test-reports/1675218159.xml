@@ -1,0 +1,648 @@
+<?xml version="1.0" encoding="UTF-8"?><testsuite name="nosetests" tests="25" errors="0" failures="1" skip="0"><testcase classname="test_cmx_bom.TestDmxBom" name="test_010___bom_clone___already_exists" time="29.212"><system-out><![CDATA[exitcode:0
+stdout:
+stderr:INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_13946_sc
+INFO: Destination bom : junkeatt2
+ERROR: Cannot clone to Raton_Mesa/rtmliotest1@junkeatt2 - it already exists
+ERROR: DMX has run into errors. For more details on the command, please run 'dmx help bom clone'
+
+
+]]></system-out><system-err><![CDATA[/usr/intel/pkgs/python3/3.9.6/lib/python3.9/subprocess.py:935: RuntimeWarning: line buffering (buffering=1) isn't supported in binary mode, the default buffer size will be used
+  self.stdin = io.open(p2cwrite, 'wb', bufsize)
+/usr/intel/pkgs/python3/3.9.6/lib/python3.9/subprocess.py:941: RuntimeWarning: line buffering (buffering=1) isn't supported in binary mode, the default buffer size will be used
+  self.stdout = io.open(c2pread, 'rb', bufsize)
+/usr/intel/pkgs/python3/3.9.6/lib/python3.9/subprocess.py:946: RuntimeWarning: line buffering (buffering=1) isn't supported in binary mode, the default buffer size will be used
+  self.stderr = io.open(errread, 'rb', bufsize)
+]]></system-err></testcase><testcase classname="test_cmx_bom.TestDmxBom" name="test_011___bom_clone___REL" time="6.229"><system-out><![CDATA[exitcode:0
+stdout:
+stderr:INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_14911_sc
+INFO: Destination bom : RELlionel
+ERROR: RELlionel is an invalid destination BOM name
+ERROR: DMX has run into errors. For more details on the command, please run 'dmx help bom clone'
+
+
+]]></system-out></testcase><testcase classname="test_cmx_bom.TestDmxBom" name="test_011___bom_clone___invalid_ip" time="7.378"><system-out><![CDATA[exitcode:0
+stdout:
+stderr:INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_15203_sc
+INFO: Destination bom : xxxxx
+ERROR: Raton_Mesa/rtmliotest1xxxxx does not exist
+ERROR: DMX has run into errors. For more details on the command, please run 'dmx help bom clone'
+
+
+]]></system-out></testcase><testcase classname="test_cmx_bom.TestDmxBom" name="test_020___bom_create___already_exists" time="7.213"><system-out><![CDATA[exitcode:0
+stdout:
+stderr:INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_15534_sc
+ERROR: Raton_Mesa/rtmliotest1@dev already exists. This command can only be used to build new configurations
+ERROR: DMX has run into errors. For more details on the command, please run 'dmx help bom create'
+
+
+]]></system-out></testcase><testcase classname="test_cmx_bom.TestDmxBom" name="test_021___bom_create___REL" time="8.691"><system-out><![CDATA[exitcode:0
+stdout:
+stderr:INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_15888_sc
+ERROR: You cannot use dmx bom create to create immutable configurations. Use dmx snap/release instead.
+ERROR: DMX has run into errors. For more details on the command, please run 'dmx help bom create'
+
+
+]]></system-out></testcase><testcase classname="test_cmx_bom.TestDmxBom" name="test_022___bom_create___invalid_ip" time="6.845"><system-out><![CDATA[exitcode:0
+stdout:
+stderr:INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_16139_sc
+ERROR: Variant rtmliotest1xxxxx does not exist in project Raton_Mesa
+ERROR: DMX has run into errors. For more details on the command, please run 'dmx help bom create'
+
+
+]]></system-out></testcase><testcase classname="test_cmx_bom.TestDmxBom" name="test_030___bom_delete___bom_does_not_exist" time="51.303"><system-out><![CDATA[exitcode:0
+stdout:
+stderr:INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_16574_sc
+ERROR: Configuration Raton_Mesa/rtmliotest1@xxx123yyy456zzz789 does not exist
+ERROR: DMX has run into errors. For more details on the command, please run 'dmx help bom delete'
+
+
+]]></system-out></testcase><testcase classname="test_cmx_bom.TestDmxBom" name="test_040___bom_edit___cant_modify_immutable" time="5.475"><system-out><![CDATA[exitcode:0
+stdout:
+stderr:INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_18545_sc
+ERROR: You cannot modify an immutable configuration inplace. Please use the --newbom option
+ERROR: DMX has run into errors. For more details on the command, please run 'dmx help bom edit'
+
+
+]]></system-out></testcase><testcase classname="test_cmx_bom.TestDmxBom" name="test_041___bom_edit___does_not_exist" time="11.277"><system-out><![CDATA[exitcode:0
+stdout:
+stderr:INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_18856_sc
+INFO: Building input configuration tree
+ERROR: Failed creating config_factory object for Raton_Mesa/rtmliotest1//xxx123987465. Make sure that object exists in gdpxl.
+ERROR: DMX has run into errors. For more details on the command, please run 'dmx help bom edit'
+
+
+]]></system-out></testcase><testcase classname="test_cmx_bom.TestDmxBom" name="test_050___bom_flatten___does_not_exist" time="26.164"><system-out><![CDATA[exitcode:0
+stdout:
+stderr:INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_19456_sc
+ERROR: Raton_Mesa/rtmliotest1@xxx123987465 does not exist
+ERROR: DMX has run into errors. For more details on the command, please run 'dmx help bom flatten'
+
+
+]]></system-out></testcase><testcase classname="test_cmx_bom.TestDmxBom" name="test_060___bom_latest" time="24.446"><system-out><![CDATA[exitcode:0
+stdout:snap-dev__22ww132a
+
+stderr:INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_20402_sc
+
+
+]]></system-out></testcase><testcase classname="test_cmx_bom.TestDmxBom" name="test_070___bom_parents" time="5.834"><system-out><![CDATA[exitcode:0
+stdout:Raton_Mesa/rtmliotest2@relndev1
+
+stderr:INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_20940_sc
+
+
+]]></system-out></testcase><testcase classname="test_cmx_bom.TestDmxBom" name="test_080___bom_update___does_not_exist" time="10.192"><system-out><![CDATA[exitcode:0
+stdout:
+stderr:INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_21337_sc
+INFO: Checking for any conflicts in Raton_Mesa/rtmliotest1@xxx1230984756 ...
+ERROR: Failed creating config_factory object for Raton_Mesa/rtmliotest1//xxx1230984756. Make sure that object exists in gdpxl.
+ERROR: DMX has run into errors. For more details on the command, please run 'dmx help bom update'
+
+
+]]></system-out></testcase><testcase classname="test_cmx_bom.TestDmxBom" name="test_090___bom_validate___pass" time="15.998"><system-out><![CDATA[exitcode:0
+stdout:No Conflicts.
+
+stderr:INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_21717_sc
+
+
+]]></system-out></testcase><testcase classname="test_cmx_environment.TestDmxEnvironment" name="test_001___dmx_environment___nomail" time="6.226"><system-out><![CDATA[exitcode: 0
+
+stdout: {'Command Run': '/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin/dmx.py '
+                'environment --nomail',
+ 'DB_DEVICE': 'RTM',
+ 'DB_FAMILY': 'Ratonmesa',
+ 'DB_PROCESS': 'i18a',
+ 'DB_PROJECT': 'da_i18a',
+ 'DB_THREAD': 'RTMrevA0',
+ 'DMXDATA_ROOT': '/p/psg/flows/common/dmxdata/14.4',
+ 'DMX_ROOT': '/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth',
+ 'HOSTNAME': 'scc919046.zsc7.intel.com',
+ 'P4CLIENT': 'pice-yltan',
+ 'P4CONFIG': '.icmconfig',
+ 'P4PORT': 'scylicm.sc.intel.com:1666',
+ 'P4USER': None,
+ 'PWD': '/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/gdp47827_tests',
+ 'USER': 'lionelta',
+ '_icmp4 info': {'exit': 127,
+                 'stderr': ['/bin/sh: _icmp4: command not found'],
+                 'stdout': []},
+ 'arc job': {'exit': 1,
+             'stderr': ['Error: No job id passed in and not currently in an '
+                        'ARC shell. ',
+                        "Please use 'arc help job-info' for more details"],
+             'stdout': []},
+ 'cat ~/.p4enviro': {'exit': 0,
+                     'stderr': [],
+                     'stdout': ['P4_sj-perforce:1666_CHARSET=none',
+                                'P4_sjicm01.sc.intel.com:1689_CHARSET=none',
+                                'P4_10.233.69.47:1689_CHARSET=none',
+                                'P4_sj-ice-icm-dev.altera.com:1667_CHARSET=none',
+                                'P4_sjicmdev1.sc.intel.com:1666_CHARSET=none',
+                                'P4_sjicm.sc.intel.com:1666_CHARSET=none',
+                                'P4_sj-perforce-proxy:1998_CHARSET=none',
+                                'P4_ssl:p4proxy17.devtools.intel.com:6110_CHARSET=none',
+                                'P4_ssl:p4proxy06.devtools.intel.com:6110_CHARSET=none',
+                                'P4_ssl:p4proxy-psg-sc.devtools.intel.com:6110_CHARSET=none',
+                                'P4_sjicm.sc.intel.com:1689_CHARSET=none',
+                                'P4_scylicm.sc.intel.com:1666_CHARSET=none',
+                                'P4_p4refchtsce.sync.intel.com:1671_CHARSET=none',
+                                'P4_ssl:p4aibsce.sync.intel.com:3835_CHARSET=none',
+                                'P4_scylicm05.sc.intel.com:1666_CHARSET=none',
+                                'P4_ppgicm.png.intel.com:1666_CHARSET=none']},
+ "env|grep '^DB_'": {'exit': 0,
+                     'stderr': [],
+                     'stdout': ['DB_BLOCK=ylnwp',
+                                'DB_ROOT=/p/hdk/db_root',
+                                'DB_THREAD=RTMrevA0',
+                                'DB_DESIGN_CHECKLIST=/nfs/site/disks/psg_dmx_1/design_checklist/',
+                                'DB_DEVICE=RTM',
+                                'DB_FAMILY=Ratonmesa',
+                                'DB_PROJECT=da_i18a',
+                                'DB_DESIGN_CHECKLIST_CSV=/p/psg/data/psginfraadm/design_checklist/KM5revA0_checklist.csv',
+                                'DB_PROCESS=i18a',
+                                'DB_NETBATCH=km']},
+ "env|grep '^DMX'": {'exit': 0,
+                     'stderr': [],
+                     'stdout': ['DMX_PATH=/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/bin',
+                                'DMX_SETTING_FILES_DIR=/p/psg/flows/common/dmx/dmx_setting_files',
+                                'DMX_TCLLIB=/p/psg/flows/common/icd_cad_tcllib/5/linux64/lib',
+                                'DMXDATA_ROOT=/p/psg/flows/common/dmxdata/14.4',
+                                'DMX_LEGACY=1',
+                                'DMX_TNRLIB=/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/tcl/dmx/tnrlib',
+                                'DMX_LIB=/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python',
+                                'DMX_ROOT=/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth',
+                                'DMX_GDPSITE=intel']},
+ 'groups': {'exit': 0,
+            'stderr': [],
+            'stdout': ['psgknl soc intelall hdk7nm hdk7nmproc psgeng psgfln '
+                       'psgi10 psgwhr psgt16ff psgi10arm psgi7 psgintel '
+                       'psgship i1278']},
+ 'groups $USER': {'exit': 0,
+                  'stderr': [],
+                  'stdout': ['lionelta : intelall epg_users psgi10arm psgintel '
+                             'tyc78proc hdk22nmproc psgi5 psgltm psgrtm psgn5 '
+                             'psgslr psgrambus psgwhr psgavc icmadmins psgdmd '
+                             'psgcadence psgi10 psggdr psgenc psgfln ipn5 '
+                             'i1278 psgt16arm psgacr psgcnc psgknl psgeval '
+                             'psgsynopsys psgipxsmx_arm psgdlr psgi7 psgn5arm '
+                             'psgrnr psgknr ip5nm psgvlc psgavr tyc78 ip1222 '
+                             'i1278proc psgda psgeng psgship hdk7nmproc '
+                             'psgt16ff psgdpt hdk22nm soc gf55lp hdk7nm']}}
+
+
+stderr: INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_22259_sc
+
+
+]]></system-out></testcase><testcase classname="test_cmx_environment.TestDmxEnvironment" name="test_002___dmx_environment_errorcode___list" time="5.553"><system-out><![CDATA[exitcode: 0
+
+stdout: ICLB01: ICM-LIBRARY does not exist.
+ICLC01: User does not have ICM-LICENSE.
+ICLT01: ICM-LIBTYPE does not exist.
+
+
+stderr: INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_22703_sc
+
+
+]]></system-out></testcase><testcase classname="test_cmx_ip.TestDmxIp" name="test_010___ip_create___already_exist" time="7.027"><system-out><![CDATA[exitcode:0
+stdout:
+stderr:INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_23059_sc
+ERROR: Variant rtmliotest1 already exists in project Raton_Mesa
+ERROR: DMX has run into errors. For more details on the command, please run 'dmx help ip create'
+
+
+]]></system-out></testcase><testcase classname="test_cmx_ip.TestDmxIp" name="test_011___ip_create___no_such_iptype" time="7.577"><failure type="builtins.AssertionError" message="'IPType xxxxx does not exist' not found in &quot;INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_23481_sc\nERROR: Family KMTR does not exist\nERROR: Valid families are: [Acomarock, Availarock, Avoncrest, Carsoncreek, Daprojects, Diamondmesa, Diamondmesa2, Diamondpeaktrail, Dolanrock, Eanescreek, Falcon, Falconpark, Gundersonrock, Ironspringmesa, Kernriver, Kinneloamesa, Nadderp, Ratonmesa, Reynoldsrock, Stanislausriver, Sundancemesa, Valleycrest, Wharfrock]\nERROR: DMX has run into errors. For more details on the command, please run 'dmx help ip create'\n&quot;&#10;-------------------- &gt;&gt; begin captured stdout &lt;&lt; ---------------------&#10;exitcode:0&#10;stdout:&#10;stderr:INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_23481_sc&#10;ERROR: Family KMTR does not exist&#10;ERROR: Valid families are: [Acomarock, Availarock, Avoncrest, Carsoncreek, Daprojects, Diamondmesa, Diamondmesa2, Diamondpeaktrail, Dolanrock, Eanescreek, Falcon, Falconpark, Gundersonrock, Ironspringmesa, Kernriver, Kinneloamesa, Nadderp, Ratonmesa, Reynoldsrock, Stanislausriver, Sundancemesa, Valleycrest, Wharfrock]&#10;ERROR: DMX has run into errors. For more details on the command, please run 'dmx help ip create'&#10;&#10;&#10;&#10;--------------------- &gt;&gt; end captured stdout &lt;&lt; ----------------------"><![CDATA[  File "/usr/intel/pkgs/python3/3.9.6/lib/python3.9/unittest/case.py", line 59, in testPartExecutor
+    yield
+  File "/usr/intel/pkgs/python3/3.9.6/lib/python3.9/unittest/case.py", line 593, in run
+    self._callTestMethod(testMethod)
+  File "/usr/intel/pkgs/python3/3.9.6/lib/python3.9/unittest/case.py", line 550, in _callTestMethod
+    method()
+  File "/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/gdp47827_tests/cmxcmd/test_cmx_ip.py", line 47, in test_011___ip_create___no_such_iptype
+    self.assertIn('IPType xxxxx does not exist', stderr)
+  File "/usr/intel/pkgs/python3/3.9.6/lib/python3.9/unittest/case.py", line 1098, in assertIn
+    self.fail(self._formatMessage(msg, standardMsg))
+  File "/usr/intel/pkgs/python3/3.9.6/lib/python3.9/unittest/case.py", line 670, in fail
+    raise self.failureException(msg)
+'IPType xxxxx does not exist' not found in "INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_23481_sc\nERROR: Family KMTR does not exist\nERROR: Valid families are: [Acomarock, Availarock, Avoncrest, Carsoncreek, Daprojects, Diamondmesa, Diamondmesa2, Diamondpeaktrail, Dolanrock, Eanescreek, Falcon, Falconpark, Gundersonrock, Ironspringmesa, Kernriver, Kinneloamesa, Nadderp, Ratonmesa, Reynoldsrock, Stanislausriver, Sundancemesa, Valleycrest, Wharfrock]\nERROR: DMX has run into errors. For more details on the command, please run 'dmx help ip create'\n"
+-------------------- >> begin captured stdout << ---------------------
+exitcode:0
+stdout:
+stderr:INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_23481_sc
+ERROR: Family KMTR does not exist
+ERROR: Valid families are: [Acomarock, Availarock, Avoncrest, Carsoncreek, Daprojects, Diamondmesa, Diamondmesa2, Diamondpeaktrail, Dolanrock, Eanescreek, Falcon, Falconpark, Gundersonrock, Ironspringmesa, Kernriver, Kinneloamesa, Nadderp, Ratonmesa, Reynoldsrock, Stanislausriver, Sundancemesa, Valleycrest, Wharfrock]
+ERROR: DMX has run into errors. For more details on the command, please run 'dmx help ip create'
+
+
+
+--------------------- >> end captured stdout << ----------------------]]></failure><system-out><![CDATA[exitcode:0
+stdout:
+stderr:INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_23481_sc
+ERROR: Family KMTR does not exist
+ERROR: Valid families are: [Acomarock, Availarock, Avoncrest, Carsoncreek, Daprojects, Diamondmesa, Diamondmesa2, Diamondpeaktrail, Dolanrock, Eanescreek, Falcon, Falconpark, Gundersonrock, Ironspringmesa, Kernriver, Kinneloamesa, Nadderp, Ratonmesa, Reynoldsrock, Stanislausriver, Sundancemesa, Valleycrest, Wharfrock]
+ERROR: DMX has run into errors. For more details on the command, please run 'dmx help ip create'
+
+
+]]></system-out></testcase><testcase classname="test_cmx_ip.TestDmxIp" name="test_020___ip_update___no_such_ip" time="8.438"><system-out><![CDATA[exitcode:0
+stdout:
+stderr:INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_23812_sc
+ERROR: rtmliotestxxx does not exist within project Raton_Mesa
+ERROR: DMX has run into errors. For more details on the command, please run 'dmx help ip update'
+
+
+]]></system-out></testcase><testcase classname="test_cmx_report.TestCmxReport" name="test_001___cmx_report_content___config" time="39.139"><system-out><![CDATA[exitcode: 0
+
+stdout: Project: Raton_Mesa, IP: rtmliotest2, BOM: REL1.0RTMrevA0__22ww135a
+	Last modified: 2022/03/25 09:15:25 (in server timezone)
+Raton_Mesa/rtmliotest2@REL1.0RTMrevA0__22ww135a
+	Raton_Mesa/rtmliotest2:ipspec@REL1.0RTMrevA0__22ww135c
+	Raton_Mesa/rtmliotest2:reldoc@REL1.0RTMrevA0__22ww135a
+	Raton_Mesa/rtmliotest1@REL1.0RTMrevA0__22ww135a
+
+
+
+stderr: INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_24183_sc
+
+
+]]></system-out></testcase><testcase classname="test_cmx_report.TestCmxReport" name="test_010___cmx_report_diff___libtype___got_diff" time="26.601"><system-out><![CDATA[exitcode: 0
+
+stdout: # Project/IP                      BOM 1                           BOM 2
+# Raton_Mesa/rtmliotest1          snap-fortnr_1                   snap-fortnr_2
+# Project/IP/Deliverable          Lib/Rel/BOM                     Lib/Rel/BOM
+==== //depot/gdpxl/intel/Raton_Mesa/rtmliotest1/ipspec/dev/rtmliotest1.unneeded_deliverables.txt#1 (text) - //depot/gdpxl/intel/Raton_Mesa/rtmliotest1/ipspec/dev/rtmliotest1.unneeded_deliverables.txt#2 (text) ==== content
+
+
+stderr: INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_25962_sc
+
+
+]]></system-out></testcase><testcase classname="test_cmx_report.TestCmxReport" name="test_020___cmx_report_list___p_wildcard" time="8.861"><system-out><![CDATA[exitcode: 0
+
+stdout: Category: /intel
+KM
+KMH
+KMM
+Liberty_Mesa
+PSG_S78D
+Raton_Mesa
+Salinas_River
+da_i16
+da_i18a
+g55lp
+i16soc
+i18asockm
+i18asockmh
+testproject2
+testproject5
+
+Found 15 match
+
+
+stderr: INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_26919_sc
+
+
+]]></system-out></testcase><testcase classname="test_cmx_report.TestCmxReport" name="test_030___cmx_report_owner___variant" time="52.961"></testcase><testcase classname="test_cmx_roadmap.TestDmxRoadmap" name="test_001___dmx_roadmap_thread" time="17.949"><system-out><![CDATA[exitcode: 0
+
+stdout: Acomarock
+===============
+- ACRrevA0/0.0
+- ACRrevA0/0.3
+- ACRrevA0/0.5
+- ACRrevA0/0.8
+- ACRrevA0/1.0
+- ACRrevA0/POLO
+- ACRrevA0/PROD
+
+Availarock
+===============
+- AVRrevB0/1.0
+- AVRrevB0/2.0
+- AVRrevB0/3.0
+- AVRrevB0/4.0
+- AVRrevB0/5.0
+
+Avoncrest
+===============
+- AVCrevA0/0.3
+- AVCrevA0/0.5
+- AVCrevA0/0.8
+- AVCrevA0/1.0
+
+Carsoncreek
+===============
+- CNCrevA0/0.0
+- CNCrevA0/0.3
+- CNCrevA0/0.5
+- CNCrevA0/0.8
+- CNCrevA0/1.0
+
+Daprojects
+===============
+- DAN5revA0/0.0
+- DAN5revA0/0.3
+- DAN5revA0/0.5
+- DAN5revA0/0.8
+- DAN5revA0/1.0
+- DAN5revA0/POLO
+- DAN5revA0/PROD
+
+Diamondmesa
+===============
+- DMDrevA0/2.0
+- DMDrevA0/3.0
+- DMDrevA0/4.0
+- DMDrevA0/5.0
+
+Diamondmesa2
+===============
+- DM2revA0/0.0
+- DM2revA0/0.3
+- DM2revA0/0.5
+- DM2revA0/0.8
+- DM2revA0/1.0
+
+Diamondpeaktrail
+===============
+- DPT8revA0/2.0
+- DPT8revA0/3.0
+- DPT8revA0/4.0
+- DPT8revA0/5.0
+
+Dolanrock
+===============
+- DLRrevA0/1.0
+- DLRrevA0/2.0
+- DLRrevA0/3.0
+- DLRrevA0/4.0
+- DLRrevA0/5.0
+
+Eanescreek
+===============
+- ENCrevA0/0.0
+- ENCrevA0/0.3
+- ENCrevA0/0.5
+- ENCrevA0/0.8
+- ENCrevA0/1.0
+- ENCrevA0/POLO
+- ENCrevA0/PROD
+
+Falcon
+===============
+- FM3revA0/3.0
+- FM3revA0/4.0
+- FM3revA0/5.0
+- FM4revA0/3.0
+- FM4revA0/4.0
+- FM4revA0/5.0
+- FM5revA0/3.0
+- FM5revA0/4.0
+- FM5revA0/5.0
+- FM6revA0/4.0
+- FM6revA0/5.0
+- FM6revA1/4.0
+- FM6revA1/5.0
+- FM6revB0/4.0
+- FM6revB0/5.0
+- FM6revB1/4.0
+- FM6revB1/5.0
+- FM6revB2/4.0
+- FM6revB2/5.0
+- FM6revB3/4.0
+- FM6revB3/5.0
+- FM7revA0/3.0
+- FM7revA0/4.0
+- FM7revA0/5.0
+- FM7revA0P1/3.0
+- FM7revA0P1/4.0
+- FM7revA0P1/5.0
+- FM7revA1/3.0
+- FM7revA1/4.0
+- FM7revA1/5.0
+- FM7revA2/3.0
+- FM7revA2/4.0
+- FM7revA2/5.0
+- FM8revA0/3.0
+- FM8revA0/4.0
+- FM8revA0/5.0
+- FM8revA1/3.0
+- FM8revA1/4.0
+- FM8revA1/5.0
+- FM8revA2/3.0
+- FM8revA2/4.0
+- FM8revA2/5.0
+- FM8revA3/3.0
+- FM8revA3/4.0
+- FM8revA3/5.0
+- FM9revA0/3.0
+- FM9revA0/4.0
+- FM9revA0/5.0
+- FM9revA1/3.0
+- FM9revA1/4.0
+- FM9revA1/5.0
+
+Falconpark
+===============
+- FP4revA0/0.0
+- FP4revA0/0.3
+- FP4revA0/0.5
+- FP4revA0/0.8
+- FP4revA0/1.0
+- FP6revA0/0.0
+- FP6revA0/0.3
+- FP6revA0/0.5
+- FP6revA0/0.8
+- FP6revA0/1.0
+- FP8revA0/0.0
+- FP8revA0/0.3
+- FP8revA0/0.5
+- FP8revA0/0.8
+- FP8revA0/1.0
+
+Gundersonrock
+===============
+- GDRrevA0/0.3
+- GDRrevA0/0.5
+- GDRrevA0/0.8
+- GDRrevA0/1.0
+- GDRrevB0/0.3
+- GDRrevB0/0.5
+- GDRrevB0/0.8
+- GDRrevB0/1.0
+
+Ironspringmesa
+===============
+- ISM8revA0/0.0
+- ISM8revA0/0.3
+- ISM8revA0/0.5
+- ISM8revA0/0.8
+- ISM8revA0/1.0
+
+Kernriver
+===============
+- KNRrevA0/0.0
+- KNRrevA0/0.3
+- KNRrevA0/0.5
+- KNRrevA0/0.8
+- KNRrevA0/1.0
+- KNRrevA0/POLO
+- KNRrevA0/PROD
+
+Kinneloamesa
+===============
+- KM5revA0/0.0
+- KM5revA0/0.3
+- KM5revA0/0.5
+- KM5revA0/0.8
+- KM5revA0/1.0
+
+Nadderp
+===============
+- ND1revA/0.5
+- ND1revA/1.0
+- ND1revA/1.5
+- ND1revA/2.0
+- ND1revA/2.5
+- ND1revA/3.0
+- ND1revA/3.5
+- ND1revA/4.0
+- ND1revA/4.5
+- ND1revA/5.0
+- ND2revA/0.5
+- ND2revA/1.0
+- ND2revA/1.5
+- ND2revA/2.0
+- ND2revA/2.5
+- ND2revA/3.0
+- ND2revA/3.5
+- ND2revA/4.0
+- ND2revA/4.5
+- ND2revA/5.0
+- ND3revA/0.5
+- ND3revA/1.0
+- ND3revA/1.5
+- ND3revA/2.0
+- ND3revA/2.5
+- ND3revA/3.0
+- ND3revA/3.5
+- ND3revA/4.0
+- ND3revA/4.5
+- ND3revA/5.0
+- ND4revA/0.5
+- ND4revA/1.0
+- ND4revA/1.5
+- ND4revA/2.0
+- ND4revA/2.5
+- ND4revA/3.0
+- ND4revA/3.5
+- ND4revA/4.0
+- ND4revA/4.5
+- ND4revA/5.0
+- ND5revA/0.5
+- ND5revA/1.0
+- ND5revA/1.5
+- ND5revA/2.0
+- ND5revA/2.5
+- ND5revA/3.0
+- ND5revA/3.5
+- ND5revA/4.0
+- ND5revA/4.5
+- ND5revA/5.0
+- ND5revA0/0.5
+- ND5revA0/1.0
+- ND5revA0/1.5
+- ND5revA0/2.0
+- ND5revA0/2.5
+- ND5revA0/3.0
+- ND5revA0/3.5
+- ND5revA0/4.0
+- ND5revA0/4.5
+- ND5revA0/5.0
+- ND5revA0P2/0.5
+- ND5revA0P2/1.0
+- ND5revA0P2/1.5
+- ND5revA0P2/2.0
+- ND5revA0P2/2.5
+- ND5revA0P2/3.0
+- ND5revA0P2/3.5
+- ND5revA0P2/4.0
+- ND5revA0P2/4.5
+- ND5revA0P2/5.0
+- ND5revA1/0.5
+- ND5revA1/1.0
+- ND5revA1/1.5
+- ND5revA1/2.0
+- ND5revA1/2.5
+- ND5revA1/3.0
+- ND5revA1/3.5
+- ND5revA1/4.0
+- ND5revA1/4.5
+- ND5revA1/5.0
+- ND5revB0/0.5
+- ND5revB0/1.0
+- ND5revB0/1.5
+- ND5revB0/2.0
+- ND5revB0/2.5
+- ND5revB0/3.0
+- ND5revB0/3.5
+- ND5revB0/4.0
+- ND5revB0/4.5
+- ND5revB0/5.0
+
+Ratonmesa
+===============
+- RTMrevA0/0.0
+- RTMrevA0/0.3
+- RTMrevA0/0.5
+- RTMrevA0/0.8
+- RTMrevA0/1.0
+
+Reynoldsrock
+===============
+- RNRrevA0/0.3
+- RNRrevA0/0.5
+- RNRrevA0/0.8
+- RNRrevA0/1.0
+- RNRrevB0/0.3
+- RNRrevB0/0.5
+- RNRrevB0/0.8
+- RNRrevB0/1.0
+
+Stanislausriver
+===============
+- SLRrevA0/0.0
+- SLRrevA0/0.3
+- SLRrevA0/0.5
+- SLRrevA0/0.8
+- SLRrevA0/1.0
+
+Sundancemesa
+===============
+- SM7revA0/0.0
+- SM7revA0/0.3
+- SM7revA0/0.5
+- SM7revA0/0.8
+- SM7revA0/1.0
+
+Valleycrest
+===============
+- VLCrevA0/0.3
+- VLCrevA0/0.5
+- VLCrevA0/0.8
+- VLCrevA0/1.0
+
+Wharfrock
+===============
+- WHRrevA0/0.3
+- WHRrevA0/0.5
+- WHRrevA0/0.8
+- WHRrevA0/1.0
+
+
+
+stderr: INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_29308_sc
+
+
+]]></system-out></testcase><testcase classname="test_cmx_size.TestDmxSize" name="test_003___mutable_deliverable" time="5.403"><system-out><![CDATA[exitcode:0
+stdout:Raton_Mesa/rtmliotest1:ipspec@dev[] - Size : 94 File : 4
+Total size : 94, total file : 4
+
+stderr:INFO: DMX-id: dmx_lionelta_20230131_scc919046.zsc7.intel.com_29925_sc
+
+
+]]></system-out></testcase></testsuite>

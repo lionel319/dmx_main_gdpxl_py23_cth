@@ -1,0 +1,8 @@
+#variant, flow, subflow, reason, error
+
+variant_a, reldoc, *, ------------, Match Exact Error Sentance.
+
+variant_a, *, *, ------------, Match With * Wildcard.
+
+variant_a, reldoc, *, ------------, "FAILED validation of /iosubsysleftnd5/cvsignoff/audit/audit.iosubsysleftnd5.cvsignoff.xml: checksum for file /iosubsysleftnd5/pnr/results/iosubsysleftnd5.pnr.pt.v (888eb90b53096765d250306a9be796f0) does not match audit requirement (992e93e8ec0e04e847fd17925d061b08).Revision #12 of the file was used during checking, but an attempt was made to release revision #1."
+

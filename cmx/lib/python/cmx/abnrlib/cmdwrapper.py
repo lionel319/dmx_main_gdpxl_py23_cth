@@ -1,0 +1,286 @@
+'''
+$Header: //depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/cmdwrapper.py#1 $
+$Change: 7442728 $
+$DateTime: 2023/01/13 02:41:47 $
+$Author: lionelta $
+
+Description:  define the abnr plugin base class: abnrlib.command.Command
+
+Author: Rudy Albachten
+
+Copyright (c) Altera Corporation 2012
+All rights reserved.
+'''
+from __future__ import print_function
+
+## @addtogroup dmxlib
+## @{
+
+from builtins import object
+import os
+import sys
+import re
+import subprocess
+from pprint import pprint
+import abc
+import argparse
+import textwrap
+from future.utils import with_metaclass
+LIB = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.insert(0, LIB)
+import cmx.abnrlib.command
+
+class CMDWrapper(object):
+    '''Empty base class used for defining abnr plugins'''
+
+    @classmethod
+    def get_help(cls):
+        '''short subcommand description'''
+        parser_table, plugin_table = cls._import_plugins()
+        txt = ''
+        maxlen = 0
+        for plugin in cls._auto_get_plugins():
+            name = cls._get_subcmd_name(plugin, cls.__name__.lower())
+            fullcmd = '{} {}'.format(cls.__name__.lower(), name)
+            if len(fullcmd) > maxlen:
+                maxlen = len(fullcmd)
+        for i,plugin in enumerate(sorted(cls._auto_get_plugins())):
+            ### Do not print if HIDDEN property in plugins/<command><subcommand>.py is set to True
+            ### https://jira.devtools.intel.com/browse/PSGDMX-1755
+            if getattr(plugin_table[plugin], 'HIDDEN', False):
+                continue
+            help = plugin_table[plugin].get_help()
+            name = cls._get_subcmd_name(plugin, cls.__name__.lower())
+            fullcmd = '{} {}'.format(cls.__name__.lower(), name)
+            txt += "{:{}} - {}".format(fullcmd, maxlen, help)
+            if not txt.endswith('\n'):
+                txt += '\n'
+        return txt
+
+    @classmethod
+    def summary_help(cls):
+        '''comments. notes, and explanations for the command'''
+        parser_table, plugin_table = cls._import_plugins()
+
+        ### Summary Help
+        txt = ''
+        txt += "            +-----------------------------------+\n"
+        txt += "            |           SUMMARY HELP            |\n"
+        txt += "            +-----------------------------------+\n\n"
+        for i,plugin in enumerate(sorted(cls._auto_get_plugins())):
+            txt += "{} {}:\n".format(cls.__name__.lower(), cls._get_subcmd_name(plugin, cls.__name__.lower()))
+            txt += "{}".format(plugin_table[plugin].get_help())
+            txt += cls._remove_optional_argument_docs_from_format_help(parser_table[plugin].format_help())
+            txt += "\n"
+
+        return txt
+
+    @classmethod  
+    def subcommand_help(cls, plugins):
+        '''comments. notes, and explanations for the command'''
+        parser_table, plugin_table = cls._import_plugins()
+        plugin, subplugin = plugins
+        full_plugin_name = '{}{}'.format(plugin, subplugin)
+
+        ### Summary Help
+        txt = ''
+        txt += "            +-----------------------------------+\n"
+        txt += "            |           SUMMARY HELP            |\n"
+        txt += "            +-----------------------------------+\n\n"
+        txt += "{}".format(plugin_table[full_plugin_name].get_help())
+        txt += cls._remove_optional_argument_docs_from_format_help(parser_table[full_plugin_name].format_help())
+        txt += '\n\n'
+        ### Detail Help
+        txt += "            +-------------------------------------+\n"
+        txt += "            |           DETAILED HELP             |\n"
+        txt += "            +-------------------------------------+\n\n"
+        txt += parser_table[full_plugin_name].format_help()
+        txt += "\n"
+        txt += plugin_table[full_plugin_name].extra_help()
+        txt += "\n"
+        txt += "========================================================="           
+        
+        return txt
+          
+    @classmethod
+    def command_help(cls):
+        '''comments. notes, and explanations for the command'''
+        parser_table, plugin_table = cls._import_plugins()
+        plugin_need_details = None
+
+        ### Summary Help
+        txt = ''
+        txt += "            +-----------------------------------+\n"
+        txt += "            |           SUMMARY HELP            |\n"
+        txt += "            +-----------------------------------+\n\n"
+        for i,plugin in enumerate(sorted(cls._auto_get_plugins())):
+
+            ### Do not print if HIDDEN property in plugins/<command><subcommand>.py is set to True
+            ### https://jira.devtools.intel.com/browse/PSGDMX-1755
+            if getattr(plugin_table[plugin], 'HIDDEN', False):
+                continue
+            cmd = cls.__name__.lower()
+            subcmd = cls._get_subcmd_name(plugin, cls.__name__.lower())
+            if not subcmd:
+                plugin_need_details = plugin
+            txt += "{} {}:\n".format(cmd, subcmd)
+            txt += "{}".format(plugin_table[plugin].get_help())
+            txt += cls._remove_optional_argument_docs_from_format_help(parser_table[plugin].format_help())
+            txt += "\n"
+
+        if plugin_need_details:
+            plugin = plugin_need_details
+            ### Detail Help
+            txt += "            +-------------------------------------+\n"
+            txt += "            |           DETAILED HELP             |\n"
+            txt += "            +-------------------------------------+\n\n"
+            txt += '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n'
+            txt += "       {} {}\n".format(cls.__name__.lower(), cls._get_subcmd_name(plugin, cls.__name__.lower()))
+            txt += '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n'
+            txt += "{}\n".format(plugin_table[plugin].get_help())
+            txt += parser_table[plugin].format_help()
+            txt += "\n"
+            txt += plugin_table[plugin].extra_help()
+            txt += "\n"
+        txt += "=========================================================\n"           
+        txt += "To get more detailed help for each subcommand, please run\n"
+        txt += "\tdmx help {} <subcommand>\n".format(cls.__name__.lower())
+        return txt
+
+    @classmethod
+    def add_args(cls, parser):
+        '''subcommand arguments'''
+        parser_table, plugin_table = cls._import_plugins()
+        for i,plugin in enumerate(cls._auto_get_plugins()):
+            plugin_table[plugin].add_args(parser)
+
+
+    @classmethod
+    def command(cls, args):
+        '''execute the subcommand'''
+        parser_table, plugin_table = cls._import_plugins()
+        wrapper = cls.__name__.lower()
+
+        if args.options and not args.options[0].startswith('-'):
+            cmd = wrapper + args.options[0]
+            parser = argparse.ArgumentParser(prog='cmx {} {}'.format(wrapper, args.options[0]))
+            options = args.options[1:]
+        else:
+            cmd = wrapper
+            parser = argparse.ArgumentParser(prog='cmx {} '.format(wrapper))
+            options = args.options            
+
+        # If we can't find the command from the table, the command doesn't exist.
+        try:
+            plugin_table[cmd].add_args(parser)
+        except KeyError:            
+            print('{} {} is not a valid command'.format(wrapper, args.options[0]))
+            valid_commands = ['{} {}'.format(wrapper, cls._get_subcmd_name(x, wrapper)) for x in list(plugin_table.keys()) if x.startswith(wrapper)]
+            print('Valid commands: {}'.format(valid_commands))
+            # Why sys.exit instead of raise?
+            # This message goes out to users, so there is no need of raising the errors, we could just exit the call
+            sys.exit(1)
+            
+        myargs = parser.parse_args(options)
+        return plugin_table[cmd].command(myargs)
+
+    echo = True
+    execute = True
+
+    @classmethod
+    def do_command(cls, command, ignore_exit_code=True):
+        '''execute a single shell command, if command is '' echo a blank line if commands are being executed'''
+        if cls.echo or not cls.execute:
+            print(command)
+        if command != '' and cls.execute:
+            if 0 != subprocess.call(command, shell=True) and not ignore_exit_code:
+                raise Exception('bad exit status from command: ' + command)
+
+    @classmethod
+    def _import_plugins(cls):
+        ''' '''
+        # import sub-plugins
+        subplugins_dir = os.path.join(LIB, "cmx", "plugins")
+        if not os.path.isdir(subplugins_dir):
+            print("Cannot find sub-plugins directory!")
+            #sys.exit(1)
+        subplugins = [x[:-3] for x in os.listdir(subplugins_dir) if x.endswith('.py') and x[0] != '_']
+        #for subplugin in subplugins:
+        for subplugin in cls._auto_get_plugins():
+            __import__("cmx.plugins." + subplugin)
+        
+        #pluginparser = argparse.ArgumentParser(formatter_class=CustomHelpFormatter)
+        pluginparser = argparse.ArgumentParser(prog='cmx')
+        pluginparser = MyParser(prog='cmx')
+        subpluginparser = pluginparser.add_subparsers()
+        
+        # register commands' sub_plugins
+        parser_table = {}
+        plugin_table = {}
+        for cmd in cmx.abnrlib.command.Command.__subclasses__():
+            cmd_name = cmd.__name__.lower()
+            plugin_table[cmd_name] = cmd
+            cmd_help = cmd.get_help()
+            subcmd_name = cls._get_subcmd_name(cmd_name, cls.__name__.lower())
+            cmd_parser = subpluginparser.add_parser('{} {}'.format(cls.__name__.lower(), subcmd_name), help=cmd_help, add_help=False)
+            cmd.add_args(cmd_parser)
+            cmd_parser.set_defaults(func=cmd.command)
+            parser_table[cmd_name] = cmd_parser
+
+        return [parser_table, plugin_table] 
+
+
+    @classmethod
+    def _remove_optional_argument_docs_from_format_help(cls, txt):
+        ''' '''
+        return re.sub('\noptional arguments:.*', '\n', txt, flags=re.DOTALL)
+
+
+    @classmethod
+    def _get_subcmd_name(cls, fullname, cmdname):
+        ''' 
+        fullname = releasevariant
+        cmdname = release
+        return = variant
+        '''
+        return re.sub("^{}".format(cmdname), "", fullname)
+
+
+    @classmethod
+    def _auto_get_plugins(cls):
+        ''' Automatically get all the plugin names '''
+        retlist = []
+        for cmd in cmx.abnrlib.command.Command.__subclasses__():
+            cmd_name = cmd.__name__.lower()
+            if cmd_name.startswith(cls.__name__.lower()):
+                if cmd_name not in retlist:
+                    retlist.append(cmd_name)
+        return retlist
+
+
+class Runner(with_metaclass(abc.ABCMeta, object)):
+    '''
+    Abstract base class for abnr command runners
+    '''
+
+    @abc.abstractmethod
+    def run(self):
+        '''
+        Runs the command flow
+        :return: Integer exit code
+        '''
+        return
+
+
+class MyParser(argparse.ArgumentParser):
+    ''' 
+    Prevent ArgumentParser from throwing out error messages and exit when parsing an error param list.
+    The way is to subclass it and re-defire the 'error' method.
+    ref: http://stackoverflow.com/questions/4042452/display-help-message-with-python-argparse-when-script-is-called-without-any-argu 
+    '''
+    def error(self, message):
+        #sys.stderr.write('error haha: %s\n' % message)
+        #self.print_help()
+        sys.exit(2)
+
+## @}

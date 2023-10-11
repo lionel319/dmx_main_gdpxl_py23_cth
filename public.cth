@@ -1,0 +1,38 @@
+[TOOLVERSION]
+dmx = main_gdpxl_py23_cth
+
+[PARAMS]
+dmx = /nfs/site/disks/da_scratch_1/users/yltan/public/depot/da/infra/dmx/toolversion(dmx)
+
+[ENVS]
+TV_PROJECT=km
+DMX_SETTING_FILES_DIR=/p/psg/flows/common/dmx/dmx_setting_files
+
+DMX_LIB=params(dmx)/lib/python
+DMX_ROOT=params(dmx)
+DMX_TNRLIB=params(dmx)/cmx/lib/tcl/dmx/tnrlib
+IPQC_ROOT=params(dmx)
+DMX_LEGACY=1
+ICD_CAD_QA_TCLLIB=params(dmx)/cmx/lib/tcl/dmx/tnrlib
+DMX_PATH=params(dmx)/bin:
+DMX_TCLLIB=/p/psg/flows/common/icd_cad_tcllib/5/linux64/lib
+
+ICMADMIN_ROOT = /p/psg/flows/common/icmadmin/gdpxl/1.2
+PSG_ICM_HOME = ${ICMADMIN_ROOT}/icm_home
+
+DMX_GDPSITE = intel
+DISABLE_DAEMON_JS = 1
+GDP_HOME = /p/psg/eda/icmanage/gdpxl/47827/linux64
+ICM_HOME = /p/psg/eda/icmanage/gdpxl/47827/linux64
+CDS_GDM_SHLIB_LOCATION = envs(GDP_HOME)/gdm.lnx86-64
+ICM_GDP_SERVER = http://scylicm.sc.intel.com:5000
+P4PORT = scylicm.sc.intel.com:1666
+P4PORT_PSG = scylicm.sc.intel.com:1666
+ICM_SkillRoot = envs(GDP_HOME)/
+P4CONFIG = .icmconfig
+XLP4 = envs(ICM_HOME)/bin/xlp4
+
+LD_LIBRARY_PATH =+ envs(GDP_HOME)/gdm.lnx86-64:
+PYTHONPATH =+ envs(ICMADMIN_ROOT)/lib:envs(DMX_LIB):
+PATH =+ params(dmx)/cmx/bin:envs(ICMADMIN_ROOT)/bin:envs(GDP_HOME)/bin:
+

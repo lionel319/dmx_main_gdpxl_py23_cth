@@ -1,0 +1,55 @@
+#!/usr/bin/env python
+'''
+$Header: //depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/plugins/cthdmxpocwscheck.py#1 $
+$Change: 7604377 $
+$DateTime: 2023/05/09 01:39:34 $
+$Author: lionelta $
+'''
+import sys
+import os
+import logging
+import textwrap
+import re
+import json
+from pprint import pprint
+
+sys.path.insert(0, os.getenv("DMX_LIB"))
+from dmx.abnrlib.command import Command 
+from dmx.utillib.utils import add_common_args
+import dmx.utillib.cthdmxpocutils as cdpu
+import dmx.tnrlib.audit_check
+import dmx.tnrlib.test_result
+
+class Cthdmxpocwscheck(Command):
+    '''plugin for "dmx login"'''
+
+    @classmethod
+    def get_help(cls):
+        '''one-line description for "dmx help"'''
+        myhelp = '''\
+            Login to the system.
+            '''
+        return textwrap.dedent(myhelp)
+
+    @classmethod
+    def extra_help(cls):
+        '''
+        Extra help for dmx help list
+        '''
+        extra_help = '''\
+            Login user to dmx system.
+            '''
+        return textwrap.dedent(extra_help)
+
+    @classmethod
+    def add_args(cls, parser):
+        add_common_args(parser)
+        parser.add_argument('--thread', '-t')
+        parser.add_argument('--milestone', '-m')
+
+
+    @classmethod
+    def command(cls, args):
+        tr = cdpu.TestRunnerPoc(milestone=args.milestone)
+        errors = tr.run_tests()
+        tr.report_errors(errors)

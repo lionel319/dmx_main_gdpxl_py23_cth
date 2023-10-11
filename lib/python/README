@@ -1,0 +1,8 @@
+November, 2016
+
+The dm and abnrlib symlinks are temporarily in place as we migrate users 
+from the old dm system to dmx.  Due to the PICE deadline, we don't have 
+time to ensure all code has been migrated so to avoid broken imports,
+we are maintaining the old python paths.
+
+They should be removed once all code has been updated.

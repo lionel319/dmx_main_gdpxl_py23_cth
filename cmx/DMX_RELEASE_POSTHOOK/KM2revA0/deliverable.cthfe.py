@@ -1,0 +1,165 @@
+#!/usr/intel/pkgs/python3/3.10.8/bin/python3
+
+import UsrIntel.R1
+import sys
+import os
+import functools
+import time
+
+sys.path.insert(0, '/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python')
+sys.path.insert(0, '/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python')
+import cmx.tnrlib.utils
+import cmx.utillib.utils
+import dmx.abnrlib.icmlibrary
+import dmx.abnrlib.icmconfig
+import dmx.abnrlib.config_factory
+import dmx.abnrlib.icm
+
+### Set print(flush-True) so that the message always gets printed on screen immediately
+print = functools.partial(print, flush=True)
+
+def main():
+    stagename = 'POSTHOOK: deliverable.cthfe.py'
+    print("-I-: Running: {}".format(stagename))
+    report_env()
+    make_workarea_writable()
+    remove_iflow_makefile()     ### So that the Makefile gets regenerated
+    run_archive()
+    run_handoff()
+    run_febe_release()
+    print("-I-: Complete: {}".format(stagename))
+
+
+def report_env():
+    stagename = 'report_env'
+    print("  -I-: Running: {}".format(stagename))
+    os.system("env | sort")
+    print("  -I-: Complete: {}".format(stagename))
+
+def make_workarea_writable():
+    stagename = 'make_workarea_writable'
+    print("  -I-: Running: {}".format(stagename))
+    workarea = get_workarea()
+    cmd = 'chmod -R 777 {}'.format(workarea)
+    print("    > cmd: {}".format(cmd))
+    os.system(cmd)
+    print("  -I-: Complate: {}".format(stagename))
+
+def remove_iflow_makefile():
+    stagename = 'remove_iflow_makefile'
+    print("  -I-: Running: {}".format(stagename))
+    workarea = get_workarea()
+    iflow_makefile = os.path.join(workarea, 'output', 'iflow', 'Makefile.iflow')
+    cmd = 'rm -rf {}'.format(iflow_makefile)
+    print("    > cmd: {}".format(cmd))
+    os.system(cmd)
+    print("  -I-: Complate: {}".format(stagename))
+
+def run_febe_release():
+    stagename = 'run_febe_release'
+    print("  -I-: Running: {}".format(stagename))
+    workarea = get_workarea()
+    reltag = get_dmx_reltag()
+    project = get_envvar("DMX_PROJECT")
+    ip = get_envvar("DMX_IP")
+    bom = get_envvar("DMX_BOM")
+    thread = get_envvar("DMX_THREAD")
+    milestone = get_envvar("DMX_MILESTONE")
+
+    staging_bom = generate_staging_bom_for_febe_release(project, ip, get_febe_tag())
+    ### Wait for 45s to accomodate for icm bom creation delay time.
+    time.sleep(45)
+
+    #dmxexe = '/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/bin/mycmx'
+    dmxexe = 'dmx'
+    cmd = '''{} release -p {} -i {} -d febe -b {} --desc from_cthfe_release -t {} -m {} --debug --force'''.format(dmxexe, project, ip, staging_bom, thread, milestone)
+    print("    -I-: Running: {}".format(cmd))
+    exitcode = os.system(cmd)
+    if exitcode:
+        raise Exception("FAIL: {}. Program Terminated.".format(stagename))
+    print("  -I-: Complete: {}".format(stagename))
+
+def generate_staging_bom_for_febe_release(project, ip, febebom):
+    '''
+    1. create variant bom
+    2. --addbom project/ip:febe@febebom
+    3. return variant bom name
+    '''
+    stagename = 'generate_staging_bom_for_febe_release'
+    print("  -I-: Running: {}".format(stagename))
+    ### Create/Get febe libtype bom
+    ###     If exist: create_from_icm
+    ###     else: create thru IcmLibrary()
+    if dmx.abnrlib.icm.ICManageCLI().release_exists(project, ip, 'febe', '*', febebom):
+        febe_cfobj = dmx.abnrlib.config_factory.ConfigFactory.create_from_icm(project, ip, febebom, 'febe')
+    else:
+        febe_cfobj = dmx.abnrlib.icmlibrary.IcmLibrary(project, ip, 'febe', 'dev', febebom)
+        febe_cfobj.add_property("CTHFE_RELTAG", get_dmx_reltag())
+        febe_cfobj.save()
+
+    staging_bomname = cmx.tnrlib.utils.get_uniq_staging_bom_name(project, ip, 'febe')
+    cf = dmx.abnrlib.icmconfig.IcmConfig(staging_bomname, project, ip, [febe_cfobj])
+    cf.save()
+    print("    -I-: Saving: {}".format(cf))
+    print("  -I-: Complete: {}".format(stagename))
+    return staging_bomname
+
+
+def run_handoff():
+    stagename = 'run_handoff'
+    print("  -I-: Running: {}".format(stagename))
+    workarea = get_workarea()
+    reltag = get_febe_tag()
+    input_tag = get_febe_tag()
+    output_tag = get_dmx_reltag()
+    
+    #cmd = 'cd {}; env WORKAREA={} RELTAG={} make psghandoff OUT_DIR={}/output/iflow '.format(workarea, workarea, reltag, workarea)
+    #cmd = 'cd {}; env WORKAREA={} RELTAG={} make run_stages_nb STAGES=psghandoff OUT_DIR={}/output/iflow '.format(workarea, workarea, reltag, workarea)
+    cmd = 'cd {}; env PROCESS="" CHEETAH_RTL_ROOT=/p/hdk/cad/Cheetah-RTL/2023.06.p03 WORKAREA={} PSGHANDOFF_INPUT_TAG={} PSGHANDOFF_OUTPUT_TAG={} make run_stages_nb STAGES=psghandoff OUT_DIR={}/output/iflow '.format(workarea, workarea, input_tag, output_tag, workarea)
+    print("    > Cmd: {}".format(cmd))
+
+    ### XXX: Temporary disable this for faster-turnaround POC
+    exitcode = os.system(cmd)
+    if exitcode != 0:
+        print("  -E-: Complete(FAILED): {}".format(stagename))
+        print("  -E-: Program Terminated!")
+        sys.exit(exitcode)
+    else:
+        print("  -I-: Complete(PASSED): {}".format(stagename))
+    return exitcode
+
+def run_archive():
+    stagename = 'run_dmxrel_archive'
+    print("  -I-: Running: {}".format(stagename))
+    workarea = get_workarea()
+    reltag = get_febe_tag()
+
+    cmd = 'cd {}; env PROCESS="" WORKAREA={} make dmxrel_archive OUT_DIR={}/output/iflow ARCHIVE_TAG={}'.format(workarea, workarea, workarea, reltag)
+    print("    > Cmd: {}".format(cmd))
+    exitcode = os.system(cmd)
+    if exitcode != 0:
+        print("  -E-: Complete(FAILED): {}".format(stagename))
+        print("  -E-: Program Terminated!")
+        sys.exit(exitcode)
+    else:
+        print("  -I-: Complete(PASSED): {}".format(stagename))
+    return exitcode
+
+
+def get_envvar(name):
+    var = os.getenv(name)
+    if not var:
+        raise Exception("${} env var not defined.")
+    return var
+
+def get_workarea():
+    return get_envvar("DMX_STAGING_WORKAREA")
+
+def get_dmx_reltag():
+    return get_envvar("DMX_RELTAG")
+
+def get_febe_tag():
+    return 'snap-{}'.format(get_dmx_reltag())
+
+if __name__ == '__main__':
+    sys.exit(main())

@@ -1,0 +1,114 @@
+#                   CONFIGURATION FILE FOR CICQ
+#
+#                       cicq.ini VERSION 4.0
+#
+#   Minimal Compatible Version:
+#   --------------------------
+#   dmx/13.2
+#   dmxdata/13.1
+#   cicq/4.0
+#
+#
+#   The general form of the options is:
+#
+#   Mandatory attributes:
+#   ----------------------
+#   deliverables - deliverables(libtype) that wish to be pushed to always_clean. (comma separated)
+#   emails - a list of emails recipients that wish to receive email notifications upon job completion. (comma separated)
+#   arc_resources - a string of all arc resources to be used.(comma separated, no space in between)
+#   trigger - the time (in hour) that the job will get run daily. Time is based of SantaClara timezone. (0-23)
+#
+#   Optional attributes:
+#   --------------------
+#   prehook - command that user wish to run before running ipqc. The syntax would be prehook<space><hookname in alphanumeric>
+#   runmode - ipqc mode to run (2 available modes: 'full' will run full ipqc, 'ci_only' will run 'ipqc dry-run')
+#   posthook - command that user wish to run after running ipqc. The syntax would be posthook<space><hookname in alphanumeric>
+#
+#   Example:
+#   --------
+#   prehook MyPreHook = echo "Hello World"
+#   prehook MyPreHook2 = whoami
+#   deliverables = bcmrbc, rtl, rtlcompchk, ipspec
+#   emails = yoke.liang.tan@intel.com, teck.yunn.lim@intel.com
+#   posthook MyPostHook = arc submit -jw -- whoami; echo "Hello World"
+#   runmode = ci_only
+#
+#   [rtlcompchk]
+#   [[rtl__rtlcompchk__ncsim__cc_check   rtl__rtlcompchk__modelsim__cc_check]]
+#   level=top
+#
+#   [lint]
+#   [[*]]
+#   level=ip
+#
+#   Assuming the following design tree
+#   ----------------------------------
+
+#                  iptop(dev)
+#                    |
+#   +----------------+---------------------+
+#   |                |                     |
+#  ipa(dev)         ipb(dev)              ipc(dev)
+#                    |                     |
+#                 ipcommon(REL)           ipd(dev)
+#                                          |
+#                                       ipcommon(REL)
+#
+# (the 'dev/REL' here does not imply a 'dev/REL' config. 
+#  It just means it is a mutable/immutable config)
+# 
+#
+#   Explanation:
+#   ------------
+#   Based on the example above, and the assumption of the design tree, here's the process flow
+#   - iptop@landing_zone_test1 will be overlaid to iptop@cicq_integration_test1, hierarchically.
+#   - a workspace will be create based on rnr/iptop@cicq_integration_test1
+#   - prehook will be run if there is any
+#   - [rtlcompchk] flow will be run on toppest ip, ie:-
+#       > iptop:rtlcompchk
+#   - [lint] flow will be run on lowest mutable ip, ie:-
+#       > ipa:lint
+#       > ipb:lint
+#       > ipd:lint
+#   - after all flows completed, checks will be run on them.
+#   - posthook will be run if there is any
+#   - if all checks pass, (refer to definition of passing criteria below)
+#       > all deliverables defined in the `deliverables` will be overlaid to always_clean, ie:-
+#           ~ iptop's [bcmrbc, rtl, rtlcompchk, ipspec] overlaid from cicq_integration_test1 -> always_clean_test1
+#           ~ ipa's [bcmrbc, rtl, rtlcompchk, ipspec] overlaid from cicq_integration_test1 -> always_clean_test1
+#           ~ ipb's [bcmrbc, rtl, rtlcompchk, ipspec] overlaid from cicq_integration_test1 -> always_clean_test1
+#           ~ ipc's [bcmrbc, rtl, rtlcompchk, ipspec] overlaid from cicq_integration_test1 -> always_clean_test1
+#           ~ ipd's [bcmrbc, rtl, rtlcompchk, ipspec] overlaid from cicq_integration_test1 -> always_clean_test1
+#       > and then a snap will be made, hierarchically, from iptop@always_clean_test1
+#   - posthook will be run if there is any
+#   
+#   Definition of passing criteria
+#   ------------------------------
+#   Based on the example above:-
+#   - iptop:rtlcompchk's 2 subcheck must pass, ie:-
+#       > rtl__rtlcompchk__ncsim__cc_check -- must pass
+#       > rtl__rtlcompchk__modelsim__cc_check -- must pass
+#       > rtl__rtlcompchk__csv__cc_check -- ignore
+#   - (ipa:lint, ipb:lint, ipd:lint)'s all subcheck must pass
+#       > lint__mustfix__cc_check -- must pass
+#       > lint__review__cc_check -- must pass
+# 
+
+prehook MyPreHook1 = date; echo "My name is Lionel Tan !!!"; hostname
+prehook MyPreHook2 = date; whoami; hostname
+deliverables = ipspec, reldoc, rtl, bcmlib
+emails = yoke.liang.tan@intel.com
+posthook MyPostHook = date; whoami; exit 0
+
+arc_resources = project/ltm/ltma0/0.5/rtl/2022WW22,ic_manage_gdp/xl/47827,icmadmin/gdpxl/1.0,dmxdata/latestdev,ostype/suse12,dmx/gdpxl_14.1,cicq/main_gdpxl,altera_reldoc/1.7.gdpxl mem=12000
+
+[ipspec]
+[[*]]
+level=top
+
+[reldoc]
+[[*]]
+level=top
+
+
+

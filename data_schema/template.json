@@ -1,0 +1,48 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Product set",
+    "type": "object",
+    "patternProperties": {
+        "^[A-Za-z0-9_-]+$": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "milkyway": {
+                    "type": "object"
+                }
+            },
+            "patternProperties": {
+                "^(filelist|pattern)$": {
+                    "type": "object",
+                    "patternProperties": {
+                        "^[a-zA-Z0-9/*._]+$": {
+                            "type": "object",
+                            "properties": {
+                                "id": { 
+                                    "type": "string" 
+                                },
+                                "minimum": {
+                                    "type": "string"
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "^(consumer|predecessor|successor|producer)$": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+    "additionalProperties": false
+}
+
+

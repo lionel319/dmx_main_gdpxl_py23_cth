@@ -1,0 +1,8 @@
+#!/usr/bin/env python
+
+def load_json():
+    dmxdata_root = os.getenv("DMXDATA_ROOT")
+    family = os.getenv("DB_FAMILY")
+    with open(os.path.join(dmxdata_root, family, 'poc1.json')) as f:
+        dmxdata = json.load(f)
+

@@ -1,0 +1,86 @@
+#!/usr/bin/env python
+'''
+$Header: //depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/plugins/bomflatten.py#1 $
+$Change: 7411538 $
+$DateTime: 2022/12/13 18:19:49 $
+$Author: lionelta $
+
+Description: bom create dmx subcommand
+Author: Lee Cartwright
+Copyright (c) Altera Corporation 2013
+All rights reserved.
+'''
+
+import sys
+import logging
+import textwrap
+import itertools
+import os
+
+from cmx.abnrlib.command import Command
+from cmx.utillib.utils import add_common_args, dispatch_cmd_to_other_tool, get_old_dmx_exe_from_folder 
+
+class BomFlattenError(Exception): pass
+
+class BomFlatten(Command):
+    @classmethod
+    def get_help(cls):
+        '''
+        Short help for the subcommand
+        '''
+        myhelp = '''\
+            Flatten a BOM
+            '''
+        return textwrap.dedent(myhelp)
+
+    @classmethod
+    def add_args(cls, parser):
+        '''
+        bom flatten arguments
+        '''
+        add_common_args(parser)
+        parser.add_argument('-p', '--project',
+                            metavar='project', required=False, default=None,
+                            help='The project within which to flatten the new bom')
+        parser.add_argument('-i', '--ip',
+                            metavar='IP', required=True,
+                            help='The ip within which to flAtten the bom')
+        parser.add_argument('-b', '--bom',
+                            metavar='bom', required=True,
+                            help='The name of the new bom you want to create')
+        parser.add_argument('--dstbom',
+                            metavar='destination bom', required=True,
+                            help='The destination bom name')
+
+    @classmethod
+    def extra_help(cls):
+        '''
+        Detailed help for bom flatten 
+        '''
+        extra_help = '''\
+        "bom flatten" is a service taking  a p/i@b hierarchical BoM 
+        and flattens it into p/i@dstbom 
+
+        Jira Case
+        =========
+        https://jira.devtools.intel.com/browse/PSGDMX-2153
+
+        Example
+        =======
+        '''
+        return textwrap.dedent(extra_help)
+
+    @classmethod
+    def command(cls, args):
+        '''
+        Execute the subcommand
+        '''
+        bom = args.bom
+        project = args.project
+        ip = args.ip
+        dstbom = args.dstbom
+   
+        a = dmx.abnrlib.flows.bomflatten.BomFlatten(project, ip, bom, dstbom)
+        ret = a.run()
+
+        return ret

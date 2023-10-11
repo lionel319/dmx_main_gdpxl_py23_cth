@@ -1,0 +1,73 @@
+#!/usr/bin/env python
+# 2014 Altera Corporation. All rights reserved. This source code is highly
+# confidential and proprietary information of Altera and is to be used for
+# internal Altera purposes only.   Altera assumes no responsibility or
+# liability arising out of the application or use of this source code for
+# non-Altera purposes.
+#
+# Tests the abnr icm library
+#
+# $File: //depot/da/infra/dmx/main_gdpxl_py23_cth/gdp47827_tests/dmxcmd/test_dmx_ip_update.py $
+# $Revision: #2 $
+# $Change: 7809100 $
+# $DateTime: 2023/10/05 01:17:55 $
+# $Author: lionelta $
+
+from __future__ import print_function
+import unittest
+import inspect
+import os
+import sys
+
+LIB = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))), 'lib', 'python')
+sys.path.insert(0, LIB)
+import dmx.utillib.utils
+
+class TestDmxIpUpdate(unittest.TestCase):
+    def setUp(self):
+        self.dmx = os.path.join(LIB, '..', '..', 'bin', 'dmx.py')
+        self.rc = dmx.utillib.utils.run_command
+        self.setsite = 'env DMX_GDPSITE=intel DB_DEVICE=FM6 '
+        self.setsite = 'env DB_THREAD=RTMrevA0 DB_DEVICE=RTM DB_FAMILY=Ratonmesa '
+        
+    def tearDown(self):
+        pass
+    
+    def test_001___dmx_ip_update___invalid_project(self):
+        exitcode, stdout, stderr = self.rc('{} {} ip update -p xxxxxxxx -i liotest1 --type fc'.format(self.setsite, self.dmx), maxtry=1)
+        print("exitcode: {}\nstdout: {}\nstderr: {}\n".format(exitcode, stdout, stderr))
+        self.assertIn("is not a valid project", stderr)
+
+    def _test_002___dmx_ip_update___invalid_variant(self):
+        exitcode, stdout, stderr = self.rc('{} {} ip update -p Raton_Mesa -i xxxxxx --type fc'.format(self.setsite, self.dmx), maxtry=1)
+        print("exitcode: {}\nstdout: {}\nstderr: {}\n".format(exitcode, stdout, stderr))
+        self.assertIn("does not exist within project", stderr)
+
+    def test_003___dmx_ip_update___invalid_type(self):
+        exitcode, stdout, stderr = self.rc('{} {} ip update -p Raton_Mesa -i rtmliotest1 --type xxxxx -n'.format(self.setsite, self.dmx), maxtry=1)
+        print("exitcode: {}\nstdout: {}\nstderr: {}\n".format(exitcode, stdout, stderr))
+        self.assertIn("IPType xxxxx does not exist", stderr)
+
+    def test_004___dmx_ip_update___iptype_not_defined_in_ip(self):
+        exitcode, stdout, stderr = self.rc('{} {} ip update -p Raton_Mesa -i rtmliotest92 -n'.format(self.setsite, self.dmx), maxtry=1)
+        print("exitcode: {}\nstdout: {}\nstderr: {}\n".format(exitcode, stdout, stderr))
+        self.assertIn("the following arguments are required: -t", stderr)
+
+    def test_005___dmx_ip_update___nothing_to_update(self):
+        exitcode, stdout, stderr = self.rc('{} {} ip update -p Raton_Mesa -i rtmliotest1 --type ss_arch -n'.format(self.setsite, self.dmx), maxtry=1)
+        print("exitcode: {}\nstdout: {}\nstderr: {}\n".format(exitcode, stdout, stderr))
+        self.assertIn("All required libtypes already present", stderr)
+        self.assertIn("All dev libraries already present", stderr)
+        self.assertIn("All configurations already present", stderr)
+
+    def test_006___dmx_ip_update___change_iptype(self):
+        exitcode, stdout, stderr = self.rc('{} {} ip update -p Raton_Mesa -i rtmliotest91 --type bcmlib --debug -n'.format(self.setsite, self.dmx), maxtry=1)
+        print("exitcode: {}\nstdout: {}\nstderr: {}\n".format(exitcode, stdout, stderr))
+        self.assertIn("Add library: project=Raton_Mesa variant=rtmliotest91 libtype=bcmlib library=dev custom library path=rtmliotest91/bcmlib", stderr)
+        self.assertIn("Removing Raton_Mesa/rtmliotest91/bcmrbc/dev from Raton_Mesa/rtmliotest91/dev", stderr)
+
+
+
+
+if __name__ == '__main__':
+    unittest.main()

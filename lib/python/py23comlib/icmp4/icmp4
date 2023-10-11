@@ -1,0 +1,669 @@
+#!/usr/bin/env python
+
+'''
+This wrapper is created based on icmp4 version:-
+    /p/psg/eda/icmanage/gdp/36226/icm.36226/linux64/bin/icmp4
+
+Full Spec:-
+    http://pg-rdconfluence:8090/display/DI/icmp4+wrapper
+
+commands with -n option
+-------------------------
+- add, edit, delete, revert, reopen, rename, rec, reconcile, move, integrate, copy
+- (only submit/reopen does not have -n option)
+
+commands with -c changelist option
+-----------------------------------
+- all commands have -c changelist option
+
+
+================
+$Id: //depot/da/infra/icmadmin/dev/bin/icmp4_wrapper.py#7 $
+$DateTime: 2018/09/30 19:40:45 $
+$Change: 5422842 $
+$Author: lionelta $
+================
+
+
+'''
+from __future__ import print_function
+
+import os
+import sys
+import threading
+import subprocess
+import re
+import tempfile
+from pprint import pprint
+#import dmx.ecolib.manifest
+#import dmx.ecolib.ecosphere
+#import dmx.ecolib.loader
+import json
+
+### This is the original icmp4 command from ICManage.
+ICMP4 = '/p/psg/eda/icmanage/gdp/36226/icm.36226/linux64/bin/icmp4'
+ICMP4 = '_icmp4'
+
+### List of Large Data Deliverables
+LDDEL = ['rcxt']
+
+### List of Large Data Projects and Tara's test area (remove before production)
+LDPRO = ['da_i10', 'da_regression', 'da_t16ff', 'dmxtesterLabProject', 'Falcon_Mesa', 'hpsi10', 'i10socfm', 'ipqcLabProject', 'Patagon', 'Phoenix', 'process_falcon_10nm', 'TaraLabProject', 'whr']
+
+### List of variants to be skipped. 
+### http://pg-rdjira:8080/browse/DI-1085
+NON_LDVAR = ['cw_lib', 'fmesram_lib', 'ce_lib', 'cs_lib']
+
+
+### Restricted icmp4 commands
+### - submit/reopen will be treated specially as both does not have -n option
+LDCMD = ['add', 'edit', 'delete', 'revert', 'rename', 'rec', 'reconcile', 'move', 'integrate', 'copy']
+
+
+class Icmp4WrapperError(Exception): pass
+
+def main():
+
+    args = change_command_to_original_icmp4(sys.argv[:])
+
+    found = find_command_name_and_index(args)
+    if found:
+        [cmdname, cmdindex] = found
+
+        if cmdname in LDCMD:
+            
+            errors = is_cmdline_filespec_in_large_data(args)
+            if errors:
+                print("ERROR: These files in cmdline filespec are LargeData files:-")
+                pprint(convert_errors_depotpath_to_localpath(errors))
+                print("Please use 'dmx scm' commands to work with LargeData files.")
+                sys.exit(1)
+
+            # https://jira01.devtools.intel.com/browse/PSGDMX-1438
+            # Disallow symlink check-in
+            errors = is_cmdline_filespec_has_symlink(args)
+            if errors:
+                print("ERROR: These files in cmdline filespec has symlink files:-")
+                pprint(convert_errors_depotpath_to_localpath(errors))
+                print("Symlinks are not allowed.")
+                sys.exit(1)
+
+        elif cmdname == 'submit':
+   
+            ### Remove all the 'icmp4 submit' options, except '-c <changelist>' and <filespec>
+            args = remove_submit_options(args)
+
+            [cmdname, cmdindex] = find_command_name_and_index(args)
+
+            ### (-c changenum) is provided in cmdline or, eg:-
+            ###     $icmp4 submit -c 12345
+            ### (-c changenum) is not provided, and filespec is also not provided
+            ###     $icmp4 submit
+            if get_changenum(args) or cmdindex == len(args) - 1:
+               
+                errors = is_changelist_filespec_in_large_data(args)
+                if errors:
+                    print("ERROR: These files in changelist are LargeData files:-")
+                    pprint(convert_errors_depotpath_to_localpath(errors))
+                    print("Please submit/revert your LargeData files using 'dmx scm' commands first before submitting other files.")
+                    sys.exit(1)
+
+                # https://jira01.devtools.intel.com/browse/PSGDMX-1438
+                # Disallow symlink check-in
+                errors = is_changelist_filespec_has_symlink(args)
+                if errors:
+                    print("ERROR: These files in changelist are symlinks:-")
+                    pprint(convert_errors_depotpath_to_localpath(errors))
+                    print("Symlinks are not allowed to be checked in.")
+                    sys.exit(1)
+
+            ### (-c changenum) is not provided in cmdline and filespec is provided, eg:-
+            ###     $icmp4 submit ... -or- 
+            ###     $icmp4 submit a/b/c.txt
+            else:
+                filespec = get_filespec_from_submit_command(args)
+                #errors = is_cmdline_filespec_in_large_data([ICMP4, 'where', filespec], dryrun=False)
+                cmd = [ICMP4, '-ztag', 'opened', filespec]
+                errors = run_command_and_check_if_output_match_large_data(cmd)
+                if errors:
+                    print("ERROR: These files in cmdline filespec are LargeData files:-")
+                    pprint(convert_errors_depotpath_to_localpath(errors))
+                    print("Please use 'dmx scm' commands to work with LargeData files.")
+                    sys.exit(1)
+
+                # https://jira01.devtools.intel.com/browse/PSGDMX-1438
+                # Disallow symlink check-in
+                errors = run_command_and_check_if_output_match_symlink(cmd)
+                if errors:
+                    print("ERROR: These files in cmdline filespec are symlinks:-")
+                    pprint(convert_errors_depotpath_to_localpath(errors))
+                    print("Symlinks are not allowed to be checked in.")
+                    sys.exit(1)
+
+
+        elif cmdname == 'reopen':
+            filespecs = get_filespecs_from_reopen_command(args)
+            errors = is_cmdline_filespec_in_large_data([ICMP4, 'where'] + filespecs, dryrun=False)
+            if errors:
+                print("ERROR: These files in cmdline filespec are LargeData files:-")
+                pprint(convert_errors_depotpath_to_localpath(errors))
+                print("Please use 'dmx scm' commands to work with LargeData files.")
+                sys.exit(1)
+
+    dispatch_to_original_icmp4(sys.argv)
+
+
+def remove_submit_options(args):
+    '''
+    Here are the options for 'icmp4 submit'
+
+    p4 submit [-Af -r -s -f option --noretransfer 0|1]
+    p4 submit [-Af -r -s -f option] file
+    p4 submit [-Af -r -f option] -d description
+    p4 submit [-Af -r -f option] -d description file
+    p4 submit [-Af -r -f option --noretransfer 0|1] -c changelist#
+    p4 submit -e shelvedChange#
+    p4 submit -i [-Af -r -s -f option]
+              --parallel=threads=N[,batch=N][,min=N]
+
+    '''
+    ret = []
+    while args:
+        e = args.pop(0)
+        ret.append(e)
+        if e == 'submit':
+            break
+    while args:
+        e = args.pop(0)
+        if e in ['-Af', '-r', '-s']:
+            continue
+        elif e in ['-f', '--noretransfer', '-d', '-e']:
+            args.pop(0)
+            continue
+        else:
+            ret.append(e)
+    return ret
+
+
+def convert_errors_depotpath_to_localpath(errors):
+    '''
+    convert all the //depot/... paths in the errors into localpaths
+    '''
+    retlist = []
+    for e in errors:
+        match = re.search('(//depot[\S]+)', e)
+        if match:
+            depotpath = match.groups()[0]
+            
+            # Remove version, ie: '//depot/a/b/c.txt#13' ==>  '//depot/a/b/c.txt'
+            depotpath = re.sub('#\d+$', '', depotpath)
+
+            cmd = [ICMP4, '-Ztag', 'where', depotpath]
+            stdout, stderr = execute(cmd)
+            firstpath = get_first_path(stdout)
+            if firstpath:
+                retlist.append(firstpath)
+            else:
+                retlist.append(e)
+
+        else:
+            retlist.append(e)
+            continue
+
+    return retlist
+
+
+def get_first_path(lines):
+    '''
+    txtlist == [
+        '... depotFile //blablabla',
+        '... clientFile //blablabla',
+        '... path /111',
+        ''
+        '... depotFile //blablabla
+        '... clientFile //blablabla',
+        '... path /222',
+        ''
+        ...   ...   ...
+    ]
+
+    Return '/111'
+    if no '... path ' is found, return ''
+    '''
+    key = '... path '
+    for line in lines:
+        if line.startswith(key):
+            return line.lstrip(key)
+    return ''
+
+
+def get_filespecs_from_reopen_command(argvs):
+    '''
+    icmp4 reopen only has 2 options
+    - -c changenum
+    - -t filetype
+    ... anything after those 2 are filespecs
+
+    return [filespec1, filespec2, ...]
+    '''
+    cmd = argvs[:]
+    [cmdname, cmdindex] = find_command_name_and_index(cmd)
+    retlist = []
+    therest = cmd[cmdindex+1:]
+    while therest:
+        tmp = therest.pop(0)
+        if tmp == '-c' or tmp == '-t':
+            therest.pop(0)
+        else:
+            retlist.append(tmp)
+    return retlist
+
+
+def get_filespec_from_submit_command(argvs):
+    '''
+    'icmp4 submit' command comes in 3 form
+    - when -c changenum is provided, there will be no filespec.
+    - when -c changenum is not provided, the last (and only last) element is the filespec.
+    - when no filespec and no -c is provided (icmp4 submit), return ''
+    (icmp4 submit allows only 1 filespec)
+
+    if filespec:
+        return 'filespec_string'
+    else:
+        return ''
+    '''
+    ### handle 'icmp4 submit' case (no -c and no filespec provided) 
+    [cmdname, cmdindex] = find_command_name_and_index(argvs)
+    if cmdindex == len(argvs) - 1:
+        return ''
+
+    if not get_changenum(argvs):
+        return argvs[-1]
+    return ''
+
+
+def is_cmdline_filespec_in_large_data(argvs, ztag=True, dryrun=True):
+    '''
+    check in there are //depot paths that matches with Large Data path.
+    if it does:
+        return ['failing line 1', 'failing line 2', ...]
+    else:
+        return []
+
+    '''
+    retlist = []
+    cmd = argvs[:]
+    if dryrun:
+        cmd = insert_dryrun_option(cmd)
+    if ztag:
+        cmd = insert_ztag_option(cmd)
+    retlist = run_command_and_check_if_output_match_large_data(cmd)
+
+    return retlist
+
+
+def is_cmdline_filespec_has_symlink(argvs, ztag=True, dryrun=True):
+    '''
+    check in there are //depot paths that matches with Large Data path.
+    if it does:
+        return ['failing line 1', 'failing line 2', ...]
+    else:
+        return []
+
+    '''
+    retlist = []
+    cmd = argvs[:]
+    if dryrun:
+        cmd = insert_dryrun_option(cmd)
+    if ztag:
+        cmd = insert_ztag_option(cmd)
+    retlist = run_command_and_check_if_output_match_symlink(cmd)
+    return retlist
+
+
+def change_command_to_original_icmp4(cmd):
+    #return [ICMP4] + cmd[1:]
+    return [ICMP4] + cmd[1:]
+
+
+def is_changelist_filespec_in_large_data(argvs):
+    '''
+    check in the changelist if there are any matching Large Data path from 'Files' section.
+    if it does:
+        return ['failing line 1', 'failing line 2', ...]
+    else:
+        return []
+
+    '''
+    changenum = get_changenum(argvs)
+    cmd = [ICMP4, 'change', '-o']
+    if changenum:
+        cmd.append(changenum)
+    retlist = run_command_and_check_if_output_match_large_data(cmd)
+
+    return retlist
+
+
+def is_changelist_filespec_has_symlink(argvs):
+    '''
+    check in the changelist if there are any symlink from 'Files' section.
+    if it does:
+        return ['failing line 1', 'failing line 2', ...]
+    else:
+        return []
+
+    '''
+    changenum = get_changenum(argvs)
+    cmd = [ICMP4, 'opened', '-c']
+    if changenum:
+        cmd.append(changenum)
+    else:
+        cmd.append('default')
+    retlist = run_command_and_check_if_output_match_symlink(cmd)
+    return retlist
+
+
+def run_command_and_check_if_output_match_large_data(cmd):
+    '''
+    run the given 'cmd'
+    loop thru each output lines, and return those that matches the LargeData regex.
+
+    if matches:
+        return ['line1', 'line3']
+    else:
+        return []
+
+    '''
+    retlist = []
+    stdout, stderr = execute(cmd)
+    lines = stdout + stderr
+    for line in lines:
+        if is_filespec_large_data(line):
+            retlist.append(line)
+
+    return retlist
+
+
+def run_command_and_check_if_output_match_symlink(cmd):
+    '''
+    run the given 'cmd'
+    loop thru each output lines, and return those that matches the symlink regex.
+
+    if matches:
+        return ['line1', 'line3']
+    else:
+        return []
+
+    '''
+    retlist = []
+    stdout, stderr = execute(cmd)
+    lines = stdout + stderr
+
+    ### This section checks for output of 'icmp4 opened ...'
+    ### The output of 'icmp4 opened ...' looks like this
+    ### - //depot/icm/proj/i10socfm/liotest1/cdl/dev/FOR_REGRESSION_TESTS_DONOT_REMOVE/linka.txt#4 - edit default change (symlink)
+    for line in lines:
+        if is_filespec_symlink(line):
+            ### We do allow users to delete symlinks.
+            if ' - delete ' not in line:
+                depotpath = line.split(' - ')[0]
+                filepath = convert_errors_depotpath_to_localpath([depotpath])[0]
+                if not is_realfile_from_same_varlib(filepath, depotpath):
+                    retlist.append(line)
+
+
+    ### This section checks for output of '_icmp4 -Ztag <cmd> -n <filespec>'
+    ### The output of the above command looks like this
+    ### _icmp4 -Ztag add -n -t symlink ...
+    ###  ... depotFile //depot/icm/proj/i10socfm/liotest1/cdl/dev/FOR_REGRESSION_TESTS_DONOT_REMOVE/iw
+    ###  ... clientFile /nfs/site/disks/da_infra_1/users/yltan/lionelta.i10socfm.liotest1.3/liotest1/cdl/FOR_REGRESSION_TESTS_DONOT_REMOVE/iw
+    ###  ... workRev 1
+    ###  ... action add
+    ###  ... type symlink
+    ###  
+    ###  ... depotFile //depot/icm/proj/i10socfm/liotest1/cdl/dev/FOR_REGRESSION_TESTS_DONOT_REMOVE/linkc.txt
+    ###  ... clientFile /nfs/site/disks/da_infra_1/users/yltan/lionelta.i10socfm.liotest1.3/liotest1/cdl/FOR_REGRESSION_TESTS_DONOT_REMOVE/linkc.txt
+    ###  ... workRev 1
+    ###  ... action add
+    ###  ... type symlink
+    for line in lines:
+        if '... clientFile ' in line:
+            filepath = line.split()[-1]
+            continue
+        elif '... depotFile ' in line:
+            depotpath = line.split()[-1]
+
+            ### '... depotFile' is always the starting of a new section, thus, initializing here
+            OK = 0
+        elif '... action delete' in line:
+            ### It is OK to user to 'icmp4 delete' a symlink.
+            OK = 1
+        elif '... type symlink' in line and not OK and not is_realfile_from_same_varlib(filepath, depotpath):
+            retlist.append(filepath)
+
+    return retlist
+
+
+def is_realfile_from_same_varlib(clientpath, depotpath):
+    ''' clientpath is a symlink. Check and see if clientpath's realfile is from the same /variant/libtype/.
+    Return True if yes, else False.
+
+    https://jira01.devtools.intel.com/browse/PSGDMX-1480
+
+    depotpath ==  '//depot/icm/proj/i10socfm/liotest1/oasis/dev/inside'
+    clientFile == '/nfs/site/disks/da_infra_1/users/yltan/lionelta.i10socfm.liotest1.3/liotest1/oasis/inside'
+    '''
+
+    variant, libtype = depotpath.split('/')[6:8]
+    varlib = '/{}/{}/'.format(variant, libtype)
+    realpath = os.path.realpath(clientpath)
+
+    clientpath_wsroot = clientpath.split(varlib)[0]
+    realpath_wsroot = realpath.split(varlib)[0]
+    
+    if clientpath_wsroot == realpath_wsroot:
+        return True
+    else:
+        return False
+
+
+def get_changenum(argvs):
+    '''
+    argvs == ['icmp4', 'add', '-c', '123', 'blabla']
+    return '123'
+
+    argvs == ['icmp4', 'add', 'blabla']
+    return ''
+
+    argvs = ['icmp4', 'submit']
+    return ''
+    '''
+    argv = argvs[:]
+
+    [cmdname, cmdindex] = find_command_name_and_index(argv)
+
+    ### to handle case with no options ['icmp4', 'submit']
+    if len(argv) == (cmdindex + 1):
+        return ''
+
+    therest = argv[cmdindex:]
+    while therest:
+        if therest.pop(0) == '-c':
+            return therest.pop(0)
+    return ''
+
+
+def insert_dryrun_option(argvs):
+    '''
+    argv == ['icmp4', 'add', 'a.txt']
+    return == ['icmp4', 'add', '-n', 'a.txt']
+    '''
+    argv = argvs[:]
+    [cmdname, cmdindex] = find_command_name_and_index(argv)
+    argv.insert(cmdindex + 1, '-n')
+    return argv
+
+
+def insert_ztag_option(argvs):
+    '''
+    argv == ['icmp4', 'add', 'a.txt']
+    return == ['icmp4', '-Ztag', 'add', 'a.txt']
+    '''
+    argv = argvs[:]
+    [cmdname, cmdindex] = find_command_name_and_index(argv)
+    argv.insert(1, '-Ztag')
+    return argv
+
+
+def dispatch_to_original_icmp4(cmd):
+    cmd[0] = ICMP4
+    subprocess.call(cmd)
+
+
+def is_filespec_large_data(filespec):
+    '''
+    filespec == '//depot/icm/proj/i10socfm/ar_lib/rcxt/dev/a.txt' 
+    -or-
+    filespec == 'some rubbish bla : //depot/icm/proj/i10socfm/ar_lib/rcxt/dev/a.txt : more rubbish lalala'
+
+    if filespec is from Large Data:
+        return True
+    else:
+        return False
+    '''
+    REGEX = '//depot/icm/proj/(?P<project>[^/]+)/(?P<variant>[^/]+)/(?P<libtype>[^/]+)/(?P<library>[^/]+)/'
+    m = re.search(REGEX, filespec)
+    if m:
+        d = m.groupdict()
+        return is_large_and_not_in_exclude(d['project'], d['variant'], d['libtype'])
+    #return False
+
+
+def is_filespec_non_ldvar(filespec):
+    '''
+    filespec == '//depot/icm/proj/i10socfm/ar_lib/rcxt/dev/a.txt' 
+    -or-
+    filespec == 'some rubbish bla : //depot/icm/proj/i10socfm/ar_lib/rcxt/dev/a.txt : more rubbish lalala'
+    -or-
+    filespec == '//depot/icm/proj/i10socfm/liotest1/rcxt/dev/zzz.txt#2 - delete change 12767498 (symlink+l)' 
+
+    if filespec's variaint is in NON_LDVAR:
+        return True
+    else:
+        return False
+    '''
+    REGEX = '//depot/icm/proj/(?P<project>[^/]+)/(?P<variant>[^/]+)/(?P<libtype>[^/]+)/(?P<library>[^/]+)/'
+    m = re.search(REGEX, filespec)
+    if m:
+        d = m.groupdict()
+        if d['variant'] in NON_LDVAR:
+            return True
+    return False
+
+
+def is_filespec_symlink(filespec):
+    '''
+    filespec == '//depot/icm/proj/i10socfm/liotest1/rcxt/dev/zzz.txt#2 - delete change 12767498 (symlink+l)' 
+
+    if filespec is symlink:
+        return True
+    else:
+        return False
+    '''
+    REGEX = '(?P<symlink>\(symlink.*\))'
+    m = re.search(REGEX, filespec)
+    if m:
+        d = m.groupdict()
+        if d:
+            return True
+    return False
+
+
+def find_command_name_and_index(argvs):
+    '''
+    argv == sys.argv
+
+    if found:
+        return [cmdname, cmdindex]
+    else:
+        return []
+
+    Example:
+        icmp4 add ...
+        > return ['add', 1]
+
+        icmp4 -u yltan add -c 1234 
+        > return ['add', 3]
+
+    '''
+    ### options without value. eg:- (-a, -b, -c)
+    OPT0 = ['-h', '-s', '-v', '-G', '-I', '-L', '-q', '-U']
+
+    ### options with 1 compulsory value, eg:- (-a 12, -b aa, -c qwe)
+    OPT1 = ['-b', '-o', '-x', '-z', '-Z', '-c', '-C', '-d', '-H', '-l', '-p', '-P', '-r', '-Q', '-u']
+
+    index = 0
+    argv = argvs[:]
+    argv.pop(0) # first element is icmp4 binary path
+    while len(argv):
+        tmp = argv.pop(0)
+        index += 1
+        if tmp.startswith('-'):
+            if tmp[:2] in OPT1 and len(tmp) == 2:
+                argv.pop(0) # remove the value of the option
+                index += 1
+        else:
+            return [tmp, index]
+    
+    return []
+
+    for cmd in LDCMD:
+        try:
+            val = argv[:-1].index(cmd)
+            return [cmd, val]
+        except:
+            pass
+    return []
+
+
+def execute(cmd, shell=False):
+    """
+    Execute the cmd list and return (stdout,stderr) as lists.
+
+    if deadlock happens, look here
+        https://thraxil.org/users/anders/posts/2008/03/13/Subprocess-Hanging-PIPE-is-your-enemy/
+    (change subprocess.PIPE to tempfile.NamedTemporaryFile())
+
+    """
+    if shell:
+        cmd = ' '.join(cmd)
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=shell)
+    (o,e) = p.communicate()
+    return (o.splitlines(), e.splitlines())
+
+def not_is_large_and_not_in_exclude(project, ip, deliverable):
+    e = dmx.ecolib.ecosphere.EcoSphere()
+    f = e.get_family_for_icmproject(project)
+    manifest = dmx.ecolib.manifest.Manifest(f.name, deliverable)
+    if manifest.large and not ip in manifest.large_excluded_ip:
+        return True
+    else:
+        return False
+def is_large_and_not_in_exclude(project, ip, deliverable):
+    sample_json = '/p/psg/flows/common/dmx/dmx_setting_files/ld_info_for_icmp4.json'
+    with open(sample_json) as json_file:
+        data = json.load(json_file)
+    #if data[project][deliverable]['dm'] == 'naa' and ip not in data[project][deliverable]['excluded_ip']:
+    try:
+        #if data.get(project).get(deliverable).get('dm') == 'naa' and ip not in data.get(project).get(deliverable).get('excluded_ip'):
+        if data[project][deliverable]['dm'] == 'naa' and ip not in data[project][deliverable]['excluded_ip']:
+          #  print "This is a large data"
+            return True
+        else:
+          #  print "This is not a large data"
+            return False
+    except KeyError:
+        #print "This is not a large data"
+        return False
+if __name__ == '__main__':
+    sys.exit(main())

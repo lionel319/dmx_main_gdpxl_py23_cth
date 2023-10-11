@@ -1,0 +1,9 @@
+#!/bin/tcsh -f
+
+#setenv PATH '/p/psg/ctools/arc/2019.1/bin:/nfs/png/home/lionelta/bin:/usr/sbin:/usr/bin/X11:/usr/X11R6/bin:/opt/kde3/bin:/usr/games:/usr/lib/mit/bin:/usr/lib/mit/sbin:/usr/lib/qt3/bin:/p/psg/da/infra/utils/bin:/usr/intel/bin:/bin:/usr/bin:/usr/local/bin:.'
+#unsetenv LD_LIBRARY_PATH
+unsetenv PYTHONPATH
+
+source /p/ipx/cad/ipxclient/prod/setup/ph1_ipxclient.setup >& /dev/null
+ipx $argv:q
+

@@ -1,0 +1,384 @@
+#!/usr/bin/env python
+'''
+$Header: //depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/abnrlib/flows/printconfig.py#2 $
+$Change: 7517010 $
+$DateTime: 2023/03/09 02:19:58 $
+$Author: lionelta $
+
+Description: abnr "printconfig" subcommand plugin
+Author: Lee Cartwright
+Copyright (c) Altera Corporation 2015
+All rights reserved.
+'''
+from __future__ import print_function
+from builtins import str
+from builtins import object
+import sys
+import os
+import logging
+import textwrap
+import csv
+import json
+
+from dmx.abnrlib.config_factory import ConfigFactory
+from dmx.abnrlib.icm import ICManageCLI
+from dmx.utillib.arcenv import ARCEnv
+import dmx.utillib.stringifycmd
+#sys.exit(1)
+
+class PrintConfigError(Exception): pass
+
+class PrintConfig(object):
+    '''
+    Runner subclass for the abnr printconfig subcommand
+    '''
+    def __init__(self, project, variant, clr, show_simple=True, show_libraries=False,
+                 nohier=True, csv=None, libtype=None, variant_filter=[], libtype_filter=[], json=None, flat=None):
+        '''
+        Initialiser for the PrintConfigRunner class
+
+        :param project:  The IC Manage project
+        :type project: str
+        :param variant: The IC Manage variant
+        :type variant: str
+        :param config: The IC Manage config
+        :type config: str
+        :param show_simple: Flag indicating whether or not to include simple configs in the output
+        :type show_simple: bool
+        :param show_libraries: Flag indicating whether or not to show library/release information in output
+        :type show_libraries: bool
+        :param csv: Specifies a filename to write  the report to in CSV format
+        :type csv: str or None
+        '''
+        self.project = project
+        self.variant = variant
+        self.libtype = libtype
+        self.clr = clr
+        self.logger = logging.getLogger(__name__)
+        self.cli = ICManageCLI(preview=True)
+        self.show_simple = show_simple
+        self.show_libraries = show_libraries
+        self.nohier = nohier
+        self.csv = csv
+        self.flat = flat 
+        self.variant_filter = variant_filter
+        self.libtype_filter = libtype_filter
+        self.json = json
+
+        # If show_libraries is set then show_simple must also be True, even if not
+        # explicitly requested
+        if self.show_libraries:
+            self.show_simple = True
+        # If libtype_filter is applied, we are showing simple configs. Set show_simple to true
+        if self.libtype_filter:
+            self.show_simple = True            
+
+
+    def validate_inputs(self):
+        # If project not given, get project from IP
+        if not self.project:
+            self.logger.info('Reading from ARC environment')
+            arc_projects = ARCEnv().get_project()
+            for arc_project in arc_projects:
+                if self.cli.variant_exists(arc_project, self.variant):
+                    self.project = arc_project
+                    break
+            if not self.project:
+                raise PrintConfigError('Variant {0} is not found in projects: {1}'.format(self.variant, arc_projects))
+        else:
+            if not self.cli.project_exists(self.project):
+                raise PrintConfigError("{0} does not exist".format(self.project))
+            if not self.cli.variant_exists(self.project, self.variant):
+                raise PrintConfigError("{0}/{1} does not exist".format(self.project, self.variant))       
+
+    def _get_dmx_binary_path(self):
+        exe = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', '..', '..', 'bin', 'dmx')
+        exe = os.path.abspath(exe)
+        return exe
+
+
+    def _get_dmx_cmd(self):
+        exe = self._get_dmx_binary_path()
+        cmd = '{} report content -p {} -i {} -b {}'.format(exe, self.project, self.variant, self.clr)
+        if self.libtype:
+            cmd += ' -d {}'.format(self.libtype)
+        if not self.show_simple:
+            cmd += ' --nohier'
+        if self.csv:
+            cmd += ' --csv {}'.format(self.csv)
+        if self.flat:
+            cmd += ' --flat {}'.format(self.flat)
+        if self.json:
+            cmd += ' --json {}'.format(self.json)
+        cmd += ' ; '
+        return cmd
+
+
+    def _get_final_cmd(self):
+        basecmd = self._get_dmx_cmd()
+        arcopts = 'default'
+        sshopts = 'default'
+        washopts = 'default'
+        sc = dmx.utillib.stringifycmd.StringifyCmd(basecmd=basecmd, sshopts=sshopts, arcopts=arcopts, washopts=washopts)
+        sc.sshexe = '/p/psg/da/infra/admin/setuid/tnr_ssh'
+        sc.arcexe = 'arc'
+
+        final_cmd = sc.get_finalcmd_string()
+        self.logger.debug("stringifycmd: {}".format(final_cmd))
+        return final_cmd
+
+
+    def _rerun_dmx_report_content_as_psginfraadm(self):
+        final_cmd = self._get_final_cmd()
+        return os.system(final_cmd)
+
+
+    def _user_is_psginfraadm(self):
+        return os.getenv("USER") == 'psginfraadm'
+
+
+    def run(self):
+        ret = 0
+
+        if not self.cli.user_has_icm_license() and not self._user_is_psginfraadm():
+            ret = self._rerun_dmx_report_content_as_psginfraadm()
+            # we need to raise it so that dmx's exit error will be able to be propagated to it's parent's dmx call
+            # otherwise, the parent dmx call will always get a 0 exitcode
+            if not ret:
+                return 0
+            else:
+                raise Exception
+    
+        self.validate_inputs()
+        self.config = ConfigFactory.create_from_icm(self.project, self.variant, self.clr, libtype=self.libtype, preview=True)
+
+        if self.csv is not None:
+            self.write_csv()
+            self.logger.info("Output file generated at {}".format(self.csv))
+        elif self.json is not None:
+            self.write_json()            
+            self.logger.info("Output file generated at {}".format(self.json))
+        elif self.flat is not None:
+            self.write_flat()            
+            self.logger.info("Output file generated at {}".format(self.flat))
+        else:
+            last_modified_date = self.get_config_last_modified_date()
+            if not last_modified_date:
+                raise PrintConfigError('Problem getting configuration last modified date for {0}'.format(
+                    self.config.get_full_name()
+                ))
+
+            if not self.config.is_config():
+                self.print_header(last_modified_date)
+                print(self.format_simple_config())
+            else:
+                # Filter only works for composite configuration
+                if self.variant_filter and not self.libtype_filter:
+                    results = {}
+                    for variant in self.variant_filter:
+                        for result in self.config.search(
+                                       variant='^{}$'.format(variant),
+                                       libtype=None):
+                            if str(result) not in results:                                       
+                                results[str(result)] = result                                       
+                    if self.show_simple:
+                        for result in results:
+                            print(results[result].report(show_simple=self.show_simple, nohier=True, legacy_format=True))
+                    else:                          
+                        for result in results:
+                            print(str(result))
+                elif not self.variant_filter and self.libtype_filter:
+                    results = []
+                    for libtype in self.libtype_filter:
+                        if self.nohier:
+                            results = results + [str(x) for x in self.config.search(
+                                                            variant='^{}$'.format(self.variant),
+                                                            libtype='^{}$'.format(libtype))]
+                        else:
+                            results = results + [str(x) for x in self.config.search(
+                                                            libtype='^{}$'.format(libtype))]
+                    for result in sorted(list(set(results))):
+                        print(result)                                                                     
+                elif self.variant_filter and self.libtype_filter:
+                    results = []
+                    for variant in self.variant_filter:
+                        for libtype in self.libtype_filter:
+                            results = results + [str(x) for x in self.config.search(
+                                                            variant='^{}$'.format(variant),
+                                                            libtype='^{}$'.format(libtype))]
+                    for result in sorted(list(set(results))):
+                        print(result)                          
+                else:                                        
+                    self.print_header(last_modified_date)
+                    print(self.config.report(show_simple=self.show_simple,
+                                             show_libraries=self.show_libraries,
+                                             nohier=self.nohier, legacy_format=True))
+
+        return ret
+
+    def format_simple_config(self):
+        '''
+        Formats a top-level simple configuration for printing to stdout
+        :param config_details: The configuration details
+        :type config_details: dict
+        :return: Formatted string representing the config
+        :type return: str
+        '''
+        formatted_output = '\tLibtype: {0}, Library: {1}, Release: {2}'.format(self.config.libtype, self.config.library, self.config.lib_release)
+
+        ### Print Git Repo Path: https://jira.devtools.intel.com/browse/PSGDMX-3922
+        if self.config.libtype == 'cthfe':
+            import dmx.utillib.git
+            g = dmx.utillib.git.Git()
+            repopath = g.get_master_git_repo_path(project=self.config.project, variant=self.config.variant, libtype=self.config.libtype, library=self.config.library)
+            formatted_output += '\n\tGit Repo Path: {}'.format(repopath)
+
+        return formatted_output
+
+    def print_header(self, last_modified_date):
+        '''
+        Prints the standard header for the configuration
+        :param last_modified_date: The configuration details
+        :type last_modified_date: str
+        '''
+        if self.config.is_library():
+            print('Project: {0}, IP: {1}, Deliverable: {2}, BOM: {3}'.format(self.project, self.variant, self.libtype, self.config.library))
+        elif self.config.is_release():
+            print('Project: {0}, IP: {1}, Deliverable: {2}, BOM: {3}'.format(self.project, self.variant, self.libtype, self.config.lib_release))
+        else:
+            print('Project: {0}, IP: {1}, BOM: {2}'.format(self.project, self.variant, self.config.config))
+
+        print('\tLast modified: {0} (in server timezone)'.format(last_modified_date))
+
+    def get_config_last_modified_date(self):
+        '''
+        Gets the configuration last modified date from IC Manage depot
+        :return: String of the date
+        :type return: str
+        '''
+        # Get the last modified date from Perforce
+        last_modified_data = self.cli.get_clr_last_modified_data(self.project,
+                                                                     self.variant,
+                                                                     self.clr,
+                                                                     libtype=self.libtype)
+
+        date = '{0}/{1}/{2} {3}:{4}:{5}'.format(
+            last_modified_data['year'], last_modified_data['month'],
+            last_modified_data['day'], last_modified_data['hours'],
+            last_modified_data['minutes'], last_modified_data['seconds']
+        )
+
+        return date
+
+    def write_json(self):
+        '''
+        Writes the configuration report in JSON format to self.json
+        '''
+        with open(self.json, 'w') as jsonfile:
+            data = self.json_report(self.config)
+            json.dump(data, jsonfile, indent=4, sort_keys=True)
+
+    def json_report(self, config):
+        data = {}
+        def build_json(data, config):
+            if str(config) not in data:
+                data[str(config)] = {}
+                data[str(config)]['deliverable'] = []
+                data[str(config)]['ip'] = []
+            for cfg in config.configurations:
+                if not cfg.is_config():
+                    data[str(config)]['deliverable'].append(str(cfg))
+                else:
+                    data[str(config)]['ip'].append(str(cfg))                    
+                    build_json(data, cfg)
+            data[str(config)]['deliverable'] = sorted(list(set(data[str(config)]['deliverable'])))
+            data[str(config)]['ip'] = sorted(list(set(data[str(config)]['ip'])))
+        build_json(data, config)                    
+
+        return data            
+
+    def flat_report(self, config):
+        result = []
+        for c_name in config.flatten_tree():
+            if c_name.is_config(): continue
+            c_name = str(c_name)
+            result.append(c_name)
+        return sorted(result)
+
+    def write_flat(self):
+        '''
+        Writes the configuration report in PRISM flatten format to self.flat
+        '''
+        data = self.flat_report(self.config) 
+        with open(self.flat, 'w') as flatfile:
+            for c_name in data:
+                flatfile.write(c_name+'\n')
+
+    def write_csv(self):
+        '''
+        Writes the configuration report in CSV format to self.csv
+        '''
+        with open(self.csv, 'w') as csvfile:
+            fieldnames = ['project', 'variant', 'config', 'libtype', 'library', 'release', 'sub_configs']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+            writer.writeheader()
+            self.csv_report(writer, self.config)
+
+    def csv_report(self, writer, config):
+        '''
+        Writes config to the writer csv object. Recurses through the configuration tree.
+
+        :param writer: The CSV DictWriter object used for writing
+        :type writer: DictWriter
+        :param config: The configuration being written to csv
+        :type config: ICMConfig
+        '''
+        row_data = {
+            'project' : config.project,
+            'variant' : config.variant,
+        }
+        if config.is_config():
+            row_data['config'] = config.config
+        elif config.is_library():
+            row_data['config'] = config.library
+        elif config.is_release():
+            row_data['config'] = config.lib_release
+
+        # Only sort the sub_configs once
+        sorted_configs = []
+        if config.is_config():
+            all_configs = config.configurations
+            if not self.show_simple:
+                all_configs = [x for x in all_configs if x.is_config()]
+
+            sorted_configs = sorted(all_configs, key=lambda x: x.get_full_name())
+
+        if not config.is_config():
+            row_data['libtype'] = config.libtype
+            if self.show_libraries:
+                row_data['library'] = config.library
+                row_data['release'] = config.lib_release
+        else:
+            row_data['sub_configs'] = ' '.join([x.get_full_name() for x in sorted_configs])
+
+        if self.variant_filter and not self.libtype_filter:
+            if row_data['variant'] in self.variant_filter:
+                writer.writerow(row_data)
+        elif not self.variant_filter and self.libtype_filter:
+            if 'libtype' in row_data:
+                if row_data['libtype'] in self.libtype_filter:
+                    writer.writerow(row_data)
+        elif self.variant_filter and self.libtype_filter:
+            if 'libtype' in row_data:
+                if row_data['variant'] in self.variant_filter and row_data['libtype'] in self.libtype_filter:
+                    writer.writerow(row_data)
+        else:
+             writer.writerow(row_data)
+                  
+        for sub_config in sorted_configs:
+            if not sub_config.is_config() and not self.show_simple:
+                continue
+
+            self.csv_report(writer, sub_config)
+

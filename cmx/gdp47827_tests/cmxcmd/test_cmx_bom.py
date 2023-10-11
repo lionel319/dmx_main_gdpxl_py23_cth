@@ -1,0 +1,109 @@
+#!/usr/intel/pkgs/python3/3.9.6/bin/python3
+
+# 2014 Altera Corporation. All rights reserved. This source code is highly
+# confidential and proprietary information of Altera and is to be used for
+# internal Altera purposes only.   Altera assumes no responsibility or
+# liability arising out of the application or use of this source code for
+# non-Altera purposes.
+#
+# Tests the abnr icm library
+#
+# $File: //depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/gdp47827_tests/cmxcmd/test_cmx_bom.py $
+# $Revision: #1 $
+# $Change: 7463577 $
+# $DateTime: 2023/01/31 01:08:26 $
+# $Author: lionelta $
+from __future__ import print_function
+import UsrIntel.R1
+
+import unittest
+import inspect
+import os
+import sys
+
+LIB = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))), 'lib', 'python')
+sys.path.insert(0, LIB)
+import cmx.utillib.utils
+
+class TestDmxBom(unittest.TestCase):
+    def setUp(self):
+        self.dmx = os.path.join(LIB, '..', '..', 'bin', 'cmx.py')
+        self.rc = cmx.utillib.utils.run_command
+        
+    def tearDown(self):
+        pass
+
+    def test_010___bom_clone___already_exists(self):
+        exitcode, stdout, stderr = self.rc('{} bom clone -p Raton_Mesa -i rtmliotest1 -b dev --dstbom junkeatt2 '.format(self.dmx), maxtry=1)
+        print("exitcode:{}\nstdout:{}\nstderr:{}\n".format(exitcode, stdout, stderr))
+        self.assertIn('it already exists', stderr)
+
+    def test_011___bom_clone___REL(self):
+        exitcode, stdout, stderr = self.rc('{} bom clone -p Raton_Mesa -i rtmliotest1 -b dev --dstbom RELlionel'.format(self.dmx), maxtry=1)
+        print("exitcode:{}\nstdout:{}\nstderr:{}\n".format(exitcode, stdout, stderr))
+        self.assertIn('invalid destination BOM name', stderr)
+
+    def test_011___bom_clone___invalid_ip(self):
+        exitcode, stdout, stderr = self.rc('{} bom clone -p Raton_Mesa -i rtmliotest1xxxxx -b dev --dstbom xxxxx'.format(self.dmx), maxtry=1)
+        print("exitcode:{}\nstdout:{}\nstderr:{}\n".format(exitcode, stdout, stderr))
+        self.assertIn('does not exist', stderr)
+
+
+    def test_020___bom_create___already_exists(self):
+        exitcode, stdout, stderr = self.rc('{} bom create -p Raton_Mesa -i rtmliotest1 -b dev --include Raton_Mesa/rtmliotest1:ipspec@dev '.format(self.dmx), maxtry=1)
+        print("exitcode:{}\nstdout:{}\nstderr:{}\n".format(exitcode, stdout, stderr))
+        self.assertIn('already exists', stderr)
+
+    def test_021___bom_create___REL(self):
+        exitcode, stdout, stderr = self.rc('{} bom create -p Raton_Mesa -i rtmliotest1 -b snap-123987465 --include Raton_Mesa/rtmliotest1:ipspec@dev'.format(self.dmx), maxtry=1)
+        print("exitcode:{}\nstdout:{}\nstderr:{}\n".format(exitcode, stdout, stderr))
+        self.assertIn('You cannot use dmx bom create to create immutable configurations', stderr)
+
+    def test_022___bom_create___invalid_ip(self):
+        exitcode, stdout, stderr = self.rc('{} bom create -p Raton_Mesa -i rtmliotest1xxxxx -b dev --include Raton_Mesa/rtmliotest1:ipspec@dev'.format(self.dmx), maxtry=1)
+        print("exitcode:{}\nstdout:{}\nstderr:{}\n".format(exitcode, stdout, stderr))
+        self.assertIn('does not exist in project', stderr)
+
+    def test_030___bom_delete___bom_does_not_exist(self):
+        exitcode, stdout, stderr = self.rc('{} bom delete -p Raton_Mesa -i rtmliotest1 -b xxx123yyy456zzz789 '.format(self.dmx), maxtry=1)
+        print("exitcode:{}\nstdout:{}\nstderr:{}\n".format(exitcode, stdout, stderr))
+        self.assertIn('does not exist', stderr)
+
+    def test_040___bom_edit___cant_modify_immutable(self):
+        exitcode, stdout, stderr = self.rc('{} bom edit -p Raton_Mesa -i rtmliotest1 -b snap-1 --inplace '.format(self.dmx), maxtry=1)
+        print("exitcode:{}\nstdout:{}\nstderr:{}\n".format(exitcode, stdout, stderr))
+        self.assertIn('cannot modify an immutable', stderr)
+
+    def test_041___bom_edit___does_not_exist(self):
+        exitcode, stdout, stderr = self.rc('{} bom edit -p Raton_Mesa -i rtmliotest1 -b xxx123987465 --inplace --repbom Raton_Mesa/rtmliotest1:ipspec dev '.format(self.dmx), maxtry=1)
+        print("exitcode:{}\nstdout:{}\nstderr:{}\n".format(exitcode, stdout, stderr))
+        self.assertIn('Make sure that object exist', stderr)
+
+    def test_050___bom_flatten___does_not_exist(self):
+        exitcode, stdout, stderr = self.rc('{} bom flatten -p Raton_Mesa -i rtmliotest1 -b xxx123987465 --dstbom 123123123 '.format(self.dmx), maxtry=1)
+        print("exitcode:{}\nstdout:{}\nstderr:{}\n".format(exitcode, stdout, stderr))
+        self.assertIn('does not exist', stderr)
+
+    def test_060___bom_latest(self):
+        exitcode, stdout, stderr = self.rc('{} bom latest -p Raton_Mesa -i rtmliotest1 -b snap-dev__22'.format(self.dmx), maxtry=1)
+        print("exitcode:{}\nstdout:{}\nstderr:{}\n".format(exitcode, stdout, stderr))
+        self.assertIn('snap-dev__22ww132a', stdout+stderr)
+
+    def test_070___bom_parents(self):
+        exitcode, stdout, stderr = self.rc('{} bom parents -p Raton_Mesa -i rtmliotest1 -b relndev1'.format(self.dmx), maxtry=1)
+        print("exitcode:{}\nstdout:{}\nstderr:{}\n".format(exitcode, stdout, stderr))
+        self.assertIn('Raton_Mesa/rtmliotest2@relndev1', stdout+stderr)
+
+    def test_080___bom_update___does_not_exist(self):
+        exitcode, stdout, stderr = self.rc('{} bom update -p Raton_Mesa -i rtmliotest1 -b xxx1230984756 --syncpoint LIONEL'.format(self.dmx), maxtry=1)
+        print("exitcode:{}\nstdout:{}\nstderr:{}\n".format(exitcode, stdout, stderr))
+        self.assertIn('Make sure that object exist', stdout+stderr)
+
+    def test_090___bom_validate___pass(self):
+        exitcode, stdout, stderr = self.rc('{} bom validate -p Raton_Mesa -i rtmliotest1 -b dev '.format(self.dmx), maxtry=1)
+        print("exitcode:{}\nstdout:{}\nstderr:{}\n".format(exitcode, stdout, stderr))
+        self.assertIn('No Conflicts', stdout+stderr)
+
+
+if __name__ == '__main__':
+    unittest.main()

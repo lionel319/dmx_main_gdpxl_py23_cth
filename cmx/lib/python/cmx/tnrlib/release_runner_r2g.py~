@@ -1,0 +1,274 @@
+#!/usr/intel/pkgs/python3/3.11.1/bin/python3
+
+import UsrIntel.R1
+
+import os
+import sys
+import json
+from pprint import pprint, pformat
+import textwrap
+import logging
+import inspect
+import json
+import time
+import re
+import tempfile
+import configparser
+
+CMXLIB = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')
+DMXLIB = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', '..', '..', 'lib', 'python')
+sys.path.insert(0, DMXLIB)
+sys.path.insert(0, CMXLIB)
+
+from cmx.tnrlib.release_runner_icm import ReleaseRunnerIcm
+import cmx.tnrlib.utils
+import cmx.dmlib.arc
+
+class ReleaseRunnerR2g(ReleaseRunnerIcm):
+    ''' Here's the flow of releasing R2G.
+    Wiki: https://wiki.ith.intel.com/pages/viewpage.action?pageId=3086368023
+    -----
+    Assuming:
+        ::OneBom::
+        liotest1@RC1
+            r2g@dev1
+
+        ::cfg/dut1.design.cfg::
+        [archive_tag]
+        finish = wip1a
+        assembly = wip1b
+
+        ::cfg/dut2.design.cfg::
+        [archive_tag]
+        finish = wip2a
+        assembly = wip2b
+    -----
+
+
+    When User runs
+    > dmx release -p i18asockm -i liotest1 -d r2g -b RC1 -t KM2revA0 -m 1.0
+
+    1. set staging_bom = i18asockm/liotest1@RC1
+
+    2. dmx populate workspace <staging_bom>
+
+    3. dmx workspace check
+
+    4. run posthooks
+
+    5. if all steps went thru successfully:
+        a. copy all PROJ_ARCHIVE tag to RELTAG
+            arc.pl copy dut1/finish/wip1a   -> dut1/finish/REL_wplim_11111        (REL_wplim_111111 tag is based on format: REL_<userid>_<epoch>)
+            arc.pl copy dut1/assembly/wip1b -> dut1/assembly/REL_wplim_11112
+            arc.pl copy dut2/finish/wip2a   -> dut2/finish/REL_wplim_11113
+            arc.pl copy dut2/assembly/wip2b -> dut2/assembly/REL_wplim_11114
+        b. modify *.design.cfg to reflect the new RELTAG. The modified version looks like this:
+            ::cfg/dut1.design.cfg::
+            [archive_tag]
+            finish = REL_wplim_11111
+            assembly = REL_wplim_11112
+
+            ::cfg/dut2.design.cfg::
+            [archive_tag]
+            finish = REL_wplim_11113
+            assembly = REL_wplib_11114
+        c. check-in r2gipspec into a uniq OneBom RELTAG
+            arc.pl -triplet liotest1/r2gipspec/REL1.0KM2revA0__23ww345a -put -from_dir $WORKAREA -bom <dmxdata>/bom.txt
+        d. make_rel_config of ICM(OneBom)
+            /intel/i18asockm/liotest1/r2g/dev/REL1.0KM2revA0__23ww345a
+    '''
+ 
+    def __init__(self, thread, milestone, deliverable, project, ip, bom, label=None, views=None, skipmscheck=None, prel=None, syncpoint=None, skipsyncpoint=None, workarea=None, dryrun=False, force=False):
+        super().__init__(thread, milestone, deliverable, project, ip, bom, label=label, views=views, skipmscheck=skipmscheck, prel=prel, syncpoint=syncpoint, skipsyncpoint=skipsyncpoint, workarea=workarea, dryrun=dryrun, force=force)
+
+        self.CI_SECTIONS = ['cico', 'ci']
+        self.r2gbomcfg_bomfile = ''
+
+    def precheck(self):
+        self.logger.info("-Running-: {}".format(inspect.currentframe().f_code.co_name))
+        errlist = []
+        if not os.getenv("WORKAREA"):
+            errlist.append("$WORKAREA env var not defined.")
+       
+        cfobj = self.get_config_factory_obj()
+        must_exist_libtypes = ['r2g', 'febe']
+        for libtype in must_exist_libtypes:
+            found = cfobj.search("^{}$".format(self.project), "^{}$".format(self.ip), "^{}$".format(libtype))
+            if not found:
+                errlist.append("libtype:{} not found in {}/{}@{}.".format(libtype, self.project, self.ip, self.bom))
+      
+        must_be_rel_libtypes = ['febe']
+        for libtype in must_be_rel_libtypes:
+            found = cfobj.search("^{}$".format(self.project), "^{}$".format(self.ip), "^{}$".format(libtype))
+            if not found[0].name.startswith("REL"):
+                errlist.append("libtype:{} found in {}/{}@{} is not REL. It must be a REL.".format(libtype, self.project, self.ip, self.bom))
+
+        if errlist:
+            self.logger.error("  - FAIL: precheck. Please check the errors below. \n{}".format(pformat(errlist)))
+            raise Exception("FAIL: precheck")
+
+        self.logger.info("-Complete-: {}".format(inspect.currentframe().f_code.co_name))
+
+
+    def get_staging_workarea(self):
+        '''
+        We need to override this for r2g release, because for backend releases, it is special.
+        the 'dmx release' command is already wrapped and called within a `cth_psetup_psg ..... -ward <staging_workarea>`
+        Thus, we should get the staging_workarea variable from the $WORKAREA environment.
+        '''
+        if not hasattr(self, 'staging_workarea') or not self.staging_workarea:
+            #self.staging_workarea = cmx.tnrlib.utils.get_uniq_staging_workarea(self.project, self.ip)
+            self.staging_workarea = os.getenv("WORKAREA")
+        return self.staging_workarea
+
+
+    def pre_run_workspace_check(self, staging_workarea):
+        self.logger.info("-Running-: {}".format(inspect.currentframe().f_code.co_name))
+        self.logger.info("  >FAKE COPY audit files from r2g to $WORKAREA/output/psgaudit/...")
+        self.logger.info("-Complete-: {}".format(inspect.currentframe().f_code.co_name))
+
+    def populate_workspace(self):
+        super().populate_workspace(opts=' -d r2g --debug --force ')
+
+    def archive_duts_to_reltag(self):
+        stagename = inspect.currentframe().f_code.co_name
+        self.logger.info("-Running-: {}".format(stagename))
+
+        ran_cmds = []
+        dutdata = cmx.tnrlib.utils.get_duts_data()
+        for dut in dutdata.keys():
+            for key in self.CI_SECTIONS:
+                if key in dutdata[dut]:
+                    for bundle in dutdata[dut][key]:
+                        tag = dutdata[dut][key][bundle]
+                        cmd = 'arc.pl -triplet {}/{}/{} -copy -to_tag {}'.format(dut, bundle, tag, self.generated_rel_config_name)
+                        ran_cmds.append(cmd)
+                        self.logger.info("  > Running: {}".format(cmd))
+                        exitcode = os.system(cmd)
+                        if exitcode:
+                            self.delete_generated_rel_config()
+                            raise Exception("FAIL: {} step failed. Program Terminated.".format(stagename))
+
+        self.logger.info("   > Successfully ran all these: \n{}".format(pformat(ran_cmds)))
+        self.logger.info("-Complete-: {}".format(stagename))
+
+
+    def archive_r2gbomcfg(self):
+        stagename = inspect.currentframe().f_code.co_name
+        self.logger.info("-Running-: {}".format(stagename))
+
+        cmd = 'arc.pl -triplet {}/{}/{} -put -from_dir {} -bom {}'.format(self.ip, 'r2gbomcfg', self.generated_rel_config_name, self.get_workarea(), self.get_r2gbomcfg_bomfile())
+        exitcode = os.system(cmd)
+        if exitcode:
+            self.delete_generated_rel_config()
+            raise Exception("FAIL: {} step failed. Program Terminated.".format(stagename))
+
+        self.logger.info("-Complete-: {}".format(stagename))
+
+    def update_local_r2gbomcfg_files(self):
+        self.logger.info("-Running-: {}".format(inspect.currentframe().f_code.co_name))
+
+        dutdata = cmx.tnrlib.utils.get_duts_data()
+        for dut in dutdata.keys():
+
+            ### Move *.design.cfg to *.design.cfg.original
+            fromfile = dutdata[dut]['_filename_']
+            tofile = fromfile + '.original'
+            os.system('mv -f {} {}'.format(fromfile, tofile))
+
+            ### Modify tags to RELTAG
+            for k in self.CI_SECTIONS:
+                if k in dutdata[dut]:
+                    for bundle in dutdata[dut][k]:
+                        dutdata[dut][k][bundle] = self.generated_rel_config_name
+
+            del(dutdata[dut]['_filename_'])
+
+            ### Generate new *.design.cfg file
+            c = configparser.ConfigParser()
+            c.optionxform = str     # to preserve case sensitivity
+            c.read_dict(dutdata[dut])
+            with open(fromfile, 'w') as f:
+                c.write(f)
+                self.logger.info("   > generated {}".format(fromfile))
+
+        self.logger.info("-Complete-: {}".format(inspect.currentframe().f_code.co_name))
+
+
+    def get_r2gbomcfg_bomfile(self):
+        self.logger.debug("   > get_r2gbomcfg_bomfile ...")
+        if not self.r2gbomcfg_bomfile:
+            self.r2gbomcfg_bomfile = cmx.dmlib.arc.ARC.get_bom_cfg_file('r2g')
+        self.logger.debug("   > self.r2gbomcfg_bomfile: {}".format(self.r2gbomcfg_bomfile))
+        return self.r2gbomcfg_bomfile
+        #return '/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/DMX_BOM_FILES/KM2revA0/r2g.bom'
+
+    def delete_generated_rel_config(self):
+        import dmx.abnrlib.icm
+        dmx.abnrlib.icm.ICManageCLI().del_release(self.project, self.ip, self.deliverable, '*', self.generated_rel_config_name, force=True)
+
+    def generate_rel_configs(self):
+        key = 'FEBE_RELTAG'
+        febe_reltag = self.get_febe_reltag()
+        super().generate_rel_configs(props={key: febe_reltag})
+        # self.generated_rel_config_name
+
+    def get_febe_reltag(self):
+        cfobj = self.get_config_factory_obj()
+        match = cfobj.search(project='^{}$'.format(self.project), variant='^{}$'.format(self.ip), libtype='^{}$'.format('febe'))
+        bom = match[0]
+        return bom.name
+
+    def post_generate_rel_configs(self):
+        self.logger.info("-Running-: {}".format(inspect.currentframe().f_code.co_name))
+
+        ### We purposely generate the REL icm config first because we wanna lock the REL name
+        ### so that it does not get used by other process, which might create race condition.
+        ### We can easily remove the REL config if something went wrong in the release process later.
+        #super().generate_rel_configs()  # self.generated_rel_config_name
+
+        self.archive_duts_to_reltag()
+       
+        self.update_local_r2gbomcfg_files()
+
+        self.archive_r2gbomcfg()
+
+        self.logger.info("-Complete-: {}".format(inspect.currentframe().f_code.co_name))
+        return 0
+
+
+if __name__ == '__main__':
+    FORMAT = "%(levelname)s [%(asctime)s] - [%(lineno)s][%(pathname)s]: %(message)s"
+    logging.basicConfig(format=FORMAT, level=logging.DEBUG)
+    '''
+    import dmx.abnrlib.icm
+    a = dmx.abnrlib.icm.ICManageCLI(preview=False)
+    ret = a.del_release('da_i16', 'dai16liotest1', 'rtl', '*', 'snap-cicq__dai16liotest1__py23test1__22ww375a', force=True)
+    print(ret)
+    '''
+
+    d = {'dut1': {'_filename_': '/nfs/site/disks/da_infra_1/users/yltan/r2g/avmm_lib-a0/cfg/dut1.design.cfg',
+              'archive_tag': {'finish': 'dev', 'sta_primetime': 'tag_d1'},
+              'global_config': {'DUT': 'dut1'}},
+     'dut2': {'_filename_': '/nfs/site/disks/da_infra_1/users/yltan/r2g/avmm_lib-a0/cfg/dut2.design.cfg',
+              'archive_tag': {'finish': 'dev', 'star_pv': 'tag_d2'},
+              'global_config': {'DUT': 'dut2'}}}
+    pprint(d) 
+    print('=-======================')
+    import configparser
+    k = 'archive_tag'
+    for dut in d.keys():
+        if k in d[dut]:
+            for bundle in d[dut][k]:
+                d[dut][k][bundle] = 'REL123'
+
+        del(d[dut]['_filename_'])
+        c = configparser.ConfigParser()
+        c.optionxform = str     # to preserve case sensitivity
+        print(type(d[dut]))
+        pprint(d[dut])
+        c.read_dict(d[dut])
+        with open(dut, 'w') as f:
+            c.write(f)
+    pprint(d) 
+

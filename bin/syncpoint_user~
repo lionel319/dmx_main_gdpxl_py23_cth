@@ -1,0 +1,6 @@
+#!/bin/tcsh -f
+
+set realpath = `realpath $0`
+set bindir = `dirname $realpath`
+${bindir}/_dmxsetup $0.py $argv:q
+

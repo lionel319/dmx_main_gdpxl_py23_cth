@@ -1,0 +1,84 @@
+#!/usr/intel/pkgs/python3/3.9.6/bin/python3
+
+# 2014 Altera Corporation. All rights reserved. This source code is highly
+# confidential and proprietary information of Altera and is to be used for
+# internal Altera purposes only.   Altera assumes no responsibility or
+# liability arising out of the application or use of this source code for
+# non-Altera purposes.
+#
+# Tests the abnr icm library
+#
+# $File: //depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/gdp47827_tests/utillib/test_utils.py $
+# $Revision: #1 $
+# $Change: 7485775 $
+# $DateTime: 2023/02/15 17:52:33 $
+# $Author: wplim $
+
+from __future__ import print_function
+import UsrIntel.R1
+
+import unittest
+import inspect
+import os
+import sys
+
+LIB = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))),'cmx', 'lib', 'python')
+print(LIB)
+sys.path.insert(0, LIB)
+from cmx.utillib.utils import *
+
+DMXLIB = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))),'lib', 'python')
+print(DMXLIB)
+sys.path.insert(0, DMXLIB)
+import dmx.utillib.contextmgr
+
+class TestUtils(unittest.TestCase):
+    def setUp(self):
+        pass
+        
+    def tearDown(self):
+        pass
+
+    def test_001___filtered_cell_not_in_cells___no_cells_specified(self):
+        cell = {}
+        cell['project', 'ip'] = ['abc']
+        result = filtered_cell_not_in_cells(cell, [])
+        self.assertEqual(result, cell )
+
+    def test_002___filtered_cell_not_in_cells___no_cells_multiple_specified(self):
+        cell = {}
+        cell['project', 'ip'] = ['abc']
+        cell['project1', 'ip1'] = ['abc1', 'abc2']
+        result = filtered_cell_not_in_cells(cell, [])
+        self.assertEqual(result, cell)
+
+    def test_003___filtered_cell_not_in_cells___cells_specified(self):
+        cell = {}
+        ret_result = {}
+        cell['project', 'ip'] = ['abc', 'def']
+        ret_result['project', 'ip'] = ['abc']
+
+        self.cells = ['abc']
+        result = filtered_cell_not_in_cells(cell, self.cells)
+        self.assertEqual(result, ret_result)
+
+    def test_010___get_dmx_workspace_env_var___None(self):
+        with dmx.utillib.contextmgr.setenv({'DMX_WORKSPACE': None}):
+            ret = get_dmx_workspace_env_var()
+            self.assertFalse(ret)
+
+    def test_011___get_dmx_workspace_env_var___normal(self):
+        val = '/my/workarea/psg'
+        with dmx.utillib.contextmgr.setenv({'DMX_WORKSPACE': val}):
+            ret = get_dmx_workspace_env_var()
+            self.assertEqual(ret, val)
+
+    def test_012___get_dmx_workspace_env_var___cthfe(self):
+        val = '/my/workarea/psg'
+        with dmx.utillib.contextmgr.setenv({'DMX_WORKSPACE': val+'/wsroot/ip/cthfe/psg'}):
+            ret = get_dmx_workspace_env_var()
+            self.assertEqual(ret, '/my/workarea/psg')
+
+
+if __name__ == '__main__':
+    unittest.main()

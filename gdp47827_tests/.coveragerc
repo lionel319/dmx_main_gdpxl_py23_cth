@@ -1,0 +1,14 @@
+[run]
+source = dmx
+omit = 
+    *psg_flows*
+    *psg_ctools*
+    *reldoclib*
+    *dmlib*
+    *mysql*
+    *plugins*
+    *splunk_sdk*
+    *wrappers*
+    *ipqclib*
+    *python_common*
+    *jangolib*

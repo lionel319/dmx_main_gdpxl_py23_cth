@@ -1,0 +1,83 @@
+#!/usr/bin/env python
+'''
+$Header: //depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/workspacepopulate.py#4 $
+$Change: 7482157 $
+$DateTime: 2023/02/13 19:23:34 $
+$Author: kenvengn $
+
+Description: plugin for "quick reporttree"
+
+Author: Rudy Albachten
+Copyright (c) Altera Corporation 2012
+All rights reserved.
+'''
+from builtins import object
+import os
+import re
+import sys
+import logging
+import tempfile
+import time
+import datetime
+import json
+
+lib = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..')
+sys.path.insert(0, lib)
+
+from cmx.abnrlib.dmfactory import DMFactory
+from cmx.abnrlib.flows.dmxmoab import DmxMoab
+from cmx.utillib.utils import is_belongs_to_arcpl_related_deliverables, get_ws_from_ward, get_ward
+### Import DMX API
+dmxlibdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', '..', '..', 'lib', 'python')
+sys.path.insert(0, dmxlibdir)
+import dmx.abnrlib.workspace
+import dmx.abnrlib.icm
+from dmx.abnrlib.config_factory import ConfigFactory
+
+class WorkspacePopulateError(Exception): pass
+
+class WorkspacePopulate(object):
+
+    USE_ICM_CLIENT_KEYWORD = ':icm:'
+
+    def __init__(self, project, ip, bom, wsname, cfgfile='', deliverables=None, preview=False, debug=False, force_cache=False):
+        self.project = project
+        self.ip = ip 
+        self.bom = bom
+        self.wsname = wsname
+        self.deliverables = deliverables if deliverables else []
+        self.cfgfile = cfgfile
+        self.preview = preview
+        self.logger = logging.getLogger(__name__)
+        self.debug = debug
+        self.force_cache = force_cache
+
+
+    @classmethod
+    def run_pop(self, project, ip, bom):
+        self.icm = dmx.abnrlib.icm.ICManageCLI()
+        cells = self.icm.get_cells_from_ipspec_bom(project, ip, bom)
+        sync_bom = [x for x in ConfigFactory().create_config_from_full_name(
+            f"{project}/{ip}/{bom}").flatten_tree() if x.is_library() or x.is_release()]
+ 
+        for cfg in sync_bom:
+            if is_belongs_to_arcpl_related_deliverables(cfg.libtype):
+                dm = DMFactory().create_dm(cfg.libtype)
+                dm.sync(cfg.project, cfg.variant, cfg.name, cells[cfg.project, cfg.variant])
+
+        return 0
+
+    def run_moab(self, project, ip, bom):
+        self.logger.info('Proceed to perform Dmx Moab')
+        ward = get_ward()
+        wsroot = get_ws_from_ward(ward)
+        dmx_moab = DmxMoab(wsroot=wsroot, bom=bom, ip=ip, project=project)
+        dmx_moab.process()
+        self.logger.info('Dmx Moab Process Ends ')
+
+    def run(self):
+        self.run_moab(self.project, self.ip, self.bom)
+        ret = self.run_pop(self.project, self.ip, self.bom)
+        return ret
+
+

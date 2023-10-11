@@ -1,0 +1,155 @@
+#!/usr/bin/env python
+'''
+$Header: //depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/plugins/workspacecheck.py#10 $
+$Change: 7717578 $
+$DateTime: 2023/07/27 03:28:29 $
+$Author: lionelta $
+
+Description: plugin for "dmx workspace check"
+
+Author: Lionel Tan Yoke-Liang
+Copyright (c) Altera Corporation 2014
+All rights reserved.
+
+'''
+from __future__ import print_function
+
+# pylint: disable=C0301,F0401,E1103,R0914,R0912,R0915,W0511
+
+import sys
+import os
+import textwrap
+import logging
+from cmx.abnrlib.command import Command 
+from cmx.utillib.utils import add_common_args, dispatch_cmd_to_other_tool, get_old_dmx_exe_from_folder 
+
+class WorkspaceCheck(Command):
+    LOGGER = logging.getLogger(__name__)
+    @classmethod
+    def get_help(cls):
+        '''one-line description for "dmx workspace check"'''
+        myhelp = '''\
+            Performs Gated Release checks on local workspace
+            '''
+        return textwrap.dedent(myhelp)
+
+    @classmethod
+    def extra_help(cls):
+        ''' Extra help '''
+        myhelp = '''\
+            The purpose of dmx workspace check is to help engineers prepare for a gated release.
+            It runs all the same tests that a release would run, but does it in the user's 
+            own IC Manage workspace.
+            The tests must all succeed (and users have to submit everything to IC Manage)
+            for the release to succeed.
+            For a complete list of available milestone/thread, please refer to
+            dmx roadmap command for an overview of the available roadmap for this project.
+            If the deliverable option (-d) is not given, then it will run ip-level checks.
+            If deliverable options is given, then it will run deliverable-level checks.
+            
+            For deliverable check, it will automatically read the tnrwaivers.csv file 
+            if the waiver file exist (is checked in) inside its deliverable.
+            eg: workspaceroot/ar_lib/rtl/tnrwaivers.csv will be used as the waiver file
+            For  IP check, it will automatically read the tnrwaivers.csv waiver files
+            from all deliverables of its IP.
+            eg: workspaceroot/ar_lib/*/tnrwaivers.csv will be used as the waiver file
+            
+            From dmx/9.5 onwards, --bom/-b will no longer be needed. This is because workspace
+            BOM should always be used when checking the content of workspace, instead of using
+            the BOM provided by users. 
+            If --bom/-b is provided, it will be ignored and workspace check will use the 
+            workspace BOM instead.
+
+            Usage
+            =====
+            %cd /your/ic/manage/workspace
+            %dmx workspace check -m milestone -t thread -p project -i ip [-d deliverable]
+
+            ### Run library-level gated release test on deliverable bcmrbc
+            %dmx workspace check -p i10socfm -i cw_lib -m 1.0 -t FM8revA0 -d bcmrbc
+
+            ### Run ip-level gated release test on the entire ip level
+            %dmx workspace check -p i10socfm -i cw_lib -m 1.0 -t FM8revA0
+
+            ### Run a prel-libtype check on libtype:sta and prel:prel_4
+            %dmx workspace check ... -d prel_4:sta ...
+
+            ### Run a prel-variant level check on prel:prel_4
+            %dmx workspace check ... -d prel_4 ...
+
+            Example
+            =======
+            If you plan to run:
+            %dmx release -p i10socfm -i cw_lib -d rtl -m 1.0 -t FM8revA0
+
+            then test it using:
+            %dmx workspace check -p i10socfm -i cw_lib -d rtl -m 1.0 -t FM8revA0
+            '''
+        return textwrap.dedent(myhelp)
+
+    @classmethod
+    def add_args(cls, parser):
+        '''set up argument parser for "dmx workspace check" subcommand'''
+        add_common_args(parser)
+        parser.add_argument('-p', '--project', metavar='project', required=False, default=None) 
+        parser.add_argument('-i', '--ip', metavar='ip', required=False)
+        parser.add_argument('-b', '--bom', metavar='bom')
+        parser.add_argument('-m', '--milestone', metavar='milestone', required=False, default=None,
+            help='Milestone to check against')
+        parser.add_argument('-t', '--thread', metavar='thread', required=False, default=None,
+            help='Thread to check against')
+        parser.add_argument('-d', '--deliverable', metavar='deliverable', required=False, default='',
+            help='Deliverable(deliverable) to check. By default, test will run on ip-level.')
+        parser.add_argument( '--logfile', required=False,
+            help='Provide a logfile which logs all output to it.')
+        parser.add_argument('--dashboard', choices=['prod', 'dev'],
+            help='Log all test errors to the dashboard area.')
+        parser.add_argument('--celllist-file', required=False, 
+            help='Provides a way to only run dmx workspace check on a list of given cells, with celllist_file containing one topcell per line.')
+        parser.add_argument('--nowarnings', required=False, action='store_true', default=False,
+            help='Disable warnings. This will not print out the out-of-sync files in your workspace.')
+        parser.add_argument('--flowcfg', required=False, default=False, action='store_true',
+            help='You could ask dmx to read the inputs from $WORKAREA/flows/dmx/flow.cfg file instead. For an example, kindly refer to <here>')
+
+
+        ### add switches to 'dmx workspace check' for turning off specific checks
+        ### https://jira01.devtools.intel.com/browse/PSGDMX-1515
+        parser.add_argument('--disable_type_check',     required=False, action='store_true', default=False,
+            help='Any type-check error will not be reported.')
+        parser.add_argument('--disable_checksum_check', required=False, action='store_true', default=False,
+            help='Any "checksum" error will not be reported.')
+        parser.add_argument('--disable_result_check', required=False, action='store_true', default=False,
+            help='Any "result" error will not be reported.')
+        parser.add_argument('--disable_deliverable_check', required=False, action='store_true', default=False,
+            help='Any "deliverable existence" error will not be reported.')
+
+        parser.add_argument('--source', choices=['proddb', 'devdb'], default='proddb',
+            help='Force GoldenArc Check to user proddb/devdb. Default: proddb')
+        parser.add_argument('--disable_goldenarc_check', required=False, action='store_true', default=False,
+            help='Any GoldenArc Check error will not be reported.')
+        
+
+    @classmethod
+    def command(cls, args):
+        import cmx.tnrlib.test_runner_factory
+        if args.flowcfg:
+            import cmx.tnrlib.utils
+            data = cmx.tnrlib.utils.parse_flowcfg()['workspace_check']
+            '''
+            if data['debug'] == '1':
+                loglevel = logging.DEBUG
+            else:
+                loglevel = logging.INFO
+            LOGGER = logging.getLogger()
+            LOGGER.setLevel(logging.DEBUG)
+            for h in LOGGER.handlers:
+                h.setLevel(loglevel)
+            '''
+            tr = cmx.tnrlib.test_runner_factory.TestRunnerFactory(thread=data['thread'], milestone=data['milestone'], deliverable=data['deliverable'], ipname=data['ip']).get_testrunner()
+        else:
+            tr = cmx.tnrlib.test_runner_factory.TestRunnerFactory(thread=args.thread, milestone=args.milestone, deliverable=args.deliverable, ipname=args.ip).get_testrunner()
+        errors = tr.run_tests()
+        tr.report_errors(errors)
+        return tr._exit_code
+
+

@@ -1,0 +1,16 @@
+{
+    "base": ["psgeng"],
+    "eip": ["psgsynopsys", "psgintel", "psgship"],
+    "projects": {
+        "avoncrest": ["psgavc", "psgt16ff"],
+        "diamondmesa": ["psgdmd", "psgt16arm", "psgt16ff"],
+        "falcon": ["psgfln", "psgi10", "psgi10arm", "haha"],
+        "ratonmesa": ["psgfln", "psgi10", "psgi10arm", "haha"],
+        "gundersonrock": ["psggdr", "psgi10", "misgdr"],
+        "kinneloamesa": ["psgknl", "psgi7"],
+        "reynoldsrock": ["psgrnr", "psgi10", "misrnr"],
+        "stanislausriver": ["psgslr"],
+        "valleycrest": ["psgvlc", "psgi7"],
+        "wharfrock": ["psgwhr", "psgt16ff"]
+    }
+}

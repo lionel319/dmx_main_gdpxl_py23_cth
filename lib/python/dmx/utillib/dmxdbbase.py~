@@ -1,0 +1,208 @@
+#!/usr/bin/env python
+
+"""
+Base class for DMX MySql Database. 
+"""
+
+import sys
+import os
+import MySQLdb
+import logging
+
+ROOTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')
+sys.path.insert(0, ROOTDIR)
+
+import dmx.mysql.connector
+
+LOGGER = logging.getLogger(__name__)
+
+class DmxDbBaseError(Exception):
+    pass
+
+class DmxDbBase(object):
+    ''' DmxDbBase Class '''
+  
+    SERVER = {'prod':{}, 'test':{} }
+  
+    '''
+    SERVER['prod']['HOST']      = 'maria3393-us-fm-in.icloud.intel.com'
+    SERVER['prod']['PORT']      = 3306
+    SERVER['prod']['USERNAME']  = 'dmx_so'
+    SERVER['prod']['PASSWORD']  = 'o5y647pWaVeJgP6'
+    SERVER['prod']['DB']        = 'dmx'
+    
+    SERVER['test']['HOST']      = 'maria3512-us-fm-in.icloud.intel.com'
+    SERVER['test']['PORT']      = 3306
+    SERVER['test']['USERNAME']  = 'PSGINFRA1_so'
+    SERVER['test']['PASSWORD']  = 'PSGINFRA1so'
+    SERVER['test']['DB']        = 'PSGINFRA1'
+    '''
+
+    ### Switch this on once we are ready to move to MariaDB 10.4
+    ### in dbaas.intel.com
+    SERVER['prod']['HOST']      = 'maria3917-lb-fm1-in.iglb.intel.com'
+    SERVER['prod']['PORT']      = 3306
+    SERVER['prod']['USERNAME']  = 'psginfraadm'
+    SERVER['prod']['PASSWORD']  = 'Altera123'
+    SERVER['prod']['DB']        = 'dmx'
+    
+    SERVER['test']['HOST']      = SERVER['prod']['HOST']
+    SERVER['test']['PORT']      = SERVER['prod']['PORT']
+    SERVER['test']['USERNAME']  = SERVER['prod']['USERNAME']
+    SERVER['test']['PASSWORD']  = SERVER['prod']['PASSWORD']
+    SERVER['test']['DB']        = 'PSGINFRA1'
+
+    LOGGER  = logging.getLogger()
+
+    TABLEKEY = 'tablename'
+ 
+    def __init__(self, host='', port='', username='', password='', db='', servertype='prod'):
+
+        self.host = host
+        self.port = port
+        self.username = username
+        self.password = password
+        self.db = db
+        self.servertype = servertype
+
+        if not host:
+            self.host = self.SERVER[self.servertype]['HOST']
+        if not port:
+            self.port = self.SERVER[self.servertype]['PORT']
+        if not username:
+            self.username = self.SERVER[self.servertype]['USERNAME']
+        if not password:
+            self.password = self.SERVER[self.servertype]['PASSWORD']
+        if not db:
+            self.db = self.SERVER[self.servertype]['DB']
+
+    def connect(self):
+        LOGGER.debug("Connecting to {}:{} (db:{}) ...".format(self.host, self.port, self.db))
+        '''     
+        self.conn = MySQLdb.connect(host=self.host, port=self.port,
+            user=self.username, passwd=self.password, db=self.db)
+        '''
+        LOGGER.debug("Using mysql instead of MySQLdb ...")
+        self.conn = dmx.mysql.connector.connect(
+            user=self.username, password=self.password, host=self.host, port=self.port, database=self.db)
+        ### Need to set buffered=True. https://stackoverflow.com/a/33632767/335181
+        self.cursor = self.conn.cursor(buffered=True)
+        LOGGER.debug("Connected to {}:{} (db:{}) ...".format(self.host, self.port, self.db))
+        return self     ### so that command chaining is made possible
+ 
+
+    def get_tables(self):
+        self.cursor.execute("show tables")
+        return self.cursor.fetchall()
+
+
+    def _get_logs(self, **kwargs):
+        ''' return a list of all (raw) log entries based on the filter list.
+        The filter list works in AND operator.
+        '''
+        
+        try:
+            tablename = kwargs.pop(self.TABLEKEY)
+        except:
+            raise DmxDbBaseError("_get_logs: required key 'tablename' not found!")
+
+
+        sql = ''' SELECT * FROM {}  '''.format(tablename)
+        if kwargs:
+            fields = []
+            for key,val in kwargs.items():
+                fields.append(" {} = '{}' ".format(key, val))
+            if fields:
+                sql += ' WHERE ' + ' AND '.join(fields)
+
+        return self.fetchall_raw_data(sql)
+
+
+    def _add_log(self, **kwargs):
+        ''' add a row to tablename 
+        The kwargs is a dictionary which contains the key/value pair whereby
+        - key is the column name of the mysql
+        - val is the value for that column
+
+        tablename is a required key for kwargs, which is the mysql table.
+        '''
+        try:
+            tablename = kwargs.pop(self.TABLEKEY)
+        except:
+            raise DmxDbBaseError("_add_log: required key 'tablename' not found!")
+
+        keylist = []
+        vallist = []
+
+        for key,val in kwargs.items():
+            keylist.append(key)
+            vallist.append(val)
+    
+        keystring = ', '.join(keylist)
+        valstring = ', '.join("'" + item + "'" for item in vallist)
+
+        sql = ''' INSERT INTO {} ({}) VALUES ({}) '''.format(tablename, keystring, valstring)
+
+        try:
+            self.cursor.execute(sql)
+            self.conn.commit()
+            LOGGER.debug("_add_log: {}".format(sql))
+        except:
+            self.conn.rollback()
+            LOGGER.error("Failed _add_log: {}".format(sql))
+            raise
+
+
+    def _delete_logs(self, **kwargs):
+        ''' delete a list of rows based on the filter list.
+        The filter list works in AND operator.
+        '''
+        try:
+            tablename = kwargs.pop(self.TABLEKEY)
+        except:
+            raise DmxDbBaseError("_delete_log: required key 'tablename' not found!")
+
+        sql = ''' DELETE FROM {}  '''.format(tablename)
+        if kwargs:
+            fields = []
+            for key,val in kwargs.items():
+                fields.append(" {} = '{}' ".format(key, val))
+            if fields:
+                sql += ' WHERE ' + ' AND '.join(fields)
+
+        try:
+            self.cursor.execute(sql)
+            self.conn.commit()
+            LOGGER.debug("_delete_log: {}".format(sql))
+        except:
+            self.conn.rollback()
+            LOGGER.error("Failed _delete_log: {}".format(sql))
+            raise
+
+
+    def fetchall_raw_data(self, sql):
+        ''' fetchall() the data and return in the raw format.
+        if failed, return [] '''
+        LOGGER.debug("Running mysql command: {}".format(sql))
+        try:
+            self.cursor.execute(sql)
+            retlist = self.cursor.fetchall()
+            return retlist
+        except:
+            LOGGER.error("Failed fetching data: {}".format(sql))
+            return []
+ 
+
+    def __DROP_TABLE(self, table=''):
+        sql = """ DROP TABLE {} """.format(table)
+        LOGGER.debug("Dropping table {} ...".format(table))
+        self.cursor.execute(sql)
+
+
+    def close(self):
+        LOGGER.debug("Closing Connection ...")
+        self.conn.close()
+
+if __name__ == '__main__':
+    logging.basicConfig(format='-%(levelname)s-[%(module)s]: %(message)s', level=logging.DEBUG)
+    

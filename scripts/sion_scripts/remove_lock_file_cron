@@ -1,0 +1,16 @@
+#!/bin/bash
+
+SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
+SCRIPT=${SCRIPTPATH}/cleanup.py
+
+EXITVAL=0
+
+arc submit --watch -- "python ${SCRIPT} remove-redundant-lock"
+EXITVAL=`expr $? + ${EXITVAL}`
+
+if [ $EXITVAL != 0 ]
+then
+cat ${ARC_JOB_STORAGE}/stdout.txt  ${ARC_JOB_STORAGE}/stderr.txt | mail -s "altera_sion lock file cleanup errors" kwlim@altera.com
+fi
+
+exit

@@ -1,0 +1,55 @@
+define: "MAKECMD": MAKECMD: "make -f $PANDORA_CENTRAL_REGRESSION_ROOT/../regression.makefile "
+define: "PARAM": PARAM: " DEVICE=FM6 VER=main TYPE=unittest ARCRES=project/falcon/branch/fm6dot2main/rc SERVER=sjdacron.sc "
+
+
+stepname: print_var
+command: echo " PARAM: " $PARAM
+
+stepname: customize_subject
+command: echo "SUBJECT: main_branch_continuous_integration" > $PANDORA_EMAILFILE
+
+stepname: customize_body
+command: echo "LOGFILE: file://samba.$ARC_SITE.intel.com$PANDORA_WARD/regression/regression.log" >> $PANDORA_EMAILFILE
+
+stepname: precheck
+command: $MAKECMD precheck                      $PARAM  OPTS=
+
+stepname: cleanup_and_sync
+command: $MAKECMD cleanup_and_sync              $PARAM  OPTS=
+
+stepname: compile
+command: $MAKECMD compile                       $PARAM  OPTS=
+
+stepname: gen_docs
+command: $MAKECMD gen_docs                      $PARAM  OPTS=
+
+stepname: deploy
+command: $MAKECMD deploy                        $PARAM  OPTS=
+
+stepname: unittest_abnr
+command: $MAKECMD unittest_abnr                 $PARAM   OPTS=  
+
+stepname: systemtest_tnr
+command: $MAKECMD systemtest_tnr                $PARAM   OPTS="--exclude=audit_file_generation --exclude=get_audit_file_paths_for_testable_item"  
+
+stepname: systemtest_ecolib 
+command: $MAKECMD systemtest_ecolib             $PARAM   OPTS=  
+
+stepname: systemtest_utillib
+command: $MAKECMD systemtest_utillib            $PARAM   OPTS=  
+
+stepname: systemtest_testrunner
+command: $MAKECMD systemtest_testrunner         $PARAM   OPTS=  
+
+stepname: create_sandbox_arc_res
+command: $MAKECMD create_sandbox_arc_res        $PARAM   OPTS=  
+
+stepname: inttest_dmx
+command: $MAKECMD inttest_dmx                   $PARAM   OPTS=  
+
+stepname: inttest_ecosphere
+command: $MAKECMD inttest_ecosphere             $PARAM   OPTS=  
+
+stepname: inttest_ipqc 
+command: $MAKECMD  inttest_ipqc                 $PARAM   OPTS=    
+

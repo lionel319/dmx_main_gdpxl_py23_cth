@@ -1,0 +1,5 @@
+https://wiki.ith.intel.com/pages/viewpage.action?pageId=2762150061
+
+1. Codes under this folder should all be runable within cth python 3 environment
+2. All *.py should have shebang line of /usr/intel/pkgs/python3/3.9.6/bin/python3
+

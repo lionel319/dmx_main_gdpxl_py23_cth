@@ -1,0 +1,155 @@
+#!/usr/intel/pkgs/python3/3.11.1/bin/python3
+
+import UsrIntel.R1
+
+import sys
+import os
+from pprint import pprint
+import json
+import warnings
+warnings.filterwarnings("ignore")
+
+rootdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(rootdir, 'cmx', 'lib', 'python'))
+
+from cmx.utillib.utils import run_command
+
+LINKTREEDIR = '/nfs/site/disks/psg.mod.000/release'
+WAIVERFILE = '/p/psg/data/psgcthadm/cleanup_gk_releases.waive'
+
+def main():
+
+
+    used_models = get_all_used_models_from_subip_folder()
+    print('====================')
+    print("USED_MODELS:")
+    pprint(used_models)
+
+    rel_links = get_all_release_links(days='30')
+    print('====================')
+    pprint("All Release Links")
+    pprint(rel_links)
+
+    data = find_realpath_for_rel_links(rel_links)
+    print('====================')
+    pprint("Release Link REALPATH")
+    pprint(data)
+
+    data = skip_latest_from_list(data)
+    data = skip_models_from_waiverfile(data)
+    data = skip_used_models_from_list(data, used_models)
+    data = skip_dmx_released_models(data)
+    print('====================')
+    print("FINAL DATA:")
+    pprint(data)
+
+    execute_delete_command(data)
+
+def execute_delete_command(data):
+    dryrun = False
+    if '--dry' in ' '.join(sys.argv):
+        dryrun = True
+    print("dryrun: {}".format(dryrun))
+
+    for modelname in data:
+        if not data[modelname]['skip']:
+            for p in ['realpath', 'linktree']:
+                cmd = 'chmod -R 700 {}; rm -rf {}'.format(data[modelname][p], data[modelname][p])
+                if not dryrun:
+                    print("Running cmd: {}".format(cmd))
+                    os.system(cmd)
+                else:
+                    print("DRYRUN: {}".format(cmd))
+
+def skip_dmx_released_models(data):
+    dmxexe = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'cmx', 'bin', 'dmx')
+    for modelname in data:
+        if not data[modelname]['skip']:
+            cmd = 'env WORKAREA=. {} poc findreltag -t {}'.format(dmxexe, modelname)
+            exitcode, stdout, stderr = run_command(cmd)
+            if stdout and stdout.startswith("REL"):
+                data[modelname]['skip'] = True
+                data[modelname]['skip-reason'] = 'dmx release: {}'.format(stdout.strip())
+    return data
+
+
+def get_all_used_models_from_subip_folder():
+    ''' get all the IP_MODEL names that are being symlinked(ie: used) from all the IP_MODEL's subip/ folder '''
+    cmd = '''find /nfs/site/disks/psg.mod.000/release/*/*/subip/*/ -maxdepth 1 -mindepth 1'''
+    exitcode, stdout, stderr = run_command(cmd)
+    ret = {}
+    for subip_link in stdout.split():
+        # e = /nfs/site/disks/psg.mod.000/release/cth_szr_ucie_ss/cth_szr_ucie_ss-a0-23ww29a/subip/hip/ucie_aphy_amp_m1_p76
+        realrootdir = os.path.realpath(os.path.abspath(os.path.join(subip_link, '..', '..', '..')))
+        subip_real = os.path.realpath(subip_link)
+        if 'psg.mod' in subip_real:
+            bn = os.path.basename(subip_real)
+            print('-')
+            print(bn)
+            print("rootdir: {}".format(realrootdir))
+            print("subip_link: {}".format(subip_link))
+            print("subip_real: {}".format(subip_real))
+
+            ### if the symlink within the subip/ is linked to it's own IP_MODEL, we do nothing.
+            if not subip_real.startswith(realrootdir):
+                if bn in ret:
+                    ret[bn].append(subip_link)
+                else:
+                    ret[bn] = [subip_link]
+    return ret
+
+def skip_used_models_from_list(data, used_models):
+    ''' skip the model if it is being used by others '''
+    for modelname in data:
+        if modelname in used_models:
+            data[modelname]['skip'] = True
+            data[modelname]['skip-reason'] = 'Used by: {}'.format(used_models[modelname])
+    return data
+
+def skip_models_from_waiverfile(data):
+    ''' Mark all models within waiverfile as skip. '''
+    if os.path.isfile(WAIVERFILE):
+        with open(WAIVERFILE) as f:
+            d = json.load(f)
+            for modelname in d:
+                if modelname in data:
+                    data[modelname]['skip'] = True
+                    data[modelname]['skip-reason'] = 'waived'
+    return data
+
+def skip_latest_from_list(data):
+    ''' Mark all the *-latest and others which are linked to *-latest from the dict as skip.
+    Basically, these are the models that we do not want to delete, which we wanna retain. '''
+    tobeskip = []
+    for modelname in data:
+        if modelname.endswith('-latest'):
+            tobeskip.append(modelname)
+            real_modelname = os.path.basename(data[modelname]['realpath'])
+            tobeskip.append(real_modelname)
+            data[modelname]['skip'] = True
+            data[modelname]['skip-reason'] = 'latest'
+            data[real_modelname]['skip'] = True
+            data[real_modelname]['skip-reason'] = 'latest'
+            
+    return data
+
+
+def find_realpath_for_rel_links(rel_links):
+    ret = {}
+    for r in rel_links:
+        key = os.path.basename(r)
+        ret[key] = {
+            'linktree': r, 
+            'realpath': os.path.realpath(r),
+            'skip': False
+        }
+    return ret
+
+def get_all_release_links(days='30'):
+    cmd = 'find {} -mindepth 2 -maxdepth 2 -type l -ctime +{}'.format(LINKTREEDIR, days)
+    exitcode, stdout, stderr = run_command(cmd)
+    retlist = stdout.split()
+    return retlist
+
+if __name__ == '__main__':
+    sys.exit(main())

@@ -1,0 +1,469 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import json
+from pprint import pprint, pformat
+import textwrap
+import logging
+import inspect
+import json
+import time
+import re
+import tempfile
+
+CMXLIB = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')
+DMXLIB = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', '..', '..', 'lib', 'python')
+sys.path.insert(0, os.getenv("DMXLIB"))
+sys.path.insert(0, os.getenv("CMXLIB"))
+
+import cmx.utillib.utils
+from cmx.tnrlib.test_runner import TestRunnerPoc
+import dmx.abnrlib.config_factory
+import dmx.abnrlib.icm
+from cmx.tnrlib.release_runner_base import ReleaseRunnerBase
+
+class ReleaseRunnerCthfe(ReleaseRunnerBase):
+    
+    def __init__(self, thread, milestone, deliverable, project, ip, bom, label=None, views=None, skipmscheck=None, prel=None, syncpoint=None, skipsyncpoint=None, workarea=None, dryrun=False, force=False):
+        super().__init__(thread, milestone, deliverable, project, ip, bom, label=label, views=views, skipmscheck=skipmscheck, prel=prel, syncpoint=syncpoint, skipsyncpoint=skipsyncpoint, workarea=workarea, dryrun=dryrun, force=force)
+        self.logger = logging.getLogger(__name__)
+        self.workarea = workarea
+        if not self.workarea:
+            self.workarea = self.get_workarea()
+        self.thread = thread
+        self.milestone = milestone
+        self.deliverable = deliverable
+        self.project = project
+        self.ip = ip
+        self.bom = bom  # This is the ip-bom
+        self.staging_bomname = None     # this is the bom that is used to create the workspace, which is cloned from self.bom, and had its cthfe bom replaced
+        self.label = label
+        self.views = views
+        self.skipmscheck = skipmscheck
+        self.prel = prel
+        self.syncpoint = syncpoint
+        self.skipsyncpoint = skipsyncpoint
+        self.dryrun = dryrun
+        self.staging_workarea = self.get_staging_workarea()
+        self.cfobj = None
+        self.relname = ''
+
+
+    def find_mapping_reltag(self, release_model, retkeys=['*']):
+        import dmx.abnrlib.icm
+        i = dmx.abnrlib.icm.ICManageCLI()
+        retlist = i._find_objects('release', 'IP_MODEL:~{}$'.format(release_model), retkeys=retkeys)
+        return retlist
+
+    def get_latest_gk_reltag(self):
+        ipmod_fullpath = self.get_latest_ipmod_path()
+        gkreltag = os.path.basename(ipmod_fullpath)
+        return gkreltag
+
+    def get_latest_ipmod_path(self):
+        ipmod_fullpath = os.path.realpath("/nfs/site/disks/psg.mod.000/release/{}/{}-a0-latest".format(self.ip, self.ip))
+        return ipmod_fullpath
+
+    def run(self):
+        ''' Here's the flow of releasing CTHFE.
+
+        User runs
+        > dmx release -p i18asockm -i liotest1 -d cthfe -b RC1 -t KM2revA0 -m 1.0
+
+        1. get_bom_name_of_cthfe
+
+            11. if cthfe@REL
+                111. Exit("Already released")
+        
+            12. if cthfe@snap-liotest1-a0-23ww11a
+                121. continue to next step
+                (staging_bom == i18asockm/liotest1@RC2)
+
+            13. if cthfe@dev
+                131. Check if latest turnin has release_model (refer to MISC section <CHECK TURNIN VS MODEL>)
+                132. If latest turnin has release_model, use it.
+                133. if latest turnin does not have release_model yet, generate it
+                    1311. turnin -release_model -c liotest1
+                    1312. loop until gk-release job is done, then get the release_model name
+                133. build a staging_bom using the release_model (refer to MISC section <HOW TO BUILD STAGING BOM>)
+
+        2. dmx populate workspace <staging_bom>
+
+        3. dmx workspace check
+
+        4. run the rest of the posthooks, eg:-
+           - febe
+           - other related scripts
+           - etc ....
+
+        5. if all steps went thru successfully:
+           - generate cthfe@REL
+           - generate febe@REL
+             - add property: IP_MODELS=/nfs/site/disks/psg.mod.000/release/liotest5/liotest5-a0-23ww21b
+
+
+
+
+        ============================================================================================
+        ============================================================================================
+        MISC
+        ============================================================================================
+        ============================================================================================
+        <CHECK TURNIN VS MODEL>
+        -------------------------
+        > turnininfo -c liotest3 -all  [-format json]                                                                                                                    
+            id  user     cluster  stepping branch rec_inserted_time   status      stage        bundle_id completed_time      model                   bugs                    ecos   
+            --- -------- -------- -------- ------ ------------------- ----------- ------------ --------- ------------------- ----------------------- ----------------------- ---- 
+            457 lionelta liotest3 a0       master 2023-05-31 04:05:15 integrating preintegrate 1189 
+            453 lionelta liotest3 a0       master 2023-05-31 04:05:15 accepted    retire       1145 
+            450 lionelta liotest3 a0       master 2023-05-31 01:00:46 released    retire       1135      2023-05-31 01:06:40 liotest3-a0-23ww22b                                 
+            449 lionelta liotest3 a0       master 2023-05-30 20:56:43 released    retire       1128      2023-05-30 21:02:31 liotest3-a0-23ww22a                                 
+
+        ignore all status which is not accepted/released.
+        get the latest id. 
+        If the latest id is 'released'
+            use that release_model
+        elif the latest id is 'accepted'
+            generate a release_model for it
+
+
+
+
+        <HOW TO BUILD STAGING BOM>
+        -----------------------------------------
+        It is the expectation that, whenever a gk-release happens, an equivalent icm-config snap-* will be generated.
+        Example:-
+            when gk-release generates this release model: liotest3-a0-23ww22b,
+            this icm-config will be generated after the gk-post-release
+                /intel/i18asockm/liotest3/cthfe/dev/snap-liotest3-a0-23ww22b
+
+        Thus with the above expectation, we can proceed by ...
+        Create a bom which to-be used as a staging bom for release, by:-
+        1. clone original IP bom --> for_tnr_<user>_<atime>
+        2. replace cthfe@dev --> cthfe@snap-liotest3-a0-23ww22b
+
+        '''
+
+        self.precheck()
+        
+        cthfe_bom = self.get_deliverable_bom()
+
+        if cthfe_bom.name.startswith('REL'):
+            self.logger.info("cthfe is already a REL({}). There is nothing to be done here. Exiting.".format(cthfe_bom.name))
+            return 1
+        elif cthfe_bom.name.startswith('snap-'):
+            ### removed 'snap-' from cthfe_bom.name
+            self.release_model = cthfe_bom.name[5:]
+            
+            ### We do not need to create a new staging_bom for release.
+            self.staging_bomname = self.bom
+        else:
+            unreleased_turnin_id = self.is_there_unreleased_turnin()
+            if unreleased_turnin_id:
+                self.run_turnin_release_model()
+
+                self.release_model = self.get_release_model_when_ready(unreleased_turnin_id)
+
+                ### the snap creation is set as a post-release event in GK
+                ### sometimes it might take a while before the snap is being created in icm.
+                ### So we should give it some buffer time before proceeding to the next step,
+                ### to make sure that the snap is really created.
+                ### (NOTE: if the 'dmx release' job failed, we can just rerun the similar command again. It should work)
+                time.sleep(120)
+
+            else:
+                self.release_model = self.get_latest_release_model()
+
+        if not self.force:
+            self.exit_if_mapping_reltag_found(self.release_model)
+
+        # Make sure that equivalent icm-bom for that release_model was created during gk-release
+        cthfe_release_model_bom = self.is_release_model_icm_bom_exist(self.release_model)
+
+        if not self.staging_bomname:
+            self.staging_bomname = self.create_staging_bom(cthfe_bom, cthfe_release_model_bom)
+
+        staging_workarea = self.populate_workspace(opts=' -d cthfe --debug ')
+
+        ### XXX: Temporary auto-generate all required audit files
+        ### so that we are not gated by the POC
+        ### This step should be removed during PRODUCTION
+        os.system("env WORKAREA={} {}/mydmx poc genaudits -i {} -t {} -m {} -d {}".format(staging_workarea, staging_workarea, self.ip, self.thread, self.milestone, self.deliverable))
+        
+        error = self.run_workspace_check(staging_workarea)
+        if error:
+            return error
+       
+        self.generate_rel_configs()
+
+        self.set_dmx_env_vars()
+        error = self.run_posthooks()
+        if error:
+            return error
+
+        self.logger.info("=THE END=")
+        return 0
+
+
+    def set_dmx_env_vars(self):
+        super().set_dmx_env_vars()
+        self.setenv("DMX_RELTAG", self.relname)
+
+
+    def precheck(self):
+        self.logger.info("-Running-: {}".format(inspect.currentframe().f_code.co_name))
+        errlist = []
+        if not os.getenv("WORKAREA"):
+            errlist.append("$WORKAREA env var not defined.")
+        if not os.getenv("IP_MODELS"):
+            errlist.append("$IP_MODELS env var not defined.")
+       
+        cfobj = self.get_config_factory_obj()
+        must_exist_libtypes = ['cthfe', 'febe']
+        for libtype in must_exist_libtypes:
+            found = cfobj.search("^{}$".format(self.project), "^{}$".format(self.ip), "^{}$".format(libtype))
+            if not found:
+                errlist.append("libtype:{} not found in {}/{}@{}.".format(libtype, self.project, self.ip, self.bom))
+       
+        if errlist:
+            self.logger.error("  - FAIL: precheck. Please check the errors below. \n{}".format(pformat(errlist)))
+            raise Exception("FAIL: precheck")
+
+        self.logger.info("-Complete-: {}".format(inspect.currentframe().f_code.co_name))
+
+    def exit_if_mapping_reltag_found(self, release_model):
+        stagename = inspect.currentframe().f_code.co_name
+        self.logger.info("-Running-: {}".format(stagename))
+        foundlist = self.find_mapping_reltag(release_model)
+        if foundlist:
+            self.logger.info("  - This release_model:{} already has equivalent icm REL bom. dmx release is not needed.".format(release_model))
+            for e in foundlist:
+                self.logger.info("  - {}".format(e['name']))
+            raise Exception("FAIL: exit_if_mapping_reltag_found.")
+        self.logger.info("-Complete-: {}".format(stagename))
+
+
+    def is_release_model_icm_bom_exist(self, release_model):
+        '''
+        If exist, return the config_factory obj
+        else, raise error
+        '''
+        stagename = inspect.currentframe().f_code.co_name
+        self.logger.info("-Running-: {}".format(stagename))
+        bomname = self.get_release_model_icm_bom_name(release_model)
+        libtype = 'cthfe'
+
+        cfobj = dmx.abnrlib.config_factory.ConfigFactory.create_from_icm(self.project, self.ip, bomname, libtype)
+        if not cfobj._defprops:
+            self.logger.error("  - icm bom for model_release:({}) not found! Please contact psgicmsupport@intel.com".format(release_model))
+            raise Exception("FAILED {}".format(stagename))
+        
+        self.logger.info("-Complete-: {}".format(stagename))
+        return cfobj
+
+
+    def get_release_model_icm_bom_name(self, release_model):
+        return 'snap-' + release_model
+
+    def get_latest_release_model(self):
+        stagename = inspect.currentframe().f_code.co_name
+        self.logger.info("-Running-: {}".format(stagename))
+        cmd = 'turnininfo -days 999 -status released -c {}'.format(self.ip)
+        jsondata = self.run_turnininfo_and_get_json(cmd)
+        for data in jsondata:
+            if data['status'] == 'released':
+                if data['model'] and data['model'] != 'null':
+                    release_model = data['model']
+                    self.logger.info("-Complete-: {}".format(stagename))
+                    return release_model
+        self.logger.warning("Cannot find latest release model.")
+        return 0
+
+    def get_release_model_when_ready(self, turnin_id):
+        stagename = inspect.currentframe().f_code.co_name
+        self.logger.info("-Running-: {}".format(stagename))
+        cmd = 'turnininfo -id {}'.format(turnin_id)
+        release_model = 0
+        while not release_model:
+            jsondata = self.run_turnininfo_and_get_json(cmd)
+            if jsondata[0]['status'] == 'released':
+                if jsondata[0]['model'] and jsondata[0]['model'] != 'null':
+                    release_model = jsondata[0]['model']
+            self.logger.info("  - Please be patient while the gk-release process for turnin_id: {} is running, as this may take a while.".format(turnin_id))
+            time.sleep(120)
+
+        self.logger.info("-Complete-: {}".format(stagename))
+        return release_model
+
+    def is_there_unreleased_turnin(self):
+        ''' 
+        if there is an unreleased turnin
+            return the turnin id of the latest unreleased turnin
+        else
+            return 0
+        '''
+        stagename = inspect.currentframe().f_code.co_name
+        self.logger.info("-Running-: {}".format(stagename))
+        cmd = 'turnininfo -days 3 -status accepted -c {}'.format(self.ip)
+        jsondata = self.run_turnininfo_and_get_json(cmd)
+        if not jsondata:
+            ret = 0
+        else:
+            ret = jsondata[0]['id']
+        self.logger.info("-Complete-: {} : {}".format(stagename, ret))
+        return ret
+
+
+    def get_cluster_step_name_from_git(self):
+        cmd = 'cd {}; git remote show origin | grep "Fetch URL:"'.format(self.workarea)
+        exitcode, stdout, stderr = cmx.utillib.utils.run_command(cmd)
+        self.logger.debug("cmd: {}\nstdout: {}\nstderr: {}\n".format(cmd, stdout, stderr))
+        master_repo_name = os.path.basename(stdout.split()[-1].rstrip('/'))
+        self.logger.debug("- master_repo_name: {}".format(master_repo_name))
+        cluster, step = master_repo_name.rsplit('-', 1)
+        self.logger.debug("- cluster:{} step:{}".format(cluster, step))
+        return [cluster, step]
+
+
+    def run_turnin_release_model(self):
+        '''
+        > turnin -c softip -release_model
+            Connecting to GateKeeper...*
+            Running: /nfs/site/disks/crt_tools_001/gatekeeper4/master/4.50.06_22ww37a/sbin/nightly-release -c softip -s a0 -b master -force -user lionelta -proj psg -cfgdir /p/hdk/pu_tu/prd/gatekeeper_configs/psg/latest -logfile /nfs/site/disks/psg.mod.000/release_logs/release/1685587618.release.softip.a0.master -release_info /nfs/site/disks/psg.mod.000/release_logs/release/1685587618.release.softip.a0.master.info
+            Log:     /nfs/site/disks/psg.mod.000/release_logs/release/1685587618.release.softip.a0.master
+            pid:     27412
+            user:    lionelta
+            release_info: /nfs/site/disks/psg.mod.000/release_logs/release/1685587618.release.softip.a0.master.info
+        '''
+
+        stagename = inspect.currentframe().f_code.co_name
+        self.logger.info("-Running-: {}".format(stagename))
+        tr = self.get_testrunner(self.get_workarea())
+        self.cluster, self.step = self.get_cluster_step_name_from_git()
+        cmd = 'turnin -c {} -s {} -release_model'.format(self.cluster, self.step)
+        self.logger.info("  - cmd: {}".format(cmd))
+        exitcode, stdout, stderr = cmx.utillib.utils.run_command(cmd)
+
+        if re.search("release_info:", stdout+stderr):
+            self.logger.info("  - {}".format(stdout))
+            self.logger.info("-Complete-: {}".format(stagename))
+            return 0
+
+        self.logger.error("  - FAILED: {}. Please see below error for details.".format(stagename))
+        self.logger.error("    - exitcode: {}".format(exitcode))
+        self.logger.error("    - stdout: {}".format(stdout))
+        self.logger.error("    - stderr: {}".format(stderr))
+        raise Exception("FAIL: {}".format(stagename))
+    
+
+    def run_turnin_release_when_accepted(self, turnin_id):
+        stagename = inspect.currentframe().f_code.co_name
+        self.logger.info("-Running-: {}".format(stagename))
+        cmd = '/p/psg/da/infra/admin/setuid/dmxturnin -release_when_accepted {}'.format(turnin_id)
+        exitcode, stdout, stderr = cmx.utillib.utils.run_command(cmd)
+
+        if re.search("release_when_accepted command successful.", stdout+stderr):
+            self.logger.info("-Complete-: {}".format(stagename))
+            return 0
+        
+        self.logger.error("  - FAILED: {}. Please see below error for details.".format(stagename))
+        self.logger.error("    - exitcode: {}".format(exitcode))
+        self.logger.error("    - stdout: {}".format(stdout))
+        self.logger.error("    - stderr: {}".format(stderr))
+        raise Exception("FAIL: {}".format(stagename))
+
+
+    def wait_until_ip_model_is_generated(self, turnin_id, interval_in_seconds=20):
+        self.logger.info("-Running-: {}".format(inspect.currentframe().f_code.co_name))
+        while True:
+            time.sleep(interval_in_seconds)
+            jsondata = self.get_turnininfo(turnin_id)
+            if jsondata['status'] == 'released':
+                ip_model = jsondata['model']
+                self.logger.info("  - ip_model: {}".format(ip_model))
+                self.logger.info("-Complete-: {}".format(inspect.currentframe().f_code.co_name))
+                return ip_model
+
+
+    def get_turnininfo(self, turnin_id):
+        '''
+        [
+           {
+              "branch" : "master",
+              "bugs" : null,
+              "bundle_id" : 989,
+              "cluster" : "liotest5",
+              "code_review_comments" : null,
+              "code_review_status" : "none",
+              "code_review_url" : null,
+              "comments" : "",
+              "completed_time" : "2023-05-24 03:51:50",
+              "completed_time_epoch" : "1684925510",
+              "ecos" : null,
+              "files_changed" : null,
+              "gk_work_area" : "/nfs/site/disks/psg.gkwork.001/GK4/integrate/liotest5/integrate_bundle989",
+              "held_by_admin" : null,
+              "held_dependency" : null,
+              "id" : 395,
+              "incoming_area" : "/nfs/site/disks/psg.gkin.001/GK4/incoming/liotest5/user_turnin395",
+              "log_area" : "/nfs/site/disks/psg.gkwork.000/bundle_logs/bundle_989_logs",
+              "model" : "liotest5-a0-23ww21c",
+              "model_inodes" : 465,
+              "model_size" : 3368,
+              "priority" : "med",
+              "rec_inserted_time" : "2023-05-24 03:46:00",
+              "rec_inserted_time_epoch" : "1684925160",
+              "stage" : "retire",
+              "status" : "released",
+              "stepping" : "a0",
+              "turnin_notes" : "BUGS: \nECOS: \nUSER AREA: /nfs/site/disks/psg_data_36/psgcthadm/rubbish/aaa\nUSER HOST: scy0508.zsc7.intel.com\nCOMMENTS:\n\n\n========= Changes submitted =========\n\ncommit da25bd27f23dd7bfe5107f16743a695bab9b2a8f (HEAD -> master, tag: psg_turnin395)\nAuthor: Tan, Yoke Liang <yoke.liang.tan@intel.com>\nDate:   Wed May 24 03:41:41 2023 -0700\n\n    periodic\n\nM\tdummy\n\ncommit dc01c69a962400d24a5b1b5a10d53237d9dc5158\nAuthor: Tan, Yoke Liang <yoke.liang.tan@intel.com>\nDate:   Wed May 24 03:11:10 2023 -0700\n\n    periodic\n\nM\tdummy\n",
+              "turnin_time" : "2023-05-24 03:46:00",
+              "turnin_time_epoch" : "1684925160",
+              "user" : "psgcthadm",
+              "user_commit" : "da25bd27f23dd7bfe5107f16743a695bab9b2a8f",
+              "user_path" : "/nfs/site/disks/psg_data_36/psgcthadm/rubbish/aaa"
+           }
+        ]
+        '''
+        cmd = 'turnininfo -id {}'.format(turnin_id)
+        jsondata = run_turnininfo_and_get_json(cmd)
+        return jsondata[0]
+
+    def run_turnininfo_and_get_json(self, cmd):
+        '''
+        `cmd` must not include the -format and -output switch
+        It will be handled by this API internally.
+        '''
+        tmpfile = tempfile.mkstemp()[1]
+        cmd += ' -format json -output {}'.format(tmpfile)
+        exitcode, stdout, stderr = cmx.utillib.utils.run_command(cmd)
+        self.logger.debug("    - cmd: {}".format(cmd))
+        self.logger.debug("      - exitcode: {}".format(exitcode))
+        self.logger.debug("      - stdout  : {}".format(stdout))
+        self.logger.debug("      - stderr  : {}".format(stderr))
+
+        _, tmpfile_output, _ = cmx.utillib.utils.run_command('cat {}'.format(tmpfile))
+        self.logger.debug("      - tmpfile :{}".format(tmpfile_output))
+        
+        with open(tmpfile) as f:
+            jsondata = json.load(f)
+        os.system('rm -rf {}'.format(tmpfile))
+        return jsondata
+
+
+    def get_ip_model_path(self):
+        ipmoddir = os.getenv("IP_MODELS")
+        fullpath = os.path.abspath(os.path.join(ipmoddir, 'release', self.ip, self.release_model))
+        return fullpath
+
+
+    def generate_rel_configs(self):
+        self.logger.info("-Running-: {}".format(inspect.currentframe().f_code.co_name))
+        props = {}
+        props['IP_MODEL'] = os.path.realpath(self.get_ip_model_path())
+        
+        self.relname = self.make_rel_config(props)
+        self.logger.info("-Complete-: {}".format(inspect.currentframe().f_code.co_name))
+
+

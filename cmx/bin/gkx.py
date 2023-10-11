@@ -1,0 +1,20 @@
+#!/usr/intel/pkgs/python3/3.9.6/bin/python3
+
+import UsrIntel.R1
+import sys
+import os
+
+dmxroot = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')
+sys.path.insert(0, os.path.join(dmxroot, 'cmx', 'lib', 'python'))
+import cmx.utillib.utils
+
+
+def main():
+    gkxexe = os.path.join(dmxroot, 'scripts', 'gkx.py')
+    dmxsetup = os.path.join(dmxroot, 'bin', '_dmxsetupclean')
+    exe = '{} {}'.format(dmxsetup, gkxexe)
+    cmx.utillib.utils.dispatch_cmd_to_other_tool(exe, sys.argv)
+
+
+if __name__ == '__main__':
+    main()

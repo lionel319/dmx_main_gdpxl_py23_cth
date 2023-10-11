@@ -1,0 +1,22 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Product set",
+    "type": "object",
+    "patternProperties": {
+        "^[A-Z]{2}[0-9]$": {
+            "type": "object",
+            "properties": {
+                "revisions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "pattern": "^[A-Z][0-9]?$"
+                    }
+                }
+            }
+        }
+    },
+    "additionalProperties": false
+}
+
+

@@ -1,0 +1,20 @@
+#!/usr/bin/tcsh -f
+
+#set sdir = "/nfs/site/disks/da_infra_1/users/yltan/cth/bypass_pnr_reg-a0"
+set sdir = "/nfs/site/disks/psg.mod.001/GK4/release/bypass_pnr_reg/bypass_pnr_reg-a0-23ww40a"
+
+rsync -avxz $sdir/Makefile      $WORKAREA/.
+rsync -avxz $sdir/cfg           $WORKAREA/.
+rsync -avxz $sdir/handoff       $WORKAREA/.
+rsync -avxz $sdir/static        $WORKAREA/.
+rsync -avxz $sdir/verif         $WORKAREA/.
+rsync -avxz $sdir/power         $WORKAREA/.
+rsync -avxz $sdir/filelists     $WORKAREA/.
+rsync -avxz $sdir/gen_filelist  $WORKAREA/.
+rsync -avxz $sdir/src           $WORKAREA/.
+rsync -avxz $sdir/flows         $WORKAREA/.
+rsync -avxz $sdir/scripts       $WORKAREA/.
+
+### Temporary
+#rsync -avxz $sdir/baseline_tools $WORKAREA/.
+#rsync -avxz $sdir/tool.cth       $WORKAREA/.

@@ -1,0 +1,96 @@
+#!/usr/bin/env python
+'''
+$Header: //depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/derivebom.py#14 $
+$Change: 7733831 $
+$DateTime: 2023/08/09 03:35:58 $
+$Author: wplim $
+
+Description: plugin for "quick reporttree"
+
+Author: Rudy Albachten
+Copyright (c) Altera Corporation 2012
+All rights reserved.
+'''
+from builtins import object
+import os
+import re
+import sys
+import logging
+import glob
+
+lib = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..')
+sys.path.insert(0, lib)
+
+from cmx.dmlib.dmfactory import DMFactory
+from cmx.utillib.utils import is_belongs_to_arcpl_related_deliverables, get_ward, get_ws_from_ward
+### Import DMX API
+dmxlibdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', '..', '..', 'lib', 'python')
+sys.path.insert(0, dmxlibdir)
+import dmx.abnrlib.workspace
+from dmx.abnrlib.config_factory import ConfigFactory
+from dmx.utillib.utils import normalize_config_name
+import dmx.abnrlib.icm
+
+class DeriveBomError(Exception): pass
+
+class DeriveBom(object):
+
+    def __init__(self, project, ip, source_bom, dest_bom, deliverable, exact, hier=False):
+        self.project = project
+        self.ip = ip
+        self.source_bom = source_bom
+        self.deliverable = deliverable
+        self.exact = exact
+        self.dest_bom = self.get_normalized_config(dest_bom, exact)
+        self.hier = hier
+        self.logger = logging.getLogger(__name__)
+        self.ward = get_ward()
+        self.icm = dmx.abnrlib.icm.ICManageCLI()
+
+    def get_normalized_config(self, bom, exact):
+        target_config = bom
+        if exact:
+            return target_config 
+
+        if bom.startswith('REL') or bom.startswith('snap'):
+            normalized_config = normalize_config_name(bom)
+            target_config = 'b{0}__{1}__dev'.format(normalized_config, target_config)
+
+        return target_config
+
+
+    def run(self):
+        
+        if self.deliverable:
+            if not (is_belongs_to_arcpl_related_deliverables(self.deliverable)):
+                return 0
+
+            ### Since this is deliverable bom we do not know what is the ipsepc bom that we need to extract cell from 
+            ### So we will iget the cell from icm workspace bom/ 
+            wspath = get_ws_from_ward(self.ward)
+            project, ip, bom = self.icm.get_pvc_from_workspace(wspath)
+            cells =  self.icm.get_cells_from_project_ip_bom(project, ip, bom)
+       
+            dm = DMFactory().create_dm(self.deliverable)
+            ret = dm.branch(self.project, self.ip, self.source_bom, self.dest_bom, cells[self.project, self.ip])
+            return ret
+
+
+        flatten_srcbom = [x for x in ConfigFactory().create_config_from_full_name(
+            f"{self.project}/{self.ip}/{self.source_bom}").flatten_tree() if isinstance(x, dmx.abnrlib.icmlibrary.IcmLibrary) if is_belongs_to_arcpl_related_deliverables(x.libtype)  ]
+
+        cells =  self.icm.get_cells_from_project_ip_bom(self.project, self.ip, self.source_bom)
+        for srccfg in flatten_srcbom:
+                 
+            ### if not hier, only overlay top ip cell
+            if not self.hier:
+                if srccfg.project != self.project or srccfg.variant != self.ip:
+                    continue
+
+            dm = DMFactory().create_dm(srccfg.libtype)
+            dm.branch(srccfg.project, srccfg.variant, srccfg.library, self.dest_bom, cells[srccfg.project, srccfg.variant]) 
+
+        return 0
+
+
+

@@ -1,0 +1,253 @@
+from __future__ import print_function
+from builtins import str
+from builtins import range
+from builtins import object
+import logging
+import os
+import sys
+import shutil
+import traceback
+import json
+
+lib = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..')
+sys.path.insert(0, lib)
+from cmx.utillib.utils import run_command
+
+### Import DMX API
+dmxlibdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', '..', '..', 'lib', 'python')
+sys.path.insert(0, dmxlibdir)
+from dmx.abnrlib.icm import ICManageCLI
+from dmx.abnrlib.config_factory import ConfigFactory
+
+class Bom(object):
+    def __init__(self, id, name, type, subips=[], has_cthfe=False):
+        self._id = id
+        self.name = name
+        self._type = type
+        self.subips = subips
+        self.has_cthfe = has_cthfe
+
+    def to_string(self):
+        return '''
+        id: {}
+        name: {}
+        type: {}
+        subips: {}
+        has_cthfe: {}
+        '''.format(self._id, self.name, self._type, self.subips, self.has_cthfe)
+
+    def __eq__(self, other):
+        return self._id == other._id and \
+               self.name == other.name and \
+               self.subips == other.subips
+
+class DmxMoab(object):
+    # Processes:
+    # 1. need to know which hier of IP has cthfe folder
+    # 2. need to be able to know the IP hier to properly populate the symlinks because if own ip has cthfe, no symlink is created.
+    # 3. need to create a filelist based on the above data acquired into sip, hip, vip files
+
+    def __init__(self, wsroot=None, project=None, ip=None, bom=None):
+        """ This Class can be run in 2 modes.
+        - Workspace-mode: bom is not provided.
+        - non-workspace mode: bom needs to be provided.
+        - if wsroot is not provided, cwd will be used as wsroot.
+        """
+        self.logger = logging.getLogger(__name__)
+        self._wsroot = wsroot
+        self._bom = bom
+        self._bom_collection = []
+        self._filelist_collection = {}
+        self._project = project
+        self._ip = ip
+        self._dmxdata_root= os.getenv("DMXDATA_ROOT")
+        self._family = os.getenv("DB_FAMILY")
+        self.logger.info(self._wsroot)
+
+    def set_filelist_details(self, ip, subip, file_type='sip'):
+        if ip not in self._filelist_collection:
+            self._filelist_collection[ip] = {'sip': [], 'hip': [], 'vip': []}
+        self._filelist_collection[ip][file_type].append(subip)
+
+    def _walk_through_the_workspace(self):
+        # start going through the workspace to see what is being populated in the workspace
+        # then directly create the filelist and also the symlinks
+        self.logger.info("walking through the workspace")
+        dir_list = os.listdir(self._wsroot)
+        for _dir in dir_list:
+            for index in range(len(self._bom_collection)):
+                bom = self._bom_collection[index]
+                if _dir == bom.name and bom.has_cthfe:
+                    # Todo: make checking to see which folder name to put into
+                    # create symlink
+                    self.cleanup(_dir)
+                    self.recursive_create_symlinks(_dir, bom, dir_list)
+                    break
+
+    def _create_bom_collection(self, flatten_bom):
+        for b in flatten_bom:
+            if b.is_config():
+                # meaning this is a variant
+                index = self._get_parent_id(self._bom_collection, b.variant)
+                if index == -1:
+                    bom = Bom(len(self._bom_collection) + 1, str(b.variant), "Variant", [] , False)
+                    self._bom_collection.append(bom)
+                    index = len(self._bom_collection)-1
+                self._find_or_insert_variant_as_sub(b.configurations, index)
+
+    def _find_or_insert_variant_as_sub(self, configurations, parent_index):
+        for c in configurations:
+            if c.is_config():
+                is_exists = self._get_parent_id(self._bom_collection, c.variant)
+                if is_exists == -1:
+                    bom = Bom(len(self._bom_collection) + 1, str(c.variant), "Variant", [],  False)
+                    self._bom_collection.append(bom)
+                else:
+                    bom = self._bom_collection[is_exists]
+                
+                if parent_index > -1 :
+                    (self._bom_collection[parent_index]).subips.append(bom._id)
+            else:
+                # is libtype
+                if str(c.libtype) == "cthfe":
+                    self._bom_collection[parent_index].has_cthfe = True
+            
+            
+    def _transform_bom_into_collection(self):
+        cfobj = ConfigFactory.create_from_icm(self._project, self._ip,
+                                                                         self._bom)  
+        flatten_bom = cfobj.flatten_tree()
+        self._create_bom_collection(flatten_bom)
+            
+    def recursive_create_symlinks(self, _dir, bom, dir_list):
+        for subip_id in bom.subips:
+            subip = self.search_bom(subip_id)
+            if subip is None:
+                self.logger.error("Weird. Ip not found in BoM.")
+            if subip.name not in dir_list:
+                self.logger.info(subip.name + " not in workspace")
+                
+            # get the filetype from the dmxdata cth filelist mapping
+            cth_ip_folder_name = self.check_filelist_type(subip.name)
+
+            self.do_symlink(_dir, cth_ip_folder_name, subip)
+            self.recursive_create_symlinks(_dir, subip, dir_list)
+
+    def _create_all_filelists(self):
+        self.logger.info("Creating all file list ")
+        for key in self._filelist_collection:
+            for filelist_name in self._filelist_collection[key]:
+                if os.path.exists(os.path.join(self._wsroot, key, 'cthfe/filelists', filelist_name + '.list')):
+                    os.remove(os.path.join(self._wsroot, key, 'cthfe/filelists', filelist_name + '.list'))
+                    print("Successful! " + os.path.join(self._wsroot, key, 'cthfe/filelists', filelist_name +
+                                                        '.list') + " has been removed")
+                if not os.path.isdir(os.path.join(self._wsroot, key, "cthfe/filelists")):
+                    os.makedirs(os.path.join(self._wsroot, key, "cthfe/filelists"))
+                for subip in self._filelist_collection[key][filelist_name]:
+                    with open(os.path.join(self._wsroot, key, 'cthfe/filelists', filelist_name + '.list'), "a") \
+                            as file:
+                        file.write(subip + ', ' + self._wsroot + '/' + subip + '/cthfe\n')
+
+    def do_symlink(self, _dir, cth_ip_folder_name, subip):
+        """
+        Accept the output from `get_symlink_todo_list()` as input,
+        and then do the actual symlink in the workspace
+        This command can only be run if this class instance is called with the 'workspace-mode'
+        """
+        actual_path = os.path.join(self._wsroot, subip.name, 'cthfe')
+        symlink_path = os.path.join(self._wsroot, _dir, "cthfe/subip", cth_ip_folder_name, subip.name)
+
+        if not os.path.isdir(os.path.join(self._wsroot, _dir, "cthfe/subip", cth_ip_folder_name)):
+                os.makedirs(os.path.join(self._wsroot, _dir, "cthfe/subip", cth_ip_folder_name))
+
+        if subip.has_cthfe:
+            if not os.path.exists(symlink_path):
+                os.symlink(
+                    actual_path, symlink_path 
+                )
+
+                self.set_filelist_details(_dir, subip.name, cth_ip_folder_name)
+    
+    def _run_moab_update(self):
+        self.logger.info("Running Moab Update")
+        for key in self._filelist_collection:
+            path = os.path.join(self._wsroot, key, 'cthfe')
+            cmd = "env WORKAREA={}  /p/hdk/pu_tu/prd/moab/1.01.11/bin/moab update".format(path)
+            exitcode, stdout, stderr = run_command(cmd)
+            if exitcode:
+                self.logger.error(stdout)
+                self.logger.error(stderr)
+            
+
+
+    def search_bom(self, ip_id):
+        for i in range(len(self._bom_collection)):
+            if self._bom_collection[i]._id == ip_id:
+                return self._bom_collection[i]
+        return None
+
+    def process(self):
+        try:
+            self.logger.info("Performing check before proceeding on DMX Moab Process")
+            if not self._perform_check():
+                return False
+            self.logger.info("Getting bom data")
+            
+            # get the necessary data
+            self._transform_bom_into_collection()
+            #for b in self._bom_collection:
+            #    print(b.to_string())
+            
+            # start going through the workspace to see what is being populated in the workspace
+            # then directly create the filelist and also the symlinks
+            self._walk_through_the_workspace()
+            self._create_all_filelists()
+            self._run_moab_update()
+        except Exception as e:
+            self.logger.error("Something happened during the dmx moab process")
+            self.logger.error(traceback.format_exc())
+            self.logger.error(e)
+
+    def cleanup(self, _dir):
+        try:
+            path_to_directory = os.path.join(self._wsroot, _dir, "cthfe/subip")
+            if os.path.exists(path_to_directory):
+                for d in os.listdir(path_to_directory):
+                    shutil.rmtree(os.path.join(path_to_directory, d))
+
+        except Exception as e:
+            self.logger.error("Failed to remove files and directories in " + path_to_directory)
+            self.logger.error(e)
+
+    def _perform_check(self):
+        if self._wsroot is None:
+            self.logger.error("Workspace root directory not given. Skipping the DMX MoaB Process")
+            return False
+        return True
+
+    def _get_parent_id(self, bom_tree, parent_item_name):
+        for index, element in enumerate(bom_tree):
+            if element.name == parent_item_name:
+                return index
+        return -1
+
+    def check_filelist_type(self, ip):
+        #dmxdata/<family>/cthfe_filelist_mapping.json
+        filename = "{}/{}/{}".format(self._dmxdata_root, self._family, "cthfe_filelist_mapping.json")
+        # check if file exists
+        if os.path.exists(filename):
+            # Opening JSON file
+            with open(filename) as json_file:
+                data = json.load(json_file)
+                for file_type, iptype_list in list(data.items()):
+                    iptype = self._get_ip_type(ip)
+                    if iptype in iptype_list:
+                        return file_type
+        else:
+            self.logger.warning("CTH Filelist Mapping not available. Default Filelist sip is used.")
+        return 'sip'
+
+    def _get_ip_type(self, ip_name):
+        a = ICManageCLI()
+        retjson = a.get_variant_details(self._project, ip_name)
+        return retjson['iptype']

@@ -1,0 +1,220 @@
+#!/usr/bin/env python
+'''
+$Header: //depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/plugins/release.py#19 $
+$Change: 7772159 $
+$DateTime: 2023/09/07 00:55:44 $
+$Author: lionelta $
+
+Description: dmx "release library" subcommand plugin
+Author: Rudy Albachten
+Copyright (c) Altera Corporation 2012
+All rights reserved.
+'''
+from __future__ import print_function
+from builtins import str
+import sys
+import logging
+import textwrap
+import itertools
+import os
+from pprint import pprint, pformat
+import argparse
+
+CMXLIB = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')
+DMXLIB = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', '..', '..', 'lib', 'python')
+sys.path.insert(0, DMXLIB)
+sys.path.insert(0, CMXLIB)
+
+from cmx.abnrlib.command import Command
+from cmx.utillib.utils import add_common_args, dispatch_cmd_to_other_tool, get_old_dmx_exe_from_folder, get_dmx_root_from_folder 
+from cmx.utillib.admin import is_admin
+import cmx.tnrlib.utils
+
+LOGGER = logging.getLogger(__name__)
+
+class ReleaseError(Exception): pass
+
+class Release(Command):
+    '''dmx subcommand plugin class"'''
+
+    @classmethod
+    def get_help(cls):
+        '''short subcommand description'''
+        myhelp = '''\
+            Release (create REL) an IP or deliverable
+            '''
+        return textwrap.dedent(myhelp)
+
+    @classmethod
+    def add_args(cls, parser):
+        '''subcommand arguments'''
+        add_common_args(parser)
+        # generic arguments
+        parser.add_argument('-p', '--project', metavar='project', required=False, default=None)
+        parser.add_argument('-i', '--ip', metavar='ip', required=False, default=None)
+        parser.add_argument('-b', '--bom', metavar='bom', required=False, default=None)
+        parser.add_argument('-m', '--milestone', metavar='milestone', required=False, default=None,
+            help='Milestone to release to')
+        parser.add_argument('-t', '--thread', metavar='thread', required=False, default=None,
+            help='Thread to release to')
+        parser.add_argument('--label', metavar='label', required=False,
+            help='Label to make this release easily identifiable')
+        parser.add_argument('--desc',  metavar='description', required=False, default='user called',
+            help='Description that will be added to the release')
+        parser.add_argument('--force', required=False, action='store_true', default=False,
+                            help='Force the creation of a new REL bom even if this content has previously been released for the specified milestone and thread.')        
+
+        # releaselibrary arguments
+        parser.add_argument('-d', '--deliverable', metavar='deliverable', required=False, default=None, help='Deliverable to release')
+
+        ### This option is specially meant for those backend releases.
+        ### For Backend releases (namely r2g/febe/ipde), we need to populate a staging workspace.
+        ### We need to run it like this:
+        ###     cth_psetup_psg ..... -ward <staging_workarea> -cmd 'command'
+        ### Thus, we need to do some special treatment for the Backend releases:
+        ###   if the 'dmx release -d r2g' command is invoked by normal users (ie: without the --already_in_cth_env)
+        ###      dmx will reinvoke the same command again, with cth_psetup_psg wrapped around it, ie:
+        ###      >cth_psetup_psg ... -ward <a_uniq_staging_workarea> -cmd 'dmx release -d r2g'
+        parser.add_argument('--already_in_cth_staging_env', required=False, default=False, action='store_true',
+                            help=argparse.SUPPRESS)
+
+        parser.add_argument('--flowcfg', required=False, default=False, action='store_true',
+            help='You could ask dmx to read the inputs from $WORKAREA/flows/dmx/flow.cfg file instead. For an example, kindly refer to <here>')
+
+
+    @classmethod
+    def extra_help(cls):
+        '''
+        Extra help for dmx help release library
+        '''
+        extra_help = '''\
+            -------------------------------------------------------
+            Release cthfe deliverable (-d cthfe)
+            -------------------------------------------------------
+            This command is used to create cthfe-deliverable releases.
+
+            Deliverable will be released from a BOM (-b) provided by the users.
+            The -b value is the bom of the variant(IP) level.
+
+            Examples:
+            >dmx release -p i18asockm -i avmm_lib -d cthfe -b dev -t KM2revA0 -m 1.0 --desc "some comments" --debug
+            Release deliverable i18asockm/avmm_lib:cthfe
+
+            -------------------------------------------------------
+            Release cthfe deliverable hierarchically (-d hier_cthfe)
+            -------------------------------------------------------
+            This command is used to create cthfe-deliverable releases.
+
+            Deliverable will be released from a BOM (-b) provided by the users.
+            The -b value is the bom of the cthfe bom, and it has to be a REL* bom.
+
+            Upon a success run, a full hierarchy REL bom will be generated, with only cthfe-deliverable 
+            in each of the IPs.
+
+            Examples:
+            >dmx release -p i18asockm -i avmm_lib -d hier_cthfe -b REL1.0KM2revA0__23ww290c -t KM2revA0 -m 1.0 --desc "some comments" --debug
+
+            An example of a successfully generated hierarchical cthfe released bom:-
+            avmm_lib@REL1.0KM2revA0__23ww333a
+                avmm_lib:cthfe@REL1.0KM2revA0__23ww290c
+                bypass_reg@REL1.0KM2revA0__23ww333a
+                    bypass_reg:cthfe@REL1.0KM2revA0__23ww282b
+                bypass_pnr_reg@REL1.0KM2revA0__23ww333a
+                    bypass_pnr_reg:cthfe@REL1.0KM2revA0__23ww282a
+
+
+        '''
+
+        if is_admin():
+            extra_help += '''
+            '''
+
+        return textwrap.dedent(extra_help)
+
+    @classmethod
+    def command(cls, args):
+        #dispatch_cmd_to_other_tool(get_old_dmx_exe_from_folder('plugins'), sys.argv)
+
+        if args.flowcfg:
+            import cmx.tnrlib.utils
+            data = cmx.tnrlib.utils.parse_flowcfg()['workspace_check']
+            for key in data:
+                setattr(args, key, data[key])
+
+        ### Make sure Required params are provided
+        LOGGER.debug("args: {}".format(pformat(args)))
+        missing_opts = []
+        for opt in ['project', 'ip', 'bom', 'deliverable', 'thread', 'milestone']:
+            if not hasattr(args, opt) or getattr(args, opt) == None:
+                missing_opts.append(opt)
+        if errors:
+            raise Exception("These required parameters are not provided: {}".format(missing_opts))
+
+
+        if args.deliverable == 'cthfe':
+            import cmx.tnrlib.release_runner_cthfe
+            rr = cmx.tnrlib.release_runner_cthfe.ReleaseRunnerCthfe(args.thread, args.milestone, args.deliverable, args.project, args.ip, args.bom, dryrun=args.preview, force=args.force)
+            return rr.run()
+        elif args.deliverable in ['reldoc', 'ipspec']:
+            import cmx.tnrlib.release_runner_icm    ### TODO: refactor this into factory Design Pattern
+            rr = cmx.tnrlib.release_runner_icm.ReleaseRunnerIcm(args.thread, args.milestone, args.deliverable, args.project, args.ip, args.bom, dryrun=args.preview, force=args.force)
+            return rr.run()
+
+        elif args.deliverable in ['febe']:
+            import cmx.tnrlib.release_runner_febe
+            rr = cmx.tnrlib.release_runner_febe.ReleaseRunnerFebe(args.thread, args.milestone, args.deliverable, args.project, args.ip, args.bom, dryrun=args.preview, force=args.force)
+            return rr.run()
+
+        elif args.deliverable in ['febe_old_kept_here_for_reference_only']:
+            if args.already_in_cth_staging_env:
+                import cmx.tnrlib.release_runner_febe
+                rr = cmx.tnrlib.release_runner_febe.ReleaseRunnerFebe(args.thread, args.milestone, args.deliverable, args.project, args.ip, args.bom, dryrun=args.preview, force=args.force)
+                return rr.run()
+            else:
+                cmdstring = cls.backend_cmd_wrapper(args)
+                return os.system(cmdstring)
+
+        elif args.deliverable in ['r2g']:
+            if args.already_in_cth_staging_env:
+                import cmx.tnrlib.release_runner_r2g
+                rr = cmx.tnrlib.release_runner_r2g.ReleaseRunnerR2g(args.thread, args.milestone, args.deliverable, args.project, args.ip, args.bom, dryrun=args.preview, force=args.force)
+                return rr.run()
+            else:
+                cmdstring = cls.backend_cmd_wrapper(args)
+                return os.system(cmdstring)
+
+        elif args.deliverable.startswith("view_"):
+            import cmx.tnrlib.release_runner_view
+            rr = cmx.tnrlib.release_runner_view.ReleaseRunnerView(args.thread, args.milestone, None, args.project, args.ip, args.bom, views=[args.deliverable], dryrun=args.preview)
+            return rr.run()
+        elif args.deliverable == "hier_cthfe":
+            import cmx.tnrlib.release_runner_hier_cthfe
+            rr = cmx.tnrlib.release_runner_hier_cthfe.ReleaseRunnerHierCthfe(args.thread, args.milestone, args.deliverable, args.project, args.ip, args.bom, dryrun=args.preview)
+            return rr.run()
+
+        else:
+            LOGGER.error("ERROR: dmx release for deliverble:{} currently is not supported yet!".format(args.deliverable))
+            return 1
+
+    def backend_cmd_wrapper(args):
+        staging_workarea = cmx.tnrlib.utils.get_uniq_staging_workarea(args.project, args.ip)
+        
+        #dmxexe = '/nfs/site/disks/da_scratch_1/users/yltan/depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/bin/mycmx'
+        rootdir = get_dmx_root_from_folder('plugins')
+        dmxexe = os.path.join(rootdir, 'cmx', 'bin', 'dmx')
+        LOGGER.debug("dmxexe: {}".format(dmxexe))
+
+       
+        '''
+        setenv_posthook = 'setenv DMX_POSTHOOK_DIR {};'.format(os.getenv("DMX_POSTHOOK_DIR"))
+        setenv_dmxdata = 'setenv DMXDATA_ROOT {};'.format(os.getenv("DMXDATA_ROOT", "/p/psg/flows/common/dmxdata/latestdev"))
+        setenvs = setenv_posthook + setenv_dmxdata
+        '''
+        setenvs = cmx.tnrlib.utils.get_setenv_str(None, include_dmx_envvar=True)
+
+        dmxrel_cmd = '''$SETUP_R2G; {}; {} release -p {} -i {} -d {} -b {} --desc from_dmx_release -t {} -m {} --debug --force --already_in_cth_staging_env'''.format(setenvs, dmxexe, args.project, args.ip, args.deliverable, args.bom, args.thread, args.milestone)
+        ssh_cmd = cmx.tnrlib.utils.cth_env_cmd_wrapper(cfg='KM4A0P00I0S_R2G_RC.cth', workarea=staging_workarea, cmd=dmxrel_cmd, host='localhost')
+        LOGGER.info("    > Running Cmd: {}".format(ssh_cmd))
+        return ssh_cmd
+
+

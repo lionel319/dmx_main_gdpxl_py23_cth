@@ -1,0 +1,18 @@
+{
+	"PICE": {
+		"all.users"    :"psgeng",
+		"i10.users" :"psgi10",
+		"fln.users" : "psgfln",
+		"whr.users" : "psgwhr"	
+	},
+	"legacy": {
+		"runda.users":"nd",
+		"tsmc.users" :"tsmc",
+		"soci.users" :"soci",
+		"hhp.users"  :"hhp",
+		"all.users"  :"eng",
+		"thasos.users":"thasos",
+		"fln.users"  :"fln",
+		"i10.users"  :"i10"
+	}
+}

@@ -1,0 +1,16 @@
+# coding: utf-8
+from __future__ import absolute_import
+from django.conf.urls.defaults import *
+
+from . import views
+
+urlpatterns = patterns('',
+    (r'^view/$', views.normal_view),
+    (r'^not_found/$', views.not_found),
+    (r'^error/$', views.server_error),
+    (r'^null_view/$', views.null_view),
+    (r'^permission_denied/$', views.permission_denied),
+
+    (r'^template_response/$', views.template_response),
+    (r'^template_response_error/$', views.template_response_error),
+)

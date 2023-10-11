@@ -1,0 +1,121 @@
+
+#fub list
+1:FM6 FM8 GDR RNR WHR FM6B DMD
+
+#reference run enabled
+88:FALSE
+
+#fub information. pattern:run_folder_name fub_name input_directory reference file 
+14:FM8 FM8 NULL NULL
+14:FM6 FM6 NULL NULL
+14:WHR WHR NULL NULL
+14:GDR GDR NULL NULL
+14:RNR RNR NULL NULL
+14:FM6B FM6B NULL NULL
+14:DMD DMD NULL NULL
+
+#timeout timer in minutes.
+
+#disabled fubs. pattern: fub_name:disable_reason
+
+#site a fub is to fun
+63:FM8:png
+63:FM6:png
+63:WHR:png
+63:GDR:png
+63:RNR:png
+63:FM6B:png
+63:DMD:png
+
+#flow information. pattern: flow_name:selected_step1 selected_step2
+15:rc_bundle_regression.flow: print_var customize_subject customize_body unittest_abnr systemtest_tnr systemtest_ecolib systemtest_utillib systemtest_testrunner create_sandbox_arc_res inttest_dmx inttest_ecosphere inttest_ipqc
+
+#flow variables. pattern: var_name:var_value:var_meaning
+16:ARCRES:" ":ARCRES
+16:DMXVER:" ":DMXVER
+16:MAKECMD:"make -f $PANDORA_CENTRAL_REGRESSION_ROOT/../regression.makefile ":MAKECMD
+
+#Fub-specific variables. pattern: fub_name%var_name:var_value:var_meaning
+17:FM8%ARCRES:project/falcon/branch/fm8dot2main/rc:ARCRES
+17:FM6%ARCRES:project/falcon/branch/fm6dot2main/rc:ARCRES
+17:WHR%ARCRES:project/whr/branch/whrmain/rc:ARCRES
+17:GDR%ARCRES:project/gdr/branch/gdrmain/rc:ARCRES
+17:RNR%ARCRES:project/rnr/branch/rnrmain/rc:ARCRES
+17:FM6B%ARCRES:project/falcon/branch/fm6revbmain/rc:ARCRES
+17:DMD%ARCRES:project/dmd/branch/dmdmain/rc:ARCRES
+17:FM8%DMXVER:`arc resource-info $ARCRES | grep "resources :" | awk '{print $3}' | xargs arc resource | grep "resources :" | awk '{print $3}' | perl -ne '/\bdmx\/([0-9a-z.]+)\b/; print $1'`:DMXVER
+17:FM6%DMXVER:`arc resource-info $ARCRES | grep "resources :" | awk '{print $3}' | xargs arc resource | grep "resources :" | awk '{print $3}' | perl -ne '/\bdmx\/([0-9a-z.]+)\b/; print $1'`:DMXVER
+17:WHR%DMXVER:`arc resource-info $ARCRES | grep "resources :" | awk '{print $3}' | xargs arc resource | grep "resources :" | awk '{print $3}' | perl -ne '/\bdmx\/([0-9a-z.]+)\b/; print $1'`:DMXVER
+17:GDR%DMXVER:`arc resource-info $ARCRES | grep "resources :" | awk '{print $3}' | xargs arc resource | grep "resources :" | awk '{print $3}' | perl -ne '/\bdmx\/([0-9a-z.]+)\b/; print $1'`:DMXVER
+17:RNR%DMXVER:`arc resource-info $ARCRES | grep "resources :" | awk '{print $3}' | xargs arc resource | grep "resources :" | awk '{print $3}' | perl -ne '/\bdmx\/([0-9a-z.]+)\b/; print $1'`:DMXVER
+17:FM6B%DMXVER:`arc resource-info $ARCRES | grep "resources :" | awk '{print $3}' | xargs arc resource | grep "resources :" | awk '{print $3}' | perl -ne '/\bdmx\/([0-9a-z.]+)\b/; print $1'`:DMXVER
+17:DMD%DMXVER:`arc resource-info $ARCRES | grep "resources :" | awk '{print $3}' | xargs arc resource | grep "resources :" | awk '{print $3}' | perl -ne '/\bdmx\/([0-9a-z.]+)\b/; print $1'`:DMXVER
+17:FM8%DMXDATAVER:`arc resource-info $ARCRES | grep "resources :" | awk '{print $3}' | xargs arc resource | grep "resources :" | awk '{print $3}' | perl -ne '/\bdmxdata\/([0-9a-z.]+)\b/; print $1'`:DMXDATAVER
+17:FM6%DMXDATAVER:`arc resource-info $ARCRES | grep "resources :" | awk '{print $3}' | xargs arc resource | grep "resources :" | awk '{print $3}' | perl -ne '/\bdmxdata\/([0-9a-z.]+)\b/; print $1'`:DMXDATAVER
+17:WHR%DMXDATAVER:`arc resource-info $ARCRES | grep "resources :" | awk '{print $3}' | xargs arc resource | grep "resources :" | awk '{print $3}' | perl -ne '/\bdmxdata\/([0-9a-z.]+)\b/; print $1'`:DMXDATAVER
+17:GDR%DMXDATAVER:`arc resource-info $ARCRES | grep "resources :" | awk '{print $3}' | xargs arc resource | grep "resources :" | awk '{print $3}' | perl -ne '/\bdmxdata\/([0-9a-z.]+)\b/; print $1'`:DMXDATAVER
+17:RNR%DMXDATAVER:`arc resource-info $ARCRES | grep "resources :" | awk '{print $3}' | xargs arc resource | grep "resources :" | awk '{print $3}' | perl -ne '/\bdmxdata\/([0-9a-z.]+)\b/; print $1'`:DMXDATAVER
+17:FM6B%DMXDATAVER:`arc resource-info $ARCRES | grep "resources :" | awk '{print $3}' | xargs arc resource | grep "resources :" | awk '{print $3}' | perl -ne '/\bdmxdata\/([0-9a-z.]+)\b/; print $1'`:DMXDATAVER
+17:DMD%DMXDATAVER:`arc resource-info $ARCRES | grep "resources :" | awk '{print $3}' | xargs arc resource | grep "resources :" | awk '{print $3}' | perl -ne '/\bdmxdata\/([0-9a-z.]+)\b/; print $1'`:DMXDATAVER
+
+#data copy command
+100:rsync -ra $PANDORA_DATA_DIR $PANDORA_WARD
+
+#enable prehook
+22:FALSE
+
+#enable posthook
+23:FALSE
+
+#recurrent mode
+29:FALSE
+
+#email address. pattern: address1,address2
+40:lionelta
+
+#send an email  when a fub finishes running
+42:FALSE
+
+#fub finishe status that will trigger the email
+41:31
+
+#send a summary email when a session finishes
+43:TRUE
+
+#include only failed fubs in the summary email
+44:FALSE
+
+#disk allocated for each fub by Pandora using disk usage data
+53:FALSE
+
+#disk to use for each fub. pattern:fub_name disk_path
+
+#disks can be used by this test
+52:
+
+#update disk usage data before running this test
+54:FALSE
+
+#how to update disk usage data. pattern:update_per_fub:update_per_step
+55:TRUE:FALSE
+
+#auto-populate fubs. pattern: path_to_extract_fubs_from%%auto_update_or_not
+101:%%FALSE
+
+# output directory in $PANDORA_WARD that is used when creating or updating reference files.
+104:test_output
+
+#per fub run setings enabled
+90:FALSE
+
+#run setting name for the test
+102:undef
+
+# run setting name for fubs. Example: 103:runUnitName%%globalSettingName
+103:FM8%%
+103:FM6%%
+103:WHR%%
+103:GDR%%
+103:RNR%%
+103:FM6B%%
+103:DMD%%

@@ -1,0 +1,66 @@
+#!/usr/bin/env python
+'''
+$Header: //depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/abnrlib/flows/workspaceupdate.py#3 $
+$Change: 7480823 $
+$DateTime: 2023/02/13 01:51:53 $
+$Author: kenvengn $
+
+Description: plugin for "quick reporttree"
+
+Author: Rudy Albachten
+Copyright (c) Altera Corporation 2012
+All rights reserved.
+'''
+from builtins import object
+import os
+import re
+import sys
+import logging
+import tempfile
+import time
+import datetime
+import configparser 
+
+lib = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..')
+sys.path.insert(0, lib)
+
+from cmx.abnrlib.flows.workspacepopulate import WorkspacePopulate
+from cmx.abnrlib.flows.dmxmoab import DmxMoab
+from cmx.utillib.utils import get_ward, get_ws_from_ward
+### Import DMX API
+dmxlibdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', '..', '..', 'lib', 'python')
+sys.path.insert(0, dmxlibdir)
+import dmx.abnrlib.workspace
+
+
+class WorkspaceUpdateError(Exception): pass
+
+class WorkspaceUpdate(object):
+
+    def __init__(self, wsname, cfgfile='', deliverables=None, original_user='', preview=False, force=False):
+        self.force = force
+        self.preview = preview
+        self.deliverables = deliverables if deliverables else []
+        self.cfgfile = os.path.abspath(cfgfile) if cfgfile else ''
+        self.logger = logging.getLogger(__name__)
+        self.original_user = original_user
+        self.icmws_path = get_ws_from_ward()
+        self.get_pvc_from_workspace()
+
+    def get_pvc_from_workspace(self):
+        ws = dmx.abnrlib.workspace.Workspace(self.icmws_path, preview=self.preview)
+        self._project = ws.project
+        self._ip = ws.ip
+        self._bom = ws.bom
+
+    def run_moab(self, project, ip, bom):
+        self.logger.info('Proceed to perform Dmx Moab')
+        dmx_moab = DmxMoab(wsroot=self.icmws_path, bom=bom, ip=ip, project=project)
+        dmx_moab.process()
+        self.logger.info('Dmx Moab Process Ends ')
+
+    def run(self):
+        self.run_moab(self._project, self._ip, self._bom)
+        ret = WorkspacePopulate.run_pop(self._project, self._ip, self._bom)
+
+        return 0

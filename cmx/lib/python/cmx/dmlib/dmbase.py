@@ -1,0 +1,250 @@
+#!/usr/bin/env python
+'''
+$Header: //depot/da/infra/dmx/main_gdpxl_py23_cth/cmx/lib/python/cmx/dmlib/dmbase.py#2 $
+$Change: 7756464 $
+$DateTime: 2023/08/25 01:53:39 $
+$Author: wplim $
+
+Description: Abstract base class used for representing IC Manage configurations. See: http://sw-wiki.altera.com/twiki/bin/view/DesignAutomation/ICMConfigurationClass for more details
+
+Author: Lee Cartwright
+Copyright (c) Altera Corporation 2014
+All rights reserved.
+'''
+import os
+import sys
+import logging
+import time
+from cmx.utillib.utils import run_command
+
+from cmx.dmlib.dm import DM
+
+### Import DMX API
+dmxlibdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', '..', '..', 'lib', 'python')
+sys.path.insert(0, dmxlibdir)
+from dmx.abnrlib.icm import ICManageCLI
+from dmx.abnrlib.config_factory import ConfigFactory
+
+LIB = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
+sys.path.insert(0, LIB)
+
+LOGGER = logging.getLogger(__name__)
+
+
+class DMBaseError(Exception): pass
+
+
+class DMBase(DM):
+
+    def __init__(self, stages, libtype, cmd_options=None):
+        if cmd_options is None:
+            raise Exception("Missing value for cmd_options")
+        self.cmd_options = cmd_options
+        self.logger = LOGGER
+        self.libtype = libtype
+        self.icm = ICManageCLI()
+        self.stages = stages  # os.environ.get('DMX_ARCHIE_STAGES', 'all').split(',')
+        self.libtype = libtype
+
+    def _generate_tag_name(self, project, variant, libtype, library, category):
+        '''
+        category can be epoch or latest
+        can be further expand based on need
+        '''
+        prefix = f'{project}:{variant}:{libtype}:{library}'
+        if category == 'latest':
+            tagname = f'{prefix}:latest'
+        elif category == 'epoch':
+            epoch_time = time.time()
+            tagname = f'{prefix}:{epoch_time}'
+        else:
+            tagname = prefix
+        return tagname
+
+    def _execute_command(self, cmd):
+        self.logger.info(f'Running {cmd}')
+        exitcode, stdout, stderr = run_command(cmd)
+        if exitcode:
+            self.logger.info(f'{stdout}')
+            self.logger.info(f'{stderr}')
+            return exitcode
+        self.logger.debug(f'{stdout}')
+        self.logger.debug(f'{stderr}')
+        return 0
+
+    def _generate_wrapper_command(self, method, cell, stage, tag, additional_options=''):
+        return f"{self.cmd_options['cmd']} {method} {self.cmd_options['cell']} {cell} {self.cmd_options['stage']} {stage} {self.cmd_options['tag']} {tag}{additional_options}"
+
+    def _execute_arc_copy(self, cell, stage, tag, new_tag):
+        ret = 1
+        while ret == 1:
+            cmd = f"arc.pl -copy -triplet {cell}/{stage}/{tag} -to_tag {new_tag}"
+            ret = self._execute_command(cmd)
+            if ret == 1:
+                self.logger.info('Tag not found. Re-running in 10sec.')
+                time.sleep(10)
+
+    def _execute_arc_set_immutable(self, cell, stage, tag):
+        ret = 1
+        while ret == 1:
+            ### Replaced this command with cthlock, based on kokwei's request.
+            ### https://wiki.ith.intel.com/pages/viewpage.action?pageId=2689632311#IntegratingarchietoDMX-01Dec2022:replacearclockwithcthlock
+            cmd = f"arc.pl -triplet {cell}/{stage}/{tag} -set_immutable"
+            #cmd = f"cthlock -triplet {cell}/{stage}/{tag} -set lock"   # this code got bug. Will turn back on when kokwei fix it.
+            
+            ret = self._execute_command(cmd)
+            if ret == 1:
+                self.logger.info('Tag not found. Re-running in 10sec.')
+                time.sleep(10)
+
+    def _execute_arc_unset_immutable(self, cell, stage, tag):
+        ret = 1
+        while ret == 1:
+            ### Replaced this command with cthlock, based on kokwei's request.
+            ### https://wiki.ith.intel.com/pages/viewpage.action?pageId=2689632311#IntegratingarchietoDMX-01Dec2022:replacearclockwithcthlock
+            cmd = f"arc.pl -triplet {cell}/{stage}/{tag} -unset_immutable"
+            #cmd = f"cthlock -triplet {cell}/{stage}/{tag} -set lock"   # this code got bug. Will turn back on when kokwei fix it.
+            
+            ret = self._execute_command(cmd)
+            if ret == 1:
+                self.logger.info('Tag not found. Re-running in 10sec.')
+                time.sleep(10)
+
+    def get_all_cells(self, project, variant, config, libtype):
+        '''
+        Get all the cells from project/variant@config
+        return a dict which contain the cell "ipde" library
+        '''
+        all_cells = {}
+        ipspec_flatten_configs = [x for x in ConfigFactory().create_config_from_full_name(
+            f"{project}/{variant}/{config}").flatten_tree() if x.is_library() if x.libtype == 'ipspec']
+        for cfg in ipspec_flatten_configs:
+            cells = self.icm.get_cell_names(cfg.project, cfg.variant, cfg.library)
+            flatten_config = [x for x in ConfigFactory().create_config_from_full_name(
+                f"{project}/{variant}/{config}").flatten_tree() if x.is_library() if x.libtype == libtype]
+
+            for ea_config in flatten_config:
+                if cfg.project == ea_config.project and cfg.variant == ea_config.variant:
+                    tag = f"{ea_config.project}:{ea_config.variant}:{self.libtype}:{ea_config.library}"
+                    for cell in cells:
+                        all_cells[cell] = {}
+                        all_cells[cell]['project'] = ea_config.project
+                        all_cells[cell]['variant'] = ea_config.variant
+                        all_cells[cell]['library'] = ea_config.library
+                        all_cells[cell]['libtype'] = self.libtype
+                        all_cells[cell]['tag'] = tag
+        return all_cells
+
+    def get_pvc_details(self):
+        for x in ConfigFactory().create_config_from_full_name(f"{project}/{variant}/{config}").flatten_tree():
+            if cfg.project == ea_config.project and cfg.variant == ea_config.variant:
+                tag = f"{ea_config.project}:{ea_config.variant}:{self.libtype}:{ea_config.library}"
+                for cell in cells:
+                    self.all_cells[cell] = {}
+                    self.all_cells[cell]['project'] = ea_config.project
+                    self.all_cells[cell]['variant'] = ea_config.variant
+                    self.all_cells[cell]['library'] = ea_config.library
+                    self.all_cells[cell]['libtype'] = self.libtype
+                    self.all_cells[cell]['tag'] = tag
+
+            pass
+
+    def checkin(self, ip, tag, cells):
+        self.logger.info(f"Check-in using {self.cmd_options['cmd']} ")
+
+        for cell in cells:
+            for stage in self.stages:
+                wrapper_cmd = self._generate_wrapper_command(self.cmd_options['ci'], cell, stage, tag)
+                if self._execute_command(wrapper_cmd) != 0:
+                    raise Exception("Exitcode return non-zero")
+
+        self.logger.info(f"Done check-in using {self.cmd_options['cmd']}")
+
+    def sync(self, project, ip, bom, cells):
+        '''
+        archie -get -cell <cell> -stage <stage> -tag <project>:<variant>:<libtype>:<library>:latest -force
+        foreach cell:
+            foreach stage:
+            archie -get -cell <cell> -stage <stage> -tag <project>:<variant>:<libtype>:<library>:latest -force
+        '''
+        self.logger.info(f"Sync using {self.cmd_options['cmd']}")
+        # tag = f"{project}:{ip}:{self.libtype}:{bom}"
+        #tag = self._generate_tag_name(project, ip, self.libtype, bom, 'latest')
+        tag = bom
+
+        for cell in cells:
+            for stage in self.stages:
+                cmd = self._generate_wrapper_command(self.cmd_options['sync'], cell, stage, tag, " {}".format(self.cmd_options['force']))
+                self._execute_command(cmd)
+
+        self.logger.info(f"Done sync using {self.cmd_options['cmd']}")
+
+    def filtered_top_ip_cell(self):
+        new_cells = []
+        for cell in self.all_cells.keys():
+            if (self.project == self.all_cells[cell]['project'] and self.variant == self.all_cells[cell]['variant']):
+                new_cells.append(cell)
+        return new_cells
+
+    def get_dstbom_object(self, project, variant, dstbom):
+        ipde_configs = [x for x in ConfigFactory().create_config_from_full_name(
+            f"{project}/{variant}/{dstbom}").flatten_tree() if x.is_library() if x.libtype == self.libtype]
+
+    def overlay(self, project, ip, srcbom, dstbom, cells, lock_latest_tag=False, hier=False):
+        self.logger.info(f"Overlay {self.cmd_options['cmd']} content")
+        epoch_time = time.time()
+        # tag = f"{project}:{ip}:{self.libtype}:{srcbom}:latest"
+        # dst_tag = f"{project}:{ip}:{self.libtype}:{dstbom}:{epoch_time}"
+        # dst_tag_latest = f"{project}:{ip}:{self.libtype}:{dstbom}:latest"
+
+        tag = self._generate_tag_name(project, ip, self.libtype, srcbom, 'latest')
+        dst_tag = self._generate_tag_name(project, ip, self.libtype, dstbom, 'epoch')
+        dst_tag_latest = self._generate_tag_name(project, ip, self.libtype, dstbom, 'latest')
+
+        for cell in cells:
+            for stage in self.stages:
+                self._execute_arc_copy(cell, stage, tag, dst_tag)
+                self._execute_arc_copy(cell, stage, tag, dst_tag_latest)
+                self._execute_arc_set_immutable(cell, stage, dst_tag)
+                if lock_latest_tag:
+                    self._execute_arc_set_immutable(cell, stage, dst_tag_latest)
+                else:
+                    self._execute_arc_unset_immutable(cell, stage, dst_tag_latest)
+        self.logger.info(f'Done overlay {self.cmd_options["cmd"]} content')
+
+    def branch(self, project, ip, srcbom, dstbom, cells, lock_latest_tag=False, hier=False):
+        # Similar behaviour with overlay
+        self.overlay(project, ip, srcbom, dstbom, cells)
+
+    def snap(self, project, ip, srcbom, dstbom, cells, lock_latest_tag=False, hier=False):
+        # Similar behaviour with derive but lock latest tag
+        self.overlay(project, ip, srcbom, dstbom, cells, lock_latest_tag=True)
+        pass
+
+    # Old/obsolete methods
+    def run_cth_cmdfil(self, filename):
+        cmd = f'sh {filename}'
+        # cth_preexecute_cmd = get_cth_preexecute_cmd(cmd)
+        self.logger.debug(f'Running {cmd}')
+        os.system(cth_preexecute_cmd)
+        '''
+        exitcode, stdout, stderr = run_command(cth_preexecute_cmd)
+        if not self.is_archiving_operating_sucess(stderr):
+            self.logger.debug(stdout)
+            self.logger.debug(stderr)
+            self.logger.warning(f"Archiving operation failed ")
+        else:
+            self.logger.debug(stdout)
+            self.logger.debug(stderr)
+            self.logger.info(f"Archiving operation succeeded ")
+        '''
+
+    def is_archiving_operating_success(self, line):
+        if 'Archiving operation failed' in line:
+            return False
+        elif 'Archiving operation succeeded' in line:
+            return True
+
+
+if __name__ == "__main__":
+    sys.exit(main())

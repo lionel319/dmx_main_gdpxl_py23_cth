@@ -1,0 +1,859 @@
+################################################################################
+# Frequently Modified Variables go here
+################################################################################
+
+SRC_PY_SCRIPTS = $(wildcard bin/*.py)
+SRC_NON_PY_SCRIPTS = \
+	$(wildcard bin/ipqc) \
+	$(wildcard bin/xldmx) \
+	$(wildcard bin/ipspec_check) \
+	$(wildcard bin/minarc) \
+	$(wildcard bin/sdoc)
+
+
+# for altera.makedeploy email announcements
+MAILS = yoke.liang.tan@intel.com wei.pin.lim@intel.com chun.fui.tham@intel.com kanza.khan@intel.com
+SUBSCRIBERS = ['yoke.liang.tan@intel.com', 'wei.pin.lim@intel.com', 'chun.fui.tham@intel.com', 'kanza.khan@intel.com', 'Mitchell.Conkin@intel.com', 'bertrand.blanc@intel.com', 'teck.yunn.lim@intel.com']
+
+SUBSCRIBERS := lionelta wplim cftham bblanc mconkin kanzakha limty jlonge fysu
+
+
+################################################################################
+# There shouldn't be any need to modify anything below this line.
+################################################################################
+
+VERSION = $(shell grep -i "^VERSION" version | sed 's/^.*= *//' | sed s/\'//g)
+CRTVERSION = $(shell grep -i -m1 "^dmx = " tool.cth | sed 's/^.*= *//' | sed s/\'//g)
+
+PREV_VERSION = $(shell grep -i "^PREVIOUS_VERSION" version | sed 's/^.*= *//' | sed s/\'//g)
+ifeq ($(VERSION),)
+  $(error "version file is missing a VERSION=xxx entry")
+endif
+ifeq ($(PREV_VERSION),)
+  $(error "version file is missing a PREVIOUS_VERSION=xxx entry")
+endif
+
+TOOLS_PROJECT = dmx
+PYTHON_PROJECT = dmx
+
+GROUPS := intelall psgeng psgfln psgi10 psgwhr psgt16ff psgi10arm psggdr psgrnr psgda
+
+P4  = p4
+P4Q = p4q
+CRT = /nfs/site/disks/crt_linktree_1/crt/latest/client/crt
+
+ifeq ($(HOSTNAME),intel)
+PYTHON = /p/psg/ctools/python/2.7.13/linux64/rhel/bin/python
+else
+PYTHON = python
+endif
+PYTHON_MIN_VERSION := 2.7
+PYTHON_VERSION := $(shell $(PYTHON) --version 2>&1 | cut -d ' ' -f 2)
+#BRANCH := $(shell $(PYTHON) ./scripts/get_current_branch.py)
+
+ifeq ($(DRY),1)
+  TOOLS_DIR = $(HOTEL)$(ARC_TOOLS)/$(TOOLS_PROJECT)
+else 
+  TOOLS_DIR = $(ARC_TOOLS)/$(TOOLS_PROJECT)
+endif
+
+# get the change number from the previous release and increment it by one
+PREV_REL_ENDING_CHANGENUM := $(shell cat $(TOOLS_DIR)/$(PREV_VERSION)/.version 2>/dev/null | sed 's/ .*//')
+ifeq ($(PREV_REL_ENDING_CHANGENUM),)
+    THIS_REL_STARTING_CHANGENUM := @0
+else
+    THIS_REL_STARTING_CHANGENUM := "@"$(shell echo $$(($(PREV_REL_ENDING_CHANGENUM) + 1)))
+endif
+
+
+WHOAMI = $(shell whoami)
+OWNER = icetools
+HOSTNAME = $(shell hostname -d | sed 's/.*intel.*/intel/')
+LEGACY_SJ_HOST = sj-da-cron
+LEGACY_PG_HOST = pg-ice-cron2
+LEGACY_DEPLOY_SETUID = /tools/dmx/deploy_as_icetools
+LEGACY_DEPLOY_COMMAND = echo "cd $(PWD)" | $(LEGACY_DEPLOY_SETUID) deploy
+LEGACY_FREEZE_COMMAND = echo "cd $(PWD)" | $(LEGACY_DEPLOY_SETUID) copy BRANCH=$(BRANCH)
+LEGACY_RESOURCES=devenv/resources/dmx
+LEGACY_ICM_TESTSERVER = ic_manage_gdp/testserver
+LEGACY_LINK_COMMAND = echo "cd $(PWD) ; source /tools/arc.cshrc ; make updatelink VER=$(VER)" | sudo su - $(OWNER)
+LEGACY_DEPLOY_TARGET = deploy_legacy
+LEGACY_LINK_TARGET = link_legacy
+LEGACY_EMAIL_ANNOUNCEMENT = $(PYTHON) -c "import altera.build.makedeploy; assert altera.build.makedeploy.announce_deployment('$(TOOLS_PROJECT)', '$(VERSION)@`cat last_p4_change.txt-`', '$(TOOLS_DIR)/$(VERSION)', recipients=$(SUBSCRIBERS))"
+LEGACY_BAMBOO_UNITTEST_REGRESSION = arc submit --no-inherit --local --interactive project/nadder/main/rc -- python scripts/run_bamboo_plan.py --url http://pg-rdbamboo:8085 --plan TP1-CIP --user dmxuser --pass dmxpass
+LEGACY_BAMBOO_SYSTEMTEST_REGRESSION = arc submit --no-inherit --local --interactive project/nadder/main/rc -- python scripts/run_bamboo_plan.py --url http://pg-rdbamboo:8085 --plan TP1-SA --user dmxuser --pass dmxpass
+
+PICE_OWNER = psgdaadm
+PICE_TOOLS_DIR = /p/psg/flows/common/dmx
+PICE_DEPLOY_SETUID = /p/psg/da/infra/admin/setuid/deploy_as_psgdaadm
+PICE_SJ_HOST = sjyli0001.sc.intel.com
+PICE_PG_HOST = ppgyli0002.png.intel.com
+PICE_DEPLOY_COMMAND = echo "cd $(PWD)" | $(PICE_DEPLOY_SETUID) deploy
+PICE_FREEZE_COMMAND = echo "cd $(PWD)" | $(PICE_DEPLOY_SETUID) copy BRANCH=$(BRANCH)
+PICE_RESOURCES=devenv/psg_resources/dmx
+PICE_ICM_TESTSERVER = ic_manage_gdp/psgdev1
+PICE_LINK_COMMAND = echo "cd $(PWD)" | $(PICE_DEPLOY_SETUID) updatelink VER=$(VER)
+PICE_DEPLOY_TARGET = deploy_pice
+PICE_LINK_TARGET = link_pice
+PICE_EMAIL_ANNOUNCEMENT = arc submit --no-inherit --local --interactive project/falcon/branch/fm6revbmain/rc -- python scripts/email_deploy_announcement.py --tool "$(TOOLS_PROJECT)" --change "$(VERSION)@`cat last_p4_change.txt-`" --version "$(TOOLS_DIR)/$(VERSION)" --subscriber "$(SUBSCRIBERS)"
+PICE_BAMBOO_UNITTEST_REGRESSION = arc submit --no-inherit --local --interactive project/falcon/branch/fm8dot2main/rc -- python scripts/run_bamboo_plan.py --url http://dashboardtnr.sc.intel.com:8085 --plan DMX-CIS --user dmxuser --pass dmxpass
+PICE_BAMBOO_SYSTEMTEST_REGRESSION = arc submit --no-inherit --local --interactive project/falcon/branch/fm8dot2main/rc -- python scripts/run_bamboo_plan.py --url http://dashboardtnr.sc.intel.com:8085 --plan DMX-PAPIT --user dmxuser --pass dmxpass
+
+ifeq ($(HOSTNAME),intel)
+DEPLOY_TOOLS_DIR = $(PICE_TOOLS_DIR)
+DEPLOY_SJ_HOST = $(PICE_SJ_HOST)
+DEPLOY_PG_HOST = $(PICE_PG_HOST)
+DEPLOY_OWNER = $(PICE_OWNER)
+DEPLOY_COMMAND = $(PICE_DEPLOY_COMMAND)
+RESOURCES=$(PICE_RESOURCES)
+FREEZE_COMMAND=$(PICE_FREEZE_COMMAND)
+ICM_TESTSERVER=$(PICE_ICM_TESTSERVER)
+LINK_COMMAND = $(PICE_LINK_COMMAND)
+DEPLOY_TARGET = $(PICE_DEPLOY_TARGET)
+LINK_TARGET = $(PICE_LINK_TARGET)
+EMAIL_ANNOUNCEMENT = $(PICE_EMAIL_ANNOUNCEMENT)
+BAMBOO_UNITTEST_REGRESSION = $(PICE_BAMBOO_UNITTEST_REGRESSION)
+BAMBOO_SYSTEMTEST_REGRESSION = $(PICE_BAMBOO_SYSTEMTEST_REGRESSION)
+else
+DEPLOY_TOOLS_DIR = $(TOOLS_DIR)
+DEPLOY_SJ_HOST = $(LEGACY_SJ_HOST)
+DEPLOY_PG_HOST = $(LEGACY_PG_HOST)
+DEPLOY_OWNER = $(OWNER)
+DEPLOY_COMMAND = $(LEGACY_DEPLOY_COMMAND)
+RESOURCES=$(LEGACY_RESOURCES)
+FREEZE_COMMAND=$(LEGACY_FREEZE_COMMAND)
+ICM_TESTSERVER=$(LEGACY_ICM_TESTSERVER)
+LINK_COMMAND = $(LEGACY_LINK_COMMAND)
+DEPLOY_TARGET = $(LEGACY_DEPLOY_TARGET)
+LINK_TARGET = $(LEGACY_LINK_TARGET)
+EMAIL_ANNOUNCEMENT = $(LEGACY_EMAIL_ANNOUNCEMENT)
+BAMBOO_UNITTEST_REGRESSION = $(LEGACY_BAMBOO_UNITTEST_REGRESSION)
+BAMBOO_SYSTEMTEST_REGRESSION = $(LEGACY_BAMBOO_SYSTEMTEST_REGRESSION)
+endif
+	
+EXIST = $(shell if [ -d "/p/psg/flows/common/dmx/$(VERSION)" ]; then echo 1; else echo 0; fi )
+ifeq ($(EXIST),1)	
+ANSWER = "y"
+else
+ANSWER = "y"
+endif
+
+# Put current working dir in PYTHONPATH so that when we execute
+# the tests, the code is actually run from developer's workspace
+# (not from /tools).  $(CURDIR)/bin is included just to help Sphinx
+# find SRC_PY_SCRIPTS:
+ifeq ($(PYTHONPATH),)
+PYTHONPATH := $(CURDIR)
+else
+PYTHONPATH := $(CURDIR):$(PYTHONPATH)
+endif
+export PYTHONPATH
+
+# Put current working dir in PATH so that when we execute $(TOOLS_PROJECT) in
+# smoketests, we run from developer's workspace (not from /tools):
+PATH := $(CURDIR):$(PATH)
+export PATH
+
+SRC_PY_MODULES = \
+	$(wildcard lib/python/dmx/*.py) \
+   	$(wildcard lib/python/dmx/abnrlib/*.py) \
+	$(wildcard lib/python/dmx/abnrlib/flows/*.py) \
+	$(wildcard lib/python/dmx/tnrlib/*.py) \
+	$(wildcard lib/python/dmx/qalib/*.py) \
+	$(wildcard lib/python/dmx/utillib/*.py) \
+	$(wildcard lib/python/dmx/errorlib/*.py) \
+	$(wildcard lib/python/dmx/plugins/*.py) \
+	$(wildcard lib/python/dmx/wrappers/*.py) \
+	$(wildcard lib/python/dmx/ecolib/*.py) \
+	$(wildcard lib/python/dmx/dmlib/*.py) \
+	$(wildcard lib/python/dmx/ipqclib/*.py) \
+	$(wildcard lib/python/dmx/ipqclib/catalog/*.py) \
+	$(wildcard lib/python/dmx/ipqclib/flow/*.py) \
+	$(wildcard lib/python/dmx/ipqclib/flow/doit/*.py) \
+	$(wildcard lib/python/dmx/ipqclib/flow/doit/pkg/*.py) \
+	$(wildcard lib/python/dmx/ipqclib/flow/doit/pkg/cloudpickle/*.py) \
+	$(wildcard lib/python/dmx/ipqclib/report/*.py) \
+	$(wildcard lib/python/dmx/ipqclib/report/html/*.py) \
+	$(wildcard lib/python/dmx/ipqclib/report/json/*.py) \
+	$(wildcard lib/python/dmx/ipqclib/report/txt/*.py) \
+	$(wildcard lib/python/dmx/ipqclib/abstract/*.py) \
+        $(wildcard lib/python/dmx/ipqclib/parser/*.py) \
+	$(wildcard lib/python/dmx/ipqclib/min_arc/*.py) \
+	$(wildcard lib/python/dmx/minarclib/*.py) \
+	$(wildcard lib/python/dmx/mysql/*.py) \
+	$(wildcard lib/python/dmx/mysql/connector/*.py) \
+	$(wildcard lib/python/dmx/mysql/connector/django/*.py) \
+	$(wildcard lib/python/dmx/mysql/connector/locales/*.py) \
+	$(wildcard lib/python/dmx/mysql/connector/locales/eng/*.py) \
+	$(wildcard lib/python/dmx/python_common/*.py) \
+	$(wildcard lib/python/dmx/python_common/altera/*.py) \
+	$(wildcard lib/python/dmx/python_common/altera/decorators/*.py) \
+	$(wildcard lib/python/dmx/djangolib/__init__.py) \
+	$(wildcard lib/python/dmx/djangolib/models.py) \
+	$(wildcard lib/python/dmx/djangolib/routers.py) \
+	$(wildcard lib/python/dmx/syncpointlib/*.py) \
+	$(wildcard lib/python/dmx/syncpointlib/syncpoint_plugins/*.py) \
+	$(wildcard lib/python/dmx/syncpointlib/syncpoint_user_plugins/*.py) \
+	$(wildcard lib/python/dmx/syncpointlib/syncpoint_cron_plugins/*.py) \
+	$(wildcard lib/python/dmx/dmlib/junitxml/*.py) \
+	$(wildcard lib/python/dmx/dmlib/templateset/*.py) \
+	$(wildcard lib/python/dmx/dmlib/deliverables/*.py) \
+	$(wildcard lib/python/dmx/dmlib/deliverables/funcrba/*.py) \
+	$(wildcard lib/python/dmx/dmlib/deliverables/ipspec/*.py) \
+	$(wildcard lib/python/dmx/dmlib/deliverables/mcfd/*.py) \
+	$(wildcard lib/python/dmx/dmlib/deliverables/pintable/*.py) \
+	$(wildcard lib/python/dmx/dmlib/deliverables/rdf/*.py) \
+	$(wildcard lib/python/dmx/dmlib/deliverables/rtl/*.py) \
+	$(wildcard lib/python/dmx/dmlib/deliverables/rtllec/*.py) \
+	$(wildcard lib/python/dmx/dmlib/deliverables/sch/*.py) \
+	$(wildcard lib/python/dmx/dmlib/deliverables/schmisc/*.py) \
+	$(wildcard lib/python/dmx/dmlib/deliverables/timemod/*.py) \
+	$(wildcard lib/python/dmx/dmlib/deliverables/utils/*.py) \
+	$(wildcard lib/python/dmx/dmlib/pyfakefs/*.py) \
+	$(wildcard lib/python/dmx/dmlib/mox/*.py) \
+	$(wildcard lib/python/dmx/sionlib/*.py) \
+	$(wildcard lib/python/dmx/sionlib/sion_plugins/*.py) \
+	$(wildcard lib/python/dmx/python_common/backports/*.py) \
+	$(wildcard lib/python/dmx/python_common/backports/configparser/*.py) \
+	$(wildcard lib/python/dmx/checklib/*.py) \
+	$(wildcard lib/python/dmx/helplib/*.py) \
+	$(wildcard lib/python/dmx/icmlib/*.py) \
+	$(wildcard lib/python/dmx/helplib/help_plugins/*.py) 
+
+TEMPLATE_DATA = \
+	$(wildcard lib/python/dmx/dmlib/data/templateset.xml)	
+
+EMAIL_TEMPLATES = \
+	$(wildcard lib/python/dmx/syncpointlib/email_templates/*.html) \
+	$(wildcard lib/python/dmx/tnrlib/email_templates/*.html) \
+	$(wildcard lib/python/dmx/tnrlib/css/*.css) \
+	$(wildcard lib/python/dmx/tnrlib/javascript/*.html) \
+	$(wildcard lib/python/dmx/tnrlib/javascript/*.js)
+
+CONFIG_FILES = \
+	$(wildcard lib/python/dmx/sionlib/default_sion_parameters.json)	\
+	$(wildcard cfgfiles/*)
+
+SION_WORKSPACE_HELPER = \
+	$(wildcard lib/python/dmx/sionlib/cache_helper)	\
+	$(wildcard lib/python/dmx/sionlib/workspace_helper)	\
+	$(wildcard lib/python/dmx/sionlib/workspace_helper_legacy)				
+
+SRC_TCL_MODULES = \
+	$(wildcard lib/tcl/dmx/tnrlib/*.tcl)
+
+SRC_PYC_MODULES = \
+	$(wildcard lib/python/dmx/djangolib/mysql_settings.pyc) \
+	$(wildcard lib/python/dmx/djangolib/mysql_systemtest_settings.pyc) \
+	$(wildcard lib/python/dmx/ipqclib/catalog/mysqlconn.pyc) 
+
+DJANGOLIB_MODULES = \
+	$(wildcard lib/python/dmx/djangolib/*.py)
+COMPILED_DJANGOLIB_MODULES = $(addsuffix c, $(DJANGOLIB_MODULES))		
+
+PY_MODULES = $(SRC_PY_MODULES)
+COMPILED_PY_MODULES = $(addsuffix c, $(PY_MODULES))
+
+PY_SCRIPTS = $(SRC_PY_SCRIPTS)
+COMPILED_PY_SCRIPTS = $(addsuffix c, $(PY_SCRIPTS))
+
+TESTS = $(addsuffix _test.py, $(basename $(SRC_PY_MODULES))))
+
+UNIT_TESTS = $(wildcard unit_tests/abnr/test_*.py)
+SYSTEM_TESTS = $(wildcard system_tests/abnr/test_*.py)
+
+SANDBOX_DIR=$(PWD)/sandbox
+
+DOC_ROOT_DIR=doc
+
+WEB_ROOT_DIR=web
+
+all: deploy
+.PHONY: all
+
+compile: $(COMPILED_PY_MODULES) $(COMPILED_PY_SCRIPTS) $(COMPILED_DJANGOLIB_MODULES)
+.PHONY: compile
+
+# Force creation of the .pyc file
+%.pyc : %.py
+	$(PYTHON) -c "import py_compile; py_compile.compile('$*.py')"
+
+ifeq ($(WHOAMI),$(DEPLOY_OWNER))
+
+# Need to source arc.cshrc to have $(HOTEL) set
+deploy:
+	@echo ___ Deploying as $(WHOAMI) to $(TOOLS_DIR)
+	rm -rf $(DEPLOY_TOOLS_DIR)/$(VERSION)/*
+	@mkdir -p $(DEPLOY_TOOLS_DIR)/$(VERSION)/bin
+	cp --preserve=mode,timestamps -f $(PY_SCRIPTS) $(DEPLOY_TOOLS_DIR)/$(VERSION)/bin/
+	-$(foreach script, $(SRC_PY_SCRIPTS), \
+		if [ ! -s $(DEPLOY_TOOLS_DIR)/$(VERSION)/bin/$(basename $(script)) ]; then \
+			cd $(DEPLOY_TOOLS_DIR)/$(VERSION)/bin && ln -s $(notdir $(script)) $(notdir $(basename $(script))) ; \
+		fi ; \
+	)
+	@if [ -e $(DEPLOY_TOOLS_DIR)/$(VERSION)/.version ]; then \
+		cp --preserve=mode,timestamps -f $(DEPLOY_TOOLS_DIR)/$(VERSION)/.version $(DEPLOY_TOOLS_DIR)/$(VERSION)/.prior_version ; \
+	fi ;
+	cp --preserve=mode,timestamps -f $(SRC_NON_PY_SCRIPTS) $(DEPLOY_TOOLS_DIR)/$(VERSION)/bin/
+	cp --preserve=mode,timestamps -f last_p4_change.txt $(DEPLOY_TOOLS_DIR)/$(VERSION)/.version
+	cp --preserve=mode,timestamps -f --parents $(PY_MODULES) $(DEPLOY_TOOLS_DIR)/$(VERSION)
+	cp --preserve=mode,timestamps -f --parents $(SRC_TCL_MODULES) $(DEPLOY_TOOLS_DIR)/$(VERSION)
+	-cp --preserve=mode,timestamps -f --parents $(COMPILED_PY_MODULES) $(DEPLOY_TOOLS_DIR)/$(VERSION)
+	cp --preserve=mode,timestamps -f --parents $(SRC_PYC_MODULES) $(DEPLOY_TOOLS_DIR)/$(VERSION)
+	cp --preserve=mode,timestamps -f --parents $(TEMPLATE_DATA) $(DEPLOY_TOOLS_DIR)/$(VERSION)
+	cp --preserve=mode,timestamps -f --parents $(EMAIL_TEMPLATES) $(DEPLOY_TOOLS_DIR)/$(VERSION)
+	cp --preserve=mode,timestamps -f --parents $(SION_WORKSPACE_HELPER) $(DEPLOY_TOOLS_DIR)/$(VERSION)
+	cp --preserve=mode,timestamps -f --parents $(CONFIG_FILES) $(DEPLOY_TOOLS_DIR)/$(VERSION)
+	@mkdir -p $(DEPLOY_TOOLS_DIR)/$(VERSION)/$(DOC_ROOT_DIR)
+	#cp --preserve=mode,timestamps -r -f $(DOC_ROOT_DIR)/ipqc $(DEPLOY_TOOLS_DIR)/$(VERSION)/$(DOC_ROOT_DIR)
+	cp --preserve=mode,timestamps -r -f $(DOC_ROOT_DIR)/dmx $(DEPLOY_TOOLS_DIR)/$(VERSION)/$(DOC_ROOT_DIR)
+	cp --preserve=mode,timestamps -f --parents lib/python/dmx/syncpointlib/PSG_INTL_Login_Mapping.csv $(DEPLOY_TOOLS_DIR)/$(VERSION)
+	cp --preserve=mode,timestamps -r -f --parents lib/python/dmx/tnrlib/splunk_sdk $(DEPLOY_TOOLS_DIR)/$(VERSION)
+	
+	# softlink for dm and abnrlib to support legacy
+	cp -avf lib/python/dm  $(DEPLOY_TOOLS_DIR)/$(VERSION)/lib/python/.
+	cp -avf lib/python/abnrlib  $(DEPLOY_TOOLS_DIR)/$(VERSION)/lib/python/.
+	cp -avf lib/python/dmx/dmxlib  $(DEPLOY_TOOLS_DIR)/$(VERSION)/lib/python/dmx/.
+	cp -avf $(WEB_ROOT_DIR) $(DEPLOY_TOOLS_DIR)/$(VERSION)/. 	
+	cp -avf version $(DEPLOY_TOOLS_DIR)/$(VERSION)/.
+	chmod -R go-w $(DEPLOY_TOOLS_DIR)/$(VERSION)
+	
+	#sync x-site
+	rsync -avxz --delete $(DEPLOY_TOOLS_DIR)/$(VERSION) $(DEPLOY_SJ_HOST):$(DEPLOY_TOOLS_DIR)/.	
+	rsync -avxz --delete $(DEPLOY_TOOLS_DIR)/$(VERSION) $(DEPLOY_PG_HOST):$(DEPLOY_TOOLS_DIR)/.
+.PHONY: deploy
+
+else
+
+ifeq ($(VERSION),main)
+
+deploy: clean version compile
+	@echo ___ Deploying as $(WHOAMI)
+	mkdir -p doc/dmx
+	make $(DEPLOY_TARGET)
+
+	$(P4) changes -l ...$(THIS_REL_STARTING_CHANGENUM),@now > last_p4_change_desc.txt
+	# Need to temporarly rename the last_p4_change.txt file to force the email proc to include
+	# the description from last_p4_change_desc.txt.
+	mv last_p4_change.txt last_p4_change.txt-
+	# function to send email notifying team of deployment of new version of $(TOOLS_PROJECT). Uses common makedeploy module.
+ifneq ($(DRY),1)
+	$(EMAIL_ANNOUNCEMENT)
+endif
+	mv last_p4_change.txt- last_p4_change.txt
+.PHONY: deploy
+
+else
+
+deploy: clean version compile doc
+	@echo ___ Deploying as $(WHOAMI)
+	make $(DEPLOY_TARGET)
+	
+	make integrationtest_after_deploy 
+
+	$(P4) changes -l ...$(THIS_REL_STARTING_CHANGENUM),@now > last_p4_change_desc.txt
+	# Need to temporarly rename the last_p4_change.txt file to force the email proc to include
+	# the description from last_p4_change_desc.txt.
+	mv last_p4_change.txt last_p4_change.txt-
+	# function to send email notifying team of deployment of new version of $(TOOLS_PROJECT). Uses common makedeploy module.
+ifneq ($(DRY),1)
+	$(EMAIL_ANNOUNCEMENT)
+endif
+	mv last_p4_change.txt- last_p4_change.txt
+.PHONY: deploy
+
+endif
+
+endif
+
+deploy_legacy:
+	$(DEPLOY_COMMAND)
+.PHONY: deploy_legacy
+
+
+LOCKFILE := ./.deploy.lock
+check_lock:
+	-@test -f $(LOCKFILE) && echo "===Not Allowed To Deploy! Version Already Locked!==="
+	! test -f $(LOCKFILE)
+.PHONY: check_lock
+
+deploy_pice: check_lock create_sandbox
+	chmod -R 2750 $(SANDBOX_DIR)
+	wash -n $(GROUPS) -c 'slink --category flows/common --toolname $(TOOLS_PROJECT) --sandbox $(SANDBOX_DIR) --name release_sandbox'
+	echo -e $(ANSWER) > answer.txt
+	wash -n $(GROUPS) -c 'sinstall --category flows/common --toolname $(TOOLS_PROJECT) --ver $(VERSION) --name release_sandbox --override --debug < answer.txt'
+	rm answer.txt
+.PHONY: deploy_pice
+
+deploy_pice_pg: check_lock create_sandbox
+	chmod -R 2750 $(SANDBOX_DIR)
+	wash -n $(GROUPS) -c 'slink --category flows/common --toolname $(TOOLS_PROJECT) --sandbox $(SANDBOX_DIR) --name release_sandbox'
+	echo -e $(ANSWER) > answer.txt
+	wash -n $(GROUPS) -c 'sinstall --category flows/common --toolname $(TOOLS_PROJECT) --ver $(VERSION) --name release_sandbox --override --dest png --debug < answer.txt'
+	rm answer.txt
+.PHONY: deploy_pice
+
+deploy_ipqc: compile create_sandbox
+	chmod -R 2750 $(SANDBOX_DIR)
+	slink --category flows/common --toolname $(TOOLS_PROJECT) --sandbox $(SANDBOX_DIR) --name release_sandbox
+	echo -e $(ANSWER) > answer.txt
+	sinstall --category flows/common --toolname $(TOOLS_PROJECT) --ver $(VERSION) --name release_sandbox --override < answer.txt
+	rm answer.txt
+.PHONY: deploy_ipqc
+
+
+create_sandbox:
+	@echo ___ Creating sandbox at $(SANDBOX_DIR)	
+	@rm -rf $(SANDBOX_DIR)/*
+	@mkdir -p $(SANDBOX_DIR)/bin
+	cp --preserve=mode,timestamps -f $(PY_SCRIPTS) $(SANDBOX_DIR)/bin/
+	#cp -avf bin/reldoc $(SANDBOX_DIR)/bin/.
+	#cp -avf bin/reldoc_check $(SANDBOX_DIR)/bin/.
+	#cp -avf bin/extract_icm_data_to_json $(SANDBOX_DIR)/bin/.
+	-$(foreach script, $(SRC_PY_SCRIPTS), \
+		if [ ! -s $(SANDBOX_DIR)/bin/$(basename $(script)) ]; then \
+			cd $(SANDBOX_DIR)/bin && ln -s $(notdir $(script)) $(notdir $(basename $(script))) ; \
+		fi ; \
+	)
+	@if [ -e $(SANDBOX_DIR)/.version ]; then \
+		cp --preserve=mode,timestamps -f $(SANDBOX_DIR)/.version $(SANDBOX_DIR)/.prior_version ; \
+	fi ;
+	cp --preserve=mode,timestamps -f $(SRC_NON_PY_SCRIPTS) $(SANDBOX_DIR)/bin/
+	-cp --preserve=mode,timestamps -f last_p4_change.txt $(SANDBOX_DIR)/.version
+	cp --preserve=mode,timestamps -f --parents $(PY_MODULES) $(SANDBOX_DIR)
+	cp --preserve=mode,timestamps -f --parents $(SRC_TCL_MODULES) $(SANDBOX_DIR)
+#	-cp --preserve=mode,timestamps -f --parents $(COMPILED_PY_MODULES) $(SANDBOX_DIR)/
+	cp --preserve=mode,timestamps -f --parents $(SRC_PYC_MODULES) $(SANDBOX_DIR)/
+	cp --preserve=mode,timestamps -f --parents $(TEMPLATE_DATA) $(SANDBOX_DIR)/
+	cp --preserve=mode,timestamps -f --parents $(EMAIL_TEMPLATES) $(SANDBOX_DIR)/
+	cp --preserve=mode,timestamps -f --parents $(SION_WORKSPACE_HELPER) $(SANDBOX_DIR)/
+	cp --preserve=mode,timestamps -f --parents $(CONFIG_FILES) $(SANDBOX_DIR)/
+	@mkdir -p $(SANDBOX_DIR)/$(DOC_ROOT_DIR)
+	#cp --preserve=mode,timestamps -r -f $(DOC_ROOT_DIR)/ipqc $(SANDBOX_DIR)/$(DOC_ROOT_DIR)
+	cp --preserve=mode,timestamps -r -f $(DOC_ROOT_DIR)/dmx $(SANDBOX_DIR)/$(DOC_ROOT_DIR)
+	cp --preserve=mode,timestamps -f --parents lib/python/dmx/syncpointlib/PSG_INTL_Login_Mapping.csv $(SANDBOX_DIR)
+	cp --preserve=mode,timestamps -r -f --parents lib/python/dmx/tnrlib/splunk_sdk $(SANDBOX_DIR)
+	#cp --preserve=mode,timestamps -r -f --parents lib/python/dmx/reldoclib $(SANDBOX_DIR)
+	
+	# softlink for dm and abnrlib to support legacy
+	cp -avf lib/python/dm  $(SANDBOX_DIR)/lib/python/.
+	cp -avf lib/python/abnrlib  $(SANDBOX_DIR)/lib/python/.
+	cp -avf lib/python/dmx/dmxlib  $(SANDBOX_DIR)/lib/python/dmx/.
+	cp -avf $(WEB_ROOT_DIR) $(SANDBOX_DIR)/. 	
+	cp -avf version $(SANDBOX_DIR)/.
+	
+	# Copy *tests over so that we can run tests on deployed area
+	# http://pg-rdjira:8080/browse/DI-1155
+	#cp --preserve=mode,timestamps -r -f --parents unit_tests $(SANDBOX_DIR)
+	#cp --preserve=mode,timestamps -r -f --parents system_tests $(SANDBOX_DIR)
+	#cp --preserve=mode,timestamps -r -f --parents armor_tests $(SANDBOX_DIR)
+	#cp --preserve=mode,timestamps -r -f --parents integration_tests $(SANDBOX_DIR)
+	#cp --preserve=mode,timestamps -r -f --parents run_tests.py $(SANDBOX_DIR)
+	#cp --preserve=mode,timestamps -r -f --parents regression.makefile $(SANDBOX_DIR)
+
+	# Copy scripts/
+	cp --preserve=mode,timestamps -r -f --parents scripts $(SANDBOX_DIR)
+
+	# We need to chgrp sandbox area to psgeng for slink/sinstall to work
+	@chgrp -R psgeng $(SANDBOX_DIR)
+
+.PHONY: create_sandbox
+
+deploy_for_ciw:
+	rm -rf $(TOOLS_DIR)/$(VERSION)/*
+	@mkdir -p $(TOOLS_DIR)/$(VERSION)/bin
+	cp --preserve=mode,timestamps -f $(PY_SCRIPTS) bin/ipqc $(TOOLS_DIR)/$(VERSION)/bin/
+	-$(foreach script, $(SRC_PY_SCRIPTS), \
+		if [ ! -s $(TOOLS_DIR)/$(VERSION)/bin/$(basename $(script)) ]; then \
+			cd $(TOOLS_DIR)/$(VERSION)/bin && ln -s $(notdir $(script)) $(notdir $(basename $(script))) ; \
+		fi ; \
+	)
+	@if [ -e $(TOOLS_DIR)/$(VERSION)/.version ]; then \
+		cp --preserve=mode,timestamps -f $(TOOLS_DIR)/$(VERSION)/.version $(TOOLS_DIR)/$(VERSION)/.prior_version ; \
+	fi ;
+	# cp --preserve=mode,timestamps -f last_p4_change.txt $(TOOLS_DIR)/$(VERSION)/.version
+	cp --preserve=mode,timestamps -f --parents $(PY_MODULES) $(TOOLS_DIR)/$(VERSION)
+	cp --preserve=mode,timestamps -f --parents $(SRC_TCL_MODULES) $(TOOLS_DIR)/$(VERSION)
+	-cp --preserve=mode,timestamps -f --parents $(COMPILED_PY_MODULES) $(TOOLS_DIR)/$(VERSION)
+	cp --preserve=mode,timestamps -f --parents $(SRC_PYC_MODULES) $(TOOLS_DIR)/$(VERSION)
+	cp --preserve=mode,timestamps -f --parents $(TEMPLATE_DATA) $(TOOLS_DIR)/$(VERSION)
+	@mkdir -p $(TOOLS_DIR)/$(VERSION)/$(DOC_ROOT_DIR)
+	#cp --preserve=mode,timestamps  -rf $(DOC_ROOT_DIR)/ipqc $(TOOLS_DIR)/$(VERSION)/$(DOC_ROOT_DIR)
+	cp --preserve=mode,timestamps -r -f $(DOC_ROOT_DIR)/dmx $(TOOLS_DIR)/$(VERSION)/$(DOC_ROOT_DIR)
+	cp --preserve=mode,timestamps -r -f --parents lib/python/dmx/tnrlib/splunk_sdk $(TOOLS_DIR)/$(VERSION)
+	cp -avf lib/python/dm  $(TOOLS_DIR)/$(VERSION)/lib/python/.
+	cp -avf lib/python/abnrlib  $(TOOLS_DIR)/$(VERSION)/lib/python/.
+	cp -avf lib/python/dmx/dmxlib  $(TOOLS_DIR)/$(VERSION)/lib/python/dmx/.
+	cp -avf $(WEB_ROOT_DIR) $(TOOLS_DIR)/$(VERSION)/. 
+	cp -avf version $(TOOLS_DIR)/$(VERSION)/.
+	chmod -R go-w $(TOOLS_DIR)/$(VERSION)
+	
+	# rsync to sj
+	# rsync -avxz $(TOOLS_DIR)/$(VERSION) sj-da-cron:$(TOOLS_DIR)/.
+
+ifeq ($(BRANCH),)
+freeze:
+	$(error BRANCH is not set)
+else	
+freeze: 
+	@echo ___ Freezing main into $(BRANCH) as $(WHOAMI)
+	$(FREEZE_COMMAND)
+	./scripts/diff_dmx_version.py current $(BRANCH) > .diff_dmx_version.log
+	mail -s "dmx freeze BRANCH=$(BRANCH)" $(MAILS) < .diff_dmx_version.log
+	cd ../../../../$(RESOURCES); $(P4) sync ...; make new VER=$(BRANCH)
+endif		
+.PHONY: freeze
+
+ifeq ($(WHOAMI),$(DEPLOY_OWNER))
+copy:
+	rm -rf $(DEPLOY_TOOLS_DIR)/$(BRANCH)
+	@echo __ Copying main into $(BRANCH) as $(WHOAMI)
+	cp -rf $(DEPLOY_TOOLS_DIR)/main $(DEPLOY_TOOLS_DIR)/$(BRANCH)
+	#sync cross-sites
+	rsync -avxz --delete $(DEPLOY_TOOLS_DIR)/$(BRANCH) $(DEPLOY_SJ_HOST):$(DEPLOY_TOOLS_DIR)/.
+	rsync -avxz --delete $(DEPLOY_TOOLS_DIR)/$(BRANCH) $(DEPLOY_PG_HOST):$(DEPLOY_TOOLS_DIR)/.
+endif
+.PHONY: copy
+
+ifeq ($(WHOAMI),$(DEPLOY_OWNER))
+updatelink:
+	@echo ___ Updating link as $(WHOAMI) to $(DEPLOY_TOOLS_DIR)
+	cd $(DEPLOY_TOOLS_DIR);unlink current;ln -s $(VER) current
+
+	ssh $(DEPLOY_SJ_HOST) "cd $(DEPLOY_TOOLS_DIR);unlink current;ln -s $(VER) current"
+	ssh $(DEPLOY_PG_HOST) "cd $(DEPLOY_TOOLS_DIR);unlink current;ln -s $(VER) current"
+
+else
+ifeq ($(VER),)
+updatelink:
+	$(error "Please provide a version to link current to")
+else
+updatelink:
+	@echo ___ Updating link as $(WHOAMI)
+	make $(LINK_TARGET)
+endif	
+endif
+.PHONY: updatelink
+
+link_legacy:
+	$(LINK_COMMAND)
+.PHONY: link_legacy
+
+link_pice:
+	slink --category flows/common --toolname $(TOOLS_PROJECT) --sandbox $(DEPLOY_TOOLS_DIR)/$(VER) --name current_gdpxl_py23
+.PHONY: link_pice
+
+latestdev:
+	slink --category flows/common --toolname $(TOOLS_PROJECT) --sandbox $(DEPLOY_TOOLS_DIR)/$(VER) --name latestdev_gdpxl_py23
+.PHONY: latestdev
+
+doc:
+ifeq ($(LIB),)
+	cd doc && $(MAKE) all_doc
+else
+	cd doc && $(MAKE) doc LIB=$(LIB)
+endif				
+.PHONY: doc
+
+
+# backdoor for skipping of tests
+ifneq ($(NOTEST),1)
+test: smoketest unittest systemtest
+	@echo ___ All tests succeeded
+else
+test:
+	@echo ___ All tests skipped
+endif
+.PHONY: test
+
+smoketest: version
+	@echo ___ Running smoketests ...
+	-@$(foreach script, $(PY_SCRIPTS), \
+		actualVersionString=`arc submit --local --interactive --no-inherit project/falcon/branch/fm8dot2main/rc altera_icm/0.4 -- $(script) --version 2>&1 | grep version`; \
+		expectedVersionString="$(notdir $(script)) version $(VERSION) (`cat last_p4_change.txt | cut -d ' ' -f1`-$(USERNAME))"; \
+		if [ "$$actualVersionString" != "$$expectedVersionString" ]; then \
+			echo "'$$actualVersionString' found in PATH is wrong; smoketests can't run correctly because the Makefile says '$$expectedVersionString' should be used."; \
+			exit 1; \
+		fi ; \
+	)
+.PHONY: smoketest
+
+unittest: version unittest_abnr unittest_syncpoint unittest_ipqc
+
+unittest_abnr:
+	@echo ___ Running abnr unittests ...
+	@rm -fr coverage_data/unittest
+	# Test must be run in an ARC shell because Perforce and ICManage don't play together
+	@arc submit --no-inherit --local --interactive project/falcon/branch/fm8dot2main/rc \
+		-- python run_tests.py unit_tests/abnr/test_*.py --with-coverage --cover-package=dmx.abnrlib --cover-package=dmx.plugins --cover-erase --cover-html \
+		--cover-html-dir=coverage_data/unittest --exe
+.PHONY: unittest_abnr
+
+unittest_syncpoint: version
+	@echo ___ Running syncpoint unittests ...
+	@rm -fr coverage_data/unittest
+	# Test must be run in an ARC shell because Perforce and ICManage don't play together
+	@arc submit --no-inherit --local --interactive project/falcon/branch/fm8dot2main/rc \
+		-- python run_tests.py unit_tests/syncpoint/test_*.py --with-coverage --cover-package=dmx.syncpointlib --cover-package=dmx.plugins --cover-erase --cover-html \
+		--cover-html-dir=coverage_data/unittest --exe
+.PHONY: unittest_syncpoint
+
+unittest_ipqc:
+	@echo ___ Running ipqc unittests ...
+	@rm -fr coverage_data/unittest
+	# Test must be run in an ARC shell because Perforce and ICManage don't play together
+	-@arc submit --no-inherit --local --interactive project/falcon/branch/fm8dot2main/rc \
+		-- python run_tests.py lib/python/dmx/ipqclib/unit_tests/test_*.py --with-coverage --cover-package=dmx.ipqclib --cover-erase --cover-html \
+		--cover-html-dir=coverage_data/unittest --exe
+.PHONY: unittest_ipqc
+
+unittest_minarc:
+	@echo ___ Running minarc unittests ...
+	@rm -fr coverage_data/unittest
+	# Test must be run in an ARC shell because Perforce and ICManage don't play together
+	-@arc submit --no-inherit --local --interactive project/falcon/branch/fm6dot2main/rc \
+		-- python run_tests.py lib/python/dmx/minarclib/unit_tests/test_*.py --with-coverage --cover-package=dmx.minarclib --exe
+.PHONY: unittest_minarc
+
+bamboo_regression: bamboo_unittest_regression bamboo_systemtest_regression
+
+bamboo_unittest_regression: 
+	#@$(BAMBOO_UNITTEST_REGRESSION)
+	echo "Skipping bamboo unittest regression ..."
+.PHONY: bamboo_unittest_regression
+
+bamboo_systemtest_regression:
+	#@$(BAMBOO_SYSTEMTEST_REGRESSION)
+	echo "Skipping bamboo systemtest_regression ..."
+.PHONY: bamboo_systemtest_regression
+
+# Don't run system tests in either dry run mode or when explicitly set to not run
+ifneq (,$(filter 1,$(DRY) $(SKIP_SYSTEM_TESTS)))
+systemtest:
+	@echo ___ System Tests skipped
+else
+systemtest: version systemtest_abnr systemtest_syncpoint system_tests_check system_tests_ipqc
+endif
+
+ifneq ($(TEST),)
+systemtest_abnr:
+	@echo ___ Running $(TEST) ...
+	# Test must be run in an ARC shell because Perforce and ICManage don't play together
+	@arc submit --no-inherit --local --interactive project/falcon/branch/fm8dot2main/rc $(ICM_TESTSERVER) \
+		-- python run_tests.py -v -x $(TEST)
+else
+systemtest_abnr:
+	@echo ___ Running abnr systemtests ...
+	@rm -fr coverage_data/systemtest
+	# Test must be run in an ARC shell because Perforce and ICManage don't play together
+	@arc submit --no-inherit --local --interactive project/falcon/branch/fm8dot2main/rc $(ICM_TESTSERVER) \
+		-- python run_tests.py system_tests/abnr/test_*.py --with-coverage --cover-package=dmx.abnrlib --cover-erase \
+		--cover-html --cover-html-dir=coverage_data/systemtest --exe
+endif
+.PHONY: systemtest_abnr
+
+systemtest_syncpoint:
+	@echo ___ Running syncpoint systemtests ...
+	@rm -fr coverage_data/systemtest
+	# Test must be run in an ARC shell because Perforce and ICManage don't play together
+	@arc submit --no-inherit --local --interactive project/falcon/branch/fm8dot2main/rc \
+		-- python run_tests.py system_tests/syncpoint/test_*.py --with-coverage --cover-package=dmx.syncpointlib --cover-erase \
+		--cover-html --cover-html-dir=coverage_data/systemtest --exe
+.PHONY: systemtest_syncpoint
+
+system_tests_check:
+	@echo ___ Running check systemtests ...
+	@rm -fr coverage_data/systemtest
+	# Test must be run in an ARC shell because Perforce and ICManage don't play together
+	@arc submit --no-inherit --local --interactive project/falcon/branch/fm8dot2main/rc \
+		-- python run_tests.py system_tests/check/test_*.py --with-coverage --cover-package=dmx.check --cover-erase \
+		--cover-html --cover-html-dir=coverage_data/systemtest --exe
+.PHONY: system_tests_check
+
+system_tests_ipqc:
+	@echo ___ Running IPQC systemtests ...
+	@rm -fr coverage_data/systemtest
+	# Test must be run in an ARC shell because Perforce and ICManage don't play together
+	@arc submit --no-inherit --local --interactive -- 'cd system_tests/ipqc; make ipqc_all'
+.PHONY: system_tests_ipqc
+
+
+
+
+integrationtest_before_deploy: version integrationtest_ecosphere_before_deploy integrationtest_dmx_before_deploy
+
+integrationtest_after_deploy: version integrationtest_ecosphere_after_deploy integrationtest_dmx_after_deploy
+
+integrationtest_ecosphere_before_deploy:
+	@echo ___ Running ecosphere integrationtests ...
+	@rm -fr coverage_data/integrationtests
+	@arc submit --no-inherit --local --interactive project/falcon/branch/fm6revbmain/rc dmxdata/main \
+		-- python run_tests.py integration_tests/ecosphere/test_*.py --exe
+.PHONY: integrationtest_ecosphere_before_deploy
+
+integrationtest_ecosphere_after_deploy:
+	@echo ___ Running ecosphere integrationtests ...
+	@rm -fr coverage_data/integrationtests
+	@arc submit --no-inherit --local --interactive project/falcon/branch/fm6revbmain/rc dmx/$(VERSION) dmxdata/main \
+		-- python run_tests.py integration_tests/ecosphere/test_*.py --exe
+.PHONY: integrationtest_ecosphere_after_deploy
+
+integrationtest_dmx_before_deploy:
+	@echo ___ Running dmx integrationtests ...
+	@rm -fr coverage_data/integrationtests
+	@arc submit --no-inherit --local --interactive project/falcon/branch/fm6revbmain/rc \
+		-- python run_tests.py integration_tests/dmx/test_*.py --exe
+.PHONY: integrationtest_dmx_before_deploy
+
+integrationtest_dmx_after_deploy:
+	@echo ___ Running dmx integrationtests ...
+	@rm -fr coverage_data/integrationtests
+	@arc submit --no-inherit --local --interactive project/falcon/branch/fm6revbmain/rc dmx/$(VERSION) \
+		-- python run_tests.py integration_tests/dmx/test_*.py --exe
+.PHONY: integrationtest_dmx_after_deploy
+
+armortest:
+	@echo ___ Testing the protect table on the development server
+	# Test must be run in an ARC shell because Perforce and IC Manage don't play together
+	@arc submit --no-inherit --local --interactive project/falcon/branch/fm8dot2main/rc ic_manage_gdp/testserver \
+		-- python run_tests.py --exe armor_tests/test_*.py
+.PHONY: armortest
+
+sync:
+	$(P4) sync ...
+
+clean:
+	@echo ___ Cleaning the working directory
+	@find . -name "*.pyc" | xargs rm -f
+	@find . -name "*.pyo" | xargs rm -f
+	@find . -name "*~" | xargs rm -f
+	@rm -f depot_last_p4_change.txt last_p4_change.txt
+	@make -C $(DOC_ROOT_DIR) clean
+.PHONY: clean
+
+tag:
+	@if ! [[ "$(VERSION)" == 0* ]] ; then \
+		echo ___ Tagging source code with version $(VERSION) ; \
+		$(P4) tag -l $(TOOLS_PROJECT)_Release_$(VERSION) ... ; \
+	fi;		
+.PHONY: tag
+
+version:
+	@echo ___ Setting versioning information
+	@# Note we are using p4q, not $$(P4), which should be fine
+	@$(P4) changes -m1 ...@`$(P4Q) myclient` | awk '{ print $$2" "$$4 }' > last_p4_change.txt
+	@if [ `cat last_p4_change.txt | wc -c` = 0 ] ; then \
+		echo "Error determining latest p4 change in workspace: p4 problem?"; \
+		exit 1; \
+	fi ;
+	@echo "	   Latest P4 changelist in this workspace: `cat last_p4_change.txt`"
+	@$(P4) changes -m1 ... | awk '{ print $$2" "$$4 }' > depot_last_p4_change.txt
+	@if [ `cat depot_last_p4_change.txt | wc -c` = 0 ] ; then \
+		echo "Error determining latest p4 change in depot: p4 problem?"; \
+		exit 1; \
+	fi ;
+	@echo "	   Latest P4 changelist in Perforce: `cat depot_last_p4_change.txt`"
+	@echo ___ Comparing changelist numbers ...
+	@echo "	   NOTE: If there is an error & a diff below, it means you didn't"
+	@echo "	   sync to #head before deploying."
+	@diff depot_last_p4_change.txt last_p4_change.txt
+.PHONY: version
+
+branch:
+	python ./branch_$(TOOLS_PROJECT).py $(VERSION)
+.PHONY: branch
+
+
+integ_in:
+	p4integ -b $(TOOLS_PROJECT)-rel-$(VERSION)
+.PHONY: integ_in
+
+
+integ_out:
+	p4integ -r -b $(TOOLS_PROJECT)-rel-$(VERSION)
+.PHONY: integ_out
+
+send_email:
+	$(EMAIL_ANNOUNCEMENT)
+	
+
+deploy_dmx_setting_files:
+	cd ./dmx_setting_files && ./test_unittests.py -v
+	wash -n $(GROUPS) -c 'slink --category flows/common --toolname $(TOOLS_PROJECT) --sandbox dmx_setting_files --name dsf'
+	echo -e $(ANSWER) > answer.txt
+	wash -n $(GROUPS) -c 'sinstall --category flows/common --toolname $(TOOLS_PROJECT) --ver dmx_setting_files --name dsf --override < answer.txt'
+	rm answer.txt
+
+
+### Usage Example: make fb_request VER=9.5 FBTAG=FM8@WW05@all@all
+FBDESC :=
+FBTAG := FM8@WW05@all@all
+fb_request:
+	sinstall --category  flows/common --toolname $(TOOLS_PROJECT) --version $(VER) --fbrn https://wiki.ith.intel.com/display/tdmaInfra/DMX+Release+Notes --fbtag $(FBTAG) --arcres $(TOOLS_PROJECT)/$(VER) --fbonly --fbdesc $(VER)
+
+fb_request_help:
+	$(MAKE) fb_request FBTAG=xxx@WW11@all@all VER=main
+
+
+deploy_crt:
+	$(CRT) install -tool dmx -updatelink $(CRTVERSION)
+
+crt_latestdev:
+	$(CRT) link -tool dmx -linkname latestdev -linkto $(CRTVERSION) -force
+
+crt_current:
+	$(CRT) link -tool dmx -linkname current_gdpxl_py23_cth -linkto $(CRTVERSION) -force
+
+
+
+### Validate CLOSE DATA (json)
+PROJECTS := Nadder Falcon Crete3
+CLOSEDATA := template.json milestones.json products.json checkers.json deliverables_by_ip_type.json
+CLOSEDATAFILES := $(foreach prj, $(PROJECTS), $(foreach file, $(CLOSEDATA), ./data/$(prj)/$(file)))
+
+validate_close_data: $(CLOSEDATAFILES)
+
+$(CLOSEDATAFILES):
+	./data_schema/json_schema_validate.py   $@   ./data_schema/$(notdir $@)
+
+.PHONY: validate_close_data $(CLOSEDATAFILES)
+
+
+help:
+	@echo "================================"
+	@echo "            HELP   "
+	@echo "================================"
+	@echo "$(MAKE) deploy_dmx_setting_files"
+	@echo "$(MAKE) fb_request_help"
+	@echo "$(MAKE) fb_request -n FBTAG=fp8@ww17@all@all VER=13.7"
+	@echo "--------------------------------"
+	@echo "# Deploy with updated code documentation. (modify 'version' file before running)"
+	@echo "$(MAKE) deploy"
+	@echo
+	@echo "# Deploy without updated code documentation. (modify 'version' file before running)"
+	@echo "$(MAKE) deploy_pice"
+	@echo
+	@echo "# create 'latestdev_gdpxl_py23' symlink"
+	@echo "$(MAKE) latestdev VER=13.10"
+	@echo
+	@echo "# create 'current_gdpxl_py23' symlink"
+	@echo "$(MAKE) link_pice VER=13.10"
+	@echo
+	@echo
+	@echo "------------------------------------------------------"
+	@echo "This section is meant for CRT deployment."
+	@echo "------------------------------------------------------"
+	@echo "### Deploy"
+	@echo "1. p4 integrate main/... REL/14.4/..."
+	@echo "2. cd REL/14.4 && modify [TOOLVERSION]->dmx in file tool.cth to 14.4"
+	@echo "3. cd REL/14.4 && run '$(MAKE) deploy_crt'"
+	@echo
+	@echo "### To create latestdev_gdpxl_py23_cth symlink"
+	@echo "$(MAKE) crt_latestdev"
+	@echo
+	@echo "### To create current_gdpxl_py23_cth symlink"
+	@echo "$(MAKE) crt_current VER=14.4"
+	@echo
+
+	@echo "================================"
+.PHONY: help

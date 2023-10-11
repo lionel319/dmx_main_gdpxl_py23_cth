@@ -1,0 +1,48 @@
+<?xml version="1.0" ?>
+<!-- File dm/deliverables_test/exampleManifestSetDataCheck.xml, unit tested
+     in dm.Vp_test.test_exampleManifestSetDataCheckXML().
+
+     Do not modify this file in order to test functionality because it is
+     specifically for use in the vp.py documentation.
+-->
+<templateset>
+	
+    <template caseid="100" id="EXAMPLE1">
+        <description>
+          Deliverable used in the data check example using unittest. 
+        </description>
+        <pattern id="file">
+            testip1/icc/EXAMPLE1.txt
+        </pattern>
+    </template>
+	
+    <template caseid="101" id="EXAMPLE2">
+        <description>
+          Deliverable used in the data check example using a check
+          contained in an external script. 
+        </description>
+    	<pattern id="file">testip1/icc/EXAMPLE2.txt</pattern>
+    </template>
+
+    <template caseid="84746" id="VPOUT">
+        <description>
+          Verification Platform (VP) results.
+        </description>
+    	<pattern id="report">
+    		&ip_name;/vpout/PerformedChecksReport.txt
+    	</pattern>
+    	<pattern id="xunit">
+    		&ip_name;/vpout/&cell_name;/&deliverable_name;.xunit.xml
+    	</pattern>
+    </template>
+
+    <successor id="EXAMPLE2">
+        <predecessor>EXAMPLE1</predecessor>
+    </successor>
+	
+    <alias id="ALL">
+      <member>EXAMPLE1</member>
+      <member>EXAMPLE2</member>
+    </alias>
+
+</templateset>

@@ -1,0 +1,19 @@
+#!/bin/bash
+
+SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
+SCRIPT=${SCRIPTPATH}/cleanup.py
+
+EXITVAL=0
+
+python "${SCRIPT}" remove-unused -p /ice_rel/readonly/
+EXITVAL=`expr $? + ${EXITVAL}`
+
+python "${SCRIPT}" remove-workspace-wo-dir
+EXITVAL=`expr $? + ${EXITVAL}`
+
+if [ $EXITVAL != 0 ]
+then
+cat ${ARC_JOB_STORAGE}/stdout.txt  ${ARC_JOB_STORAGE}/stderr.txt | mail -s "altera_sion unused dir cleanup errors" kwlim@altera.com
+fi
+
+exit

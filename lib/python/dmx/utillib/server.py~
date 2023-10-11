@@ -1,0 +1,185 @@
+#!/usr/bin/env python
+'''
+$Header: //depot/da/infra/dmx/main_gdpxl_py23_cth/lib/python/dmx/utillib/server.py#1 $
+$Change: 7411538 $
+$DateTime: 2022/12/13 18:19:49 $
+$Author: lionelta $
+
+Description: Class to instantiate connection to servers
+
+Author: Kevin Lim Khai - Wern
+
+Copyright (c) Altera Corporation 2016
+All rights reserved.
+'''
+
+import os
+import logging
+import sys
+import time
+import json
+from dmx.utillib.utils import run_command, is_pice_env, get_dmx_setting_files_dir
+from dmx.errorlib.exceptions import *
+
+SERVERS=[
+    'sj-ice-cron',
+    'sj-ice-cron2',
+    'sj-da-cron'
+]
+PICE_SERVERS_PRE = {}
+PICE_SERVERS_POST = {}
+PICE_SERVERS_PRE['sc']   = ['sjcron02.sc.intel.com']
+PICE_SERVERS_POST['sc']  = ['sjodc01.sc.intel.com']
+#PICE_SERVERS_PRE['png']  = ['ppgdacron01.png.intel.com']
+PICE_SERVERS_PRE['png']  = ['ppgcron02.png.intel.com']
+PICE_SERVERS_POST['png'] = ['ppgdacron01.png.intel.com']
+
+PICE_SERVERS_PRE['sc'] = []
+PICE_SERVERS_POST['sc'] = ['scypsgrsyncron01.sc.intel.com', 'sjcron02.sc.intel.com', 'sjdacron03.sc.intel.com']
+PICE_SERVERS_PRE['png'] = []
+PICE_SERVERS_POST['png'] = ['ppgcron02.png.intel.com', 'ppgcron03.png.intel.com', 'ppgrsync02.png.intel.com']
+
+### make dmx server agnostic to dmx versions. 
+### https://jira.devtools.intel.com/browse/PSGDMX-3223
+setfiledir = get_dmx_setting_files_dir()
+server_cfgfile = os.path.join(setfiledir, 'servers.json')
+serverdata = json.load(open(server_cfgfile))
+PICE_SERVERS_PRE['sc'] = []
+PICE_SERVERS_PRE['zsc7'] = []
+PICE_SERVERS_PRE['png'] = []
+PICE_SERVERS_POST['sc'] = serverdata['sc']
+PICE_SERVERS_POST['zsc7'] = serverdata['zsc7']
+PICE_SERVERS_POST['png'] = serverdata['png']
+
+
+if is_pice_env():
+    ARC_PATH = '/p/psg/ctools/arc/bin/arc'
+else:
+    ARC_PATH = '/tools/arc/bin/arc'
+    
+class ServerError(Exception): pass
+
+class Server(object):
+
+    RETRY = 5
+    WAITTIME = 10
+
+    def __init__(self, site='sc', include_predefined_servers=True, tnrssh=False):
+        self.server = None
+        self.logger = logging.getLogger(__name__)
+        if tnrssh:
+            self.ssh = '/p/psg/da/infra/admin/setuid/tnr_ssh'
+        else:
+            self.ssh = 'ssh'
+        
+        servers = self.get_list_of_servers(site=site, include_predefined_servers=include_predefined_servers) if is_pice_env() else SERVERS
+
+        retried = 0
+        while True:
+            for server in servers:
+                if self.is_server_available(server):
+                    self.logger.debug('{} is available'.format(server))
+                    self.server = server
+                    break
+                else:
+                    self.logger.debug('{} is not available.'.format(server))
+
+            if self.server or retried >= self.RETRY:
+                break
+            else:
+                retried += 1
+                self.logger.info("Can't find alive servers from serverlist:{}. Trying again {} time out of {} ...".format(servers, retried, self.RETRY))
+                time.sleep(self.WAITTIME)
+
+        if not self.server:
+            raise DmxErrorCFHS01('Could not find available server. Please re-run command with --debug option and contact psgicmsupport@intel.com')
+
+    def get_list_of_sc_servers(self):
+        '''
+        This code has been refactored to get_list_of_servers() to support multi-site 
+            https://jira.devtools.intel.com/browse/PSGDMX-1653
+        This method was kept to retain backward compatibility.
+        '''
+        return self.get_list_of_servers(site='sc')
+
+
+    def get_list_of_servers(self, site='sc', include_predefined_servers=True):
+        if include_predefined_servers:
+            servers = PICE_SERVERS_PRE[site] + PICE_SERVERS_POST[site]
+        if os.getenv("EC_SITE",'') == site:
+            servers = ['localhost'] + servers
+        self.logger.debug("Server List: {}".format(servers))
+        return servers
+
+
+    def get_list_of_servers___old(self, site='sc', include_predefined_servers=True):
+        '''
+        DEPRECATED.
+        Ever since sjodc01 is deprecated, we need a new way to find a 'site' serverlist.
+        Please refer to get_list_of_servers()
+        ==================================================
+        Supported site (sc/png)
+        if include_pre_post_servers=True, a list of predefined servers will be added into the return list of servers.
+        '''
+        # https://jira01.devtools.intel.com/browse/PSGDMX-1446 
+        # Use /p/psg/da/infra/admin/scripts/pice_vnc/user_util instead of arc resource-list
+        # https://jira01.devtools.intel.com/browse/PSGDMX-1446 
+        command = '/p/psg/da/infra/admin/scripts/pice_vnc/user_util --status ' + site + ' | grep suse | grep OPEN | awk \'{print $4}\''
+        exitcode, stdout, stderr = run_command(command)
+        if exitcode:
+            self.logger.error(stderr)
+            raise DmxErrorCFHS02('\"{}\" is unsuccessful'.format(command))
+        servers = stdout.splitlines()
+        # Insert PICE_SERVERS first and append the list of servers after
+        # Always use PICE_SERVERS as the main servers unless they are not available
+        #servers = PICE_SERVERS_PRE + ['{}.sc.intel.com'.format(x) for x in stdout.splitlines() if x] + PICE_SERVERS_POST
+        if include_predefined_servers:
+            servers = PICE_SERVERS_PRE[site] + ['{}'.format(x) for x in stdout.splitlines() if x] + PICE_SERVERS_POST[site]
+        self.logger.debug("Server List: {}".format(servers))
+
+        return servers
+
+
+    def is_server_available(self, server):
+        '''
+        Return True if server is available 
+        * Server must be pingable
+        * Server must be able to run arc
+        '''
+        return self.is_server_alive(server) and self.is_arc_available(server)
+
+    def is_server_alive(self, server):
+        '''
+        Return True is server is pingable
+        '''
+        ret = True
+        command = 'ping -c 1 {}'.format(server)
+        exitcode, stdout, stderr = run_command(command, timeout=20)
+        if exitcode or exitcode == None:
+            ret = False                                    
+            self.logger.debug('\"{}\" is unsuccessful'.format(command))
+                    
+        return ret
+        
+    def is_arc_available(self, server):
+        '''
+        Return True is ARC is present in the server 
+        '''
+        ret = True
+        command = '{} -q {} \'ls {}\''.format(self.ssh, server, ARC_PATH)
+        exitcode, stdout, stderr = run_command(command, timeout=20)
+        if exitcode or exitcode == None:
+            ret = False
+            self.logger.debug('\"{}\" is unsuccessful'.format(command))
+
+        return ret            
+
+    def get_working_server(self):
+        '''
+        Return available server 
+        '''
+        if not self.server:
+            raise DmxErrorCFHS01('All servers are down. Please contact psgicmsupport@intel.com for more support.')
+        return self.server        
+        
+    
